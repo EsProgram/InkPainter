@@ -37,6 +37,18 @@ namespace TexturePaint
 
 		#endregion ShaderPropertyID
 
+		#region ShaderKeywords
+
+		private const string COLOR_BLEND_USE_CONTROL = "TEXTURE_PAINT_COLOR_BLEND_USE_CONTROL";
+		private const string COLOR_BLEND_USE_BLUSH = "TEXTURE_PAINT_COLOR_BLEND_USE_BLUSH";
+		private const string COLOR_BLEND_NEUTRAL = "TEXTURE_PAINT_COLOR_BLEND_NEUTRAL";
+
+		private const string BUMP_BLEND_USE_BLUSH = "TEXTURE_PAINT_BUMP_BLEND_USE_BLUSH";
+		private const string BUMP_BLEND_MIN = "TEXTURE_PAINT_BUMP_BLEND_MIN";
+		private const string BUMP_BLEND_MAX = "TEXTURE_PAINT_BUMP_BLEND_MAX";
+
+		#endregion ShaderKeywords
+
 		/// <summary>
 		/// 最初にマテリアルにセットされているメインテクスチャ
 		/// </summary>
@@ -80,31 +92,6 @@ namespace TexturePaint
 			ReleaseRenderTexture();
 		}
 
-#if UNITY_EDITOR && DEBUG_DYNAMIC_TEXTURE_PAINT
-		public void OnGUI()
-		{
-			GUILayout.Label("Main Shader: " + paintMaterial.shader.name);
-			GUILayout.Label("Bump Shader: " + paintBumpMaterial.shader.name);
-			GUILayout.Label("Blush Main: " + (blush != null).ToString());
-			GUILayout.Label("Blush Bump: " + (blushBump != null).ToString());
-			GUILayout.Label("Support Main: " + paintMaterial.shader.isSupported);
-			GUILayout.Label("Support Bump: " + paintBumpMaterial.shader.isSupported);
-			GUILayout.Label("RenderTexture Main: " + (paintTexture != null).ToString());
-			GUILayout.Label("RenderTexture Bump: " + (paintBumpTexture != null).ToString());
-			GUILayout.Label("Main Texture ID:" + mainTexturePropertyID);
-			GUILayout.Label("Bump Texture ID:" + bumpTexturePropertyID);
-			//why is null ????
-			//GUILayout.Label("Get Main Texture:" + (paintMaterial.GetTexture(mainTexturePropertyID) != null));
-			//GUILayout.Label("Get Bump Texture:" + (paintMaterial.GetTexture(bumpTexturePropertyID) != null));
-			GUILayout.Label("Paint UV ID:" + paintUVPropertyID);
-			GUILayout.Label("Blush Main Texture ID:" + blushTexturePropertyID);
-			GUILayout.Label("Blush Bump Texture ID:" + blushBumpTexturePropertyID);
-			GUILayout.Label("Blush Scale ID:" + blushScalePropertyID);
-			GUILayout.Label("Blush Color ID:" + blushColorPropertyID);
-			GUILayout.Label("Blush Bump Blend ID::" + blushBumpBlendPropertyID);
-		}
-#endif
-
 		#endregion UnityEventMethod
 
 		/// <summary>
@@ -118,7 +105,7 @@ namespace TexturePaint
 			paintUVPropertyID = Shader.PropertyToID("_PaintUV");
 			blushTexturePropertyID = Shader.PropertyToID("_Blush");
 			blushScalePropertyID = Shader.PropertyToID("_BlushScale");
-			blushColorPropertyID = Shader.PropertyToID("_BlushColor");
+			blushColorPropertyID = Shader.PropertyToID("_ControlColor");
 			blushBumpTexturePropertyID = Shader.PropertyToID("_BlushBump");
 			blushBumpBlendPropertyID = Shader.PropertyToID("_BumpBlend");
 		}
@@ -175,6 +162,109 @@ namespace TexturePaint
 		}
 
 		/// <summary>
+		/// ペイントに必要なデータをシェーダーにセットする
+		/// </summary>
+		/// <param name="blush">ブラシ</param>
+		/// <param name="uv">ヒット位置のUV座標</param>
+		private void SetPaintData(PaintBlush blush, Vector2 uv)
+		{
+			paintMaterial.SetVector(paintUVPropertyID, uv);
+			paintMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
+			paintMaterial.SetFloat(blushScalePropertyID, blush.Scale);
+			paintMaterial.SetVector(blushColorPropertyID, blush.Color);
+
+			foreach(var key in paintMaterial.shaderKeywords)
+				paintMaterial.DisableKeyword(key);
+			switch(blush.ColorBlending)
+			{
+				case PaintBlush.ColorBlendType.UseColor:
+					paintMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
+					break;
+
+				case PaintBlush.ColorBlendType.UseBlush:
+					paintMaterial.EnableKeyword(COLOR_BLEND_USE_BLUSH);
+					break;
+
+				case PaintBlush.ColorBlendType.Neutral:
+					paintMaterial.EnableKeyword(COLOR_BLEND_NEUTRAL);
+					break;
+
+				default:
+					paintMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
+					break;
+			}
+		}
+
+		/// <summary>
+		/// バンプマップペイントに必要なデータをシェーダーにセットする
+		/// </summary>
+		/// <param name="blush">ブラシ</param>
+		/// <param name="uv">ヒット位置のUV座標</param>
+		private void SetPaintBumpData(PaintBlush blush, Vector2 uv)
+		{
+			paintBumpMaterial.SetVector(paintUVPropertyID, uv);
+			paintBumpMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
+			paintBumpMaterial.SetTexture(blushBumpTexturePropertyID, blush.BlushBumpTexture);
+			paintBumpMaterial.SetFloat(blushScalePropertyID, blush.Scale);
+			paintBumpMaterial.SetFloat(blushBumpBlendPropertyID, blush.BumpBlend);
+
+			foreach(var key in paintBumpMaterial.shaderKeywords)
+				paintBumpMaterial.DisableKeyword(key);
+			switch(blush.BumpBlending)
+			{
+				case PaintBlush.BumpBlendType.UseBlush:
+					paintBumpMaterial.EnableKeyword(BUMP_BLEND_USE_BLUSH);
+					break;
+
+				case PaintBlush.BumpBlendType.Min:
+					paintBumpMaterial.EnableKeyword(BUMP_BLEND_MIN);
+					break;
+
+				case PaintBlush.BumpBlendType.Max:
+					paintBumpMaterial.EnableKeyword(BUMP_BLEND_MAX);
+					break;
+
+				default:
+					paintBumpMaterial.EnableKeyword(BUMP_BLEND_USE_BLUSH);
+					break;
+			}
+		}
+
+		/// <summary>
+		/// ペイント処理
+		/// </summary>
+		/// <param name="blush">ブラシ</param>
+		/// <param name="uv">ヒット位置のUV座標</param>
+		/// <returns>ペイントの成否</returns>
+		private bool Paint(PaintBlush blush, Vector2 uv)
+		{
+			RenderTexture buf = RenderTexture.GetTemporary(paintTexture.width, paintTexture.height);
+			if(buf == null)
+			{
+				Debug.LogError("テンポラリテクスチャの生成に失敗しました");
+				return false;
+			}
+			//メインテクスチャへのペイント
+			if(blush.BlushTexture != null && paintTexture != null && paintTexture.IsCreated())
+			{
+				SetPaintData(blush, uv);
+				Graphics.Blit(paintTexture, buf, paintMaterial);
+				Graphics.Blit(buf, paintTexture);
+			}
+
+			//バンプマップへのペイント
+			if(blush.BlushBumpTexture != null && paintBumpTexture != null && paintBumpTexture.IsCreated())
+			{
+				SetPaintBumpData(blush, uv);
+
+				Graphics.Blit(paintBumpTexture, buf, paintBumpMaterial);
+				Graphics.Blit(buf, paintBumpTexture);
+			}
+			RenderTexture.ReleaseTemporary(buf);
+			return true;
+		}
+
+		/// <summary>
 		/// ペイント処理
 		/// </summary>
 		/// <param name="hitInfo">RaycastのHit情報</param>
@@ -185,15 +275,9 @@ namespace TexturePaint
 			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
 			{
 				var uv = hitInfo.textureCoord;
-				RenderTexture buf = RenderTexture.GetTemporary(paintTexture.width, paintTexture.height);
 
 				#region ErrorCheck
 
-				if(buf == null)
-				{
-					Debug.LogError("テンポラリテクスチャの生成に失敗しました");
-					return false;
-				}
 				if(blush == null)
 				{
 					Debug.LogError("ブラシが設定されていません");
@@ -202,31 +286,7 @@ namespace TexturePaint
 
 				#endregion ErrorCheck
 
-				//メインテクスチャへのペイント
-				if(blush.BlushTexture != null && paintTexture != null && paintTexture.IsCreated())
-				{
-					paintMaterial.SetVector(paintUVPropertyID, uv);
-					paintMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
-					paintMaterial.SetFloat(blushScalePropertyID, blush.Scale);
-					paintMaterial.SetVector(blushColorPropertyID, blush.Color);
-					Graphics.Blit(paintTexture, buf, paintMaterial);
-					Graphics.Blit(buf, paintTexture);
-				}
-
-				//バンプマップへのペイント
-				if(blush.BlushBumpTexture != null && paintBumpTexture != null && paintBumpTexture.IsCreated())
-				{
-					paintBumpMaterial.SetVector(paintUVPropertyID, uv);
-					paintBumpMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
-					paintBumpMaterial.SetTexture(blushBumpTexturePropertyID, blush.BlushBumpTexture);
-					paintBumpMaterial.SetFloat(blushScalePropertyID, blush.Scale);
-					paintBumpMaterial.SetFloat(blushBumpBlendPropertyID, blush.BumpBlend);
-					Graphics.Blit(paintBumpTexture, buf, paintBumpMaterial);
-					Graphics.Blit(buf, paintBumpTexture);
-				}
-
-				RenderTexture.ReleaseTemporary(buf);
-				return true;
+				return Paint(blush, uv);
 			}
 			return false;
 		}

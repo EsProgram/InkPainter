@@ -12,11 +12,15 @@
 		_PaintUV("Hit UV Position", VECTOR) = (0,0,0,0)
 		[HideInInspector]
 		_BumpBlend("BumpBlend", FLOAT) = 1
+		[HideInInspector]
+		[KeywordEnum(USE_BLUSH, MIN, MAX)]
+		TEXTURE_PAINT_BUMP_BLEND("Bump Blend Keyword", FLOAT) = 0
 	}
 
 	SubShader{
-
 		CGINCLUDE
+
+#include "Assets/TexturePaint/Shader/Lib/TexturePaintFoundation.cginc"
 
 			struct app_data {
 				float4 vertex:POSITION;
@@ -38,6 +42,7 @@
 
 		Pass{
 			CGPROGRAM
+#pragma multi_compile TEXTURE_PAINT_BUMP_BLEND_USE_BLUSH TEXTURE_PAINT_BUMP_BLEND_MIN TEXTURE_PAINT_BUMP_BLEND_MAX
 #pragma vertex vert
 #pragma fragment frag
 
@@ -48,31 +53,21 @@
 				return o;
 			}
 
-
 			float4 frag(v2f i) : SV_TARGET {
 				float h = _BlushScale;
+				float4 base = tex2D(_MainTex, i.uv);
 
-			float4 base = tex2D(_MainTex, i.uv);
+				if (IsPaintRange(i.uv, _PaintUV, h)) {
+					float2 uv = CalcBlushUV(i.uv, _PaintUV, h);
+					float4 blushColor = tex2D(_Blush, uv);
 
-				if (_PaintUV.x - h < i.uv.x && i.uv.x < _PaintUV.x + h &&
-						_PaintUV.y - h < i.uv.y && i.uv.y < _PaintUV.y + h) {
-
-							float2 uv = (_PaintUV.xy - i.uv) / h * 0.5 + 0.5;
-							float dx = _ScreenParams.z * _BlushScale * 0.1;
-							float dy = _ScreenParams.w * _BlushScale * 0.1;
-
-							float4 blushCol = tex2D(_Blush, uv) +
-								tex2D(_Blush, uv + float2(dx, dy)) +
-								tex2D(_Blush, uv + float2(-dx, dy)) +
-								tex2D(_Blush, uv + float2(dx, -dy)) +
-								tex2D(_Blush, uv + float2(-dx, -dy)) * 0.2;
-
-
-							if (blushCol.a - 1 >= 0) {//透過部分は描画しない
-								float4 bump = tex2D(_BlushBump, (_PaintUV.xy - i.uv) / h * 0.5 + 0.5);
-								return normalize(lerp(base, bump, _BumpBlend));
-							}
+					if (blushColor.a > 0) {//透過部分は描画しない
+						float2 bumpUV = CalcBlushUV(i.uv, _PaintUV, h);
+						float4 bump = tex2D(_BlushBump, bumpUV);
+						return TEXTURE_PAINT_BUMP_BLEND(base, bump, _BumpBlend, blushColor.a);
+					}
 				}
+
 
 				return base;
 			}
