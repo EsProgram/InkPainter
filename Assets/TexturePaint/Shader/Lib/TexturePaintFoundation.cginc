@@ -27,7 +27,7 @@ float2 CalcBlushUV(float2 mainUV, float2 paintUV, float blushScale) {
 #endif
 
 float4 ColorBlend(float4 targetColor, float4 mainColor, float blend) {
-	return mainColor * (1 - blend) + targetColor * blend;
+	return mainColor * (1 - blend * targetColor.a) + targetColor * targetColor.a * blend;
 }
 
 #define __COLOR_BLEND(targetColor) ColorBlend((targetColor), mainColor, blushColor.a)
@@ -44,7 +44,7 @@ float4 TexturePaintColorBlendUseBlush(float4 mainColor, float4 blushColor, float
 
 //ブレンド後の色を取得(指定色とブラシテクスチャ色の中間色)
 float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 blushColor, float4 controlColor) {
-	return __COLOR_BLEND((blushColor + controlColor) * 0.5);
+	return __COLOR_BLEND((blushColor + controlColor * controlColor.a) * 0.5);
 }
 
 //バンプマップとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_BUMP_BLENDに設定
