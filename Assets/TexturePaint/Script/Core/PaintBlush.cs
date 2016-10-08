@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TexturePaint
+namespace Es.TexturePaint
 {
 	/// <summary>
 	/// テクスチャペイントのブラシ情報を管理するクラス

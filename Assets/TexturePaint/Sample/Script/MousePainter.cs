@@ -1,5 +1,4 @@
-﻿using TexturePaint;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Es.TexturePaint.Sample
 {
@@ -18,7 +17,7 @@ namespace Es.TexturePaint.Sample
 				{
 					var paintObject = hitInfo.transform.GetComponent<DynamicCanvas>();
 					if(paintObject != null)
-						paintObject.Paint(hitInfo, blush);
+						paintObject.Paint(blush, hitInfo.point);
 				}
 			}
 		}

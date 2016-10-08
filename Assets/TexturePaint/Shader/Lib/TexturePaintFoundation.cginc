@@ -59,7 +59,7 @@ float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 blushColor, float4
 #endif
 
 float4 BumpBlend(float4 targetBump,float4 mainBump, float blend, float blushAlpha) {
-	return normalize(lerp(mainBump, targetBump * blushAlpha, blend));
+	return normalize(lerp(mainBump, targetBump * blushAlpha, blend * blushAlpha));
 }
 
 #define __BUMP_BLEND(targetBump) BumpBlend((targetBump), mainBump, blend, blushAlpha)

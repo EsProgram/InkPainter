@@ -1,13 +1,17 @@
-﻿using System.Linq;
+﻿using Es.Utility;
+using System.Linq;
 using UnityEngine;
 
-namespace TexturePaint
+namespace Es.TexturePaint
 {
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(MeshCollider))]
+	[RequireComponent(typeof(MeshFilter))]
 	[DisallowMultipleComponent]
 	public class DynamicCanvas : MonoBehaviour
 	{
+		private const int DEFAULT_TEXTURE_SIZE = 256;
+
 		#region SerializedProperties
 
 		[SerializeField, Tooltip("メインテクスチャのプロパティ名")]
@@ -71,6 +75,12 @@ namespace TexturePaint
 
 		private Material material;
 
+		private MeshFilter meshFilter;
+		private Mesh mesh;
+		private int[] meshTriangles;
+		private Vector3[] meshVertices;
+		private Vector2[] meshUV;
+
 		#region UnityEventMethod
 
 		public void Awake()
@@ -84,6 +94,12 @@ namespace TexturePaint
 			bumpTexture = material.GetTexture(bumpTexturePropertyID);
 
 			SetRenderTexture();
+
+			meshFilter = GetComponent<MeshFilter>();
+			mesh = meshFilter.sharedMesh;
+			meshTriangles = mesh.triangles;
+			meshVertices = mesh.vertices;
+			meshUV = mesh.uv;
 		}
 
 		public void OnDestroy()
@@ -119,7 +135,7 @@ namespace TexturePaint
 			var colliders = GetComponents<Collider>();
 			if(colliders.Length != 1 || !(colliders.First() is MeshCollider))
 			{
-				Debug.LogWarning("ColloderはMeshColliderのみが設定されている必要があります");
+				Debug.LogWarning("ColliderはMeshColliderのみが設定されている必要があります");
 				Destroy(this);
 			}
 		}
@@ -131,7 +147,7 @@ namespace TexturePaint
 		{
 			//MainTextureが設定されていない場合は白テクスチャ
 			if(mainTexture == null)
-				mainTexture = new Texture2D(1024, 1024, TextureFormat.RGBA32, false);
+				mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
 			//DynamicPaint用RenderTextureの生成
 			paintTexture = new RenderTexture(mainTexture.width, mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 			//メインテクスチャのコピー
@@ -139,6 +155,7 @@ namespace TexturePaint
 			//マテリアルのテクスチャをRenderTextureに変更
 			material.SetTexture(mainTexturePropertyID, paintTexture);
 
+			//BumpTextureが設定されている場合
 			if(bumpTexture != null)
 			{
 				//法線マップテクスチャの生成
@@ -231,17 +248,17 @@ namespace TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント処理
+		/// ペイント処理(UVを直接指定して書き込み)
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
 		/// <returns>ペイントの成否</returns>
-		private bool Paint(PaintBlush blush, Vector2 uv)
+		public bool PaintUVDirect(PaintBlush blush, Vector2 uv)
 		{
 			RenderTexture buf = RenderTexture.GetTemporary(paintTexture.width, paintTexture.height);
 			if(buf == null)
 			{
-				Debug.LogError("テンポラリテクスチャの生成に失敗しました");
+				Debug.LogError("RenderTextureの生成に失敗しました");
 				return false;
 			}
 			//メインテクスチャへのペイント
@@ -267,10 +284,56 @@ namespace TexturePaint
 		/// <summary>
 		/// ペイント処理
 		/// </summary>
-		/// <param name="hitInfo">RaycastのHit情報</param>
 		/// <param name="blush">ブラシ</param>
+		/// <param name="worldPos">キャンバス上の塗る店(World-Space)</param>
+		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
+		/// <returns>ペイント成否</returns>
+		public bool Paint(PaintBlush blush, Vector3 worldPos, Camera renderCamera = null)
+		{
+			if(renderCamera == null)
+				renderCamera = Camera.main;
+
+			int index0;
+			int index1;
+			int index2;
+			Vector3 t1;
+			Vector3 t2;
+			Vector3 t3;
+			Vector3 p = transform.InverseTransformPoint(worldPos);
+
+			for(var i = 0; i < meshTriangles.Length; i += 3)
+			{
+				index0 = i + 0;
+				index1 = i + 1;
+				index2 = i + 2;
+
+				t1 = meshVertices[meshTriangles[index0]];
+				t2 = meshVertices[meshTriangles[index1]];
+				t3 = meshVertices[meshTriangles[index2]];
+
+				if(!Math.ExistInPlane(p, t1, t2, t3))
+					continue;
+				if(!Math.ExistInTriangle(p, t1, t2, t3))
+					continue;
+
+				var uv1 = meshUV[meshTriangles[index0]];
+				var uv2 = meshUV[meshTriangles[index1]];
+				var uv3 = meshUV[meshTriangles[index2]];
+				Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
+				var uv = Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
+
+				return PaintUVDirect(blush, uv);
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// ペイント処理
+		/// </summary>
+		/// <param name="blush">ブラシ</param>
+		/// <param name="hitInfo">RaycastのHit情報</param>
 		/// <returns>ペイントの成否</returns>
-		public bool Paint(RaycastHit hitInfo, PaintBlush blush)
+		public bool Paint(PaintBlush blush, RaycastHit hitInfo)
 		{
 			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
 			{
@@ -286,7 +349,7 @@ namespace TexturePaint
 
 				#endregion ErrorCheck
 
-				return Paint(blush, uv);
+				return PaintUVDirect(blush, uv);
 			}
 			return false;
 		}
