@@ -15,7 +15,7 @@ namespace Es.Utility
 		/// <param name="t2">三角形をなす頂点</param>
 		/// <param name="t3">三角形をなす頂点</param>
 		/// <returns>点pが三角形平面上に存在するかどうか</returns>
-		public static bool ExistInPlane(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
+		public static bool ExistPointInPlane(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			var v1 = t2 - t1;
 			var v2 = t3 - t1;
@@ -64,7 +64,7 @@ namespace Es.Utility
 		/// <param name="t2">三角形をなす頂点</param>
 		/// <param name="t3">三角形をなす頂点</param>
 		/// <returns>点pが三角形内部に存在するかどうか</returns>
-		public static bool ExistInTriangle(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
+		public static bool ExistPointInTriangle(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			var a = Vector3.Cross(t1 - t3, p - t1).normalized;
 			var b = Vector3.Cross(t2 - t1, p - t2).normalized;

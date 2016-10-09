@@ -319,10 +319,10 @@ namespace Es.TexturePaint
 				t3 = meshVertices[meshTriangles[index2]];
 
 				//平面上に存在しない
-				if(!Math.ExistInPlane(p, t1, t2, t3))
+				if(!Math.ExistPointInPlane(p, t1, t2, t3))
 					continue;
 				//三角形の辺または内部に存在しない
-				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistInTriangle(p, t1, t2, t3))
+				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistPointInTriangle(p, t1, t2, t3))
 					continue;
 
 				var uv1 = meshUV[meshTriangles[index0]];
