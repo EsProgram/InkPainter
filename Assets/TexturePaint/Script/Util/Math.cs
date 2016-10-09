@@ -29,6 +29,33 @@ namespace Es.Utility
 		}
 
 		/// <summary>
+		/// 点pが辺(v1,v2)上に存在するかどうかを調査する
+		/// </summary>
+		/// <param name="p">調査点</param>
+		/// <param name="v1">辺をなす頂点</param>
+		/// <param name="v2">辺をなす頂点</param>
+		/// <returns>点pが辺上に存在しているかどうか</returns>
+		public static bool ExistPointOnEdge(Vector3 p, Vector3 v1, Vector3 v2)
+		{
+			return 1 - TOLERANCE < Vector3.Dot(v2 - p, v2 - v1);
+		}
+
+		/// <summary>
+		/// 点pが与えられた3点がなす三角形の辺上に存在するかを調査する
+		/// </summary>
+		/// <param name="p">調査点p</param>
+		/// <param name="t1">三角形をなす頂点</param>
+		/// <param name="t2">三角形をなす頂点</param>
+		/// <param name="t3">三角形をなす頂点</param>
+		/// <returns>点pが三角形の辺城に存在するかどうか</returns>
+		public static bool ExistPointOnTriangleEdge(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
+		{
+			if(ExistPointOnEdge(p, t1, t2) || ExistPointOnEdge(p, t2, t3) || ExistPointOnEdge(p, t3, t1))
+				return true;
+			return false;
+		}
+
+		/// <summary>
 		/// 点pが与えられた3点がなす三角形内部に存在するかを調査する
 		/// 入力(p, t1, t2, t3)各点は同一平面上に存在する必要がある
 		/// </summary>

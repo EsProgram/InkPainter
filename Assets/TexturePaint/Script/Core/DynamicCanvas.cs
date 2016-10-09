@@ -111,10 +111,6 @@ namespace Es.TexturePaint
 			ReleaseRenderTexture();
 		}
 
-		private void OnGUI()
-		{
-		}
-
 		#endregion UnityEventMethod
 
 		/// <summary>
@@ -322,9 +318,11 @@ namespace Es.TexturePaint
 				t2 = meshVertices[meshTriangles[index1]];
 				t3 = meshVertices[meshTriangles[index2]];
 
+				//平面上に存在しない
 				if(!Math.ExistInPlane(p, t1, t2, t3))
 					continue;
-				if(!Math.ExistInTriangle(p, t1, t2, t3))
+				//三角形の辺または内部に存在しない
+				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistInTriangle(p, t1, t2, t3))
 					continue;
 
 				var uv1 = meshUV[meshTriangles[index0]];

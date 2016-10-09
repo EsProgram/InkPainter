@@ -129,7 +129,7 @@ public class CalcUVTest : MonoBehaviour
 					if(strUV1.Substring(0, 5) == strUV2.Substring(0, 5))
 					{
 						Debug.Log(strUV1 + " : " + strUV2);
-						hitInfo.transform.GetComponent<DynamicCanvas>().Paint(blush, hitInfo);
+						hitInfo.transform.GetComponent<DynamicCanvas>().Paint(blush, hitInfo.point);
 					}
 					//失敗(値が結構違う)
 					else
