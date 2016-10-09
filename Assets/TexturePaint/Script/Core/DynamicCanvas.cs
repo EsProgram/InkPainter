@@ -20,6 +20,9 @@ namespace Es.TexturePaint
 		[SerializeField, Tooltip("バンプマップテクスチャのプロパティ名")]
 		private string bumpTextureName = "_BumpMap";
 
+		[SerializeField]
+		private bool useBumpPaint = true;
+
 		[SerializeField, HideInInspector, Tooltip("テクスチャペイント用マテリアル")]
 		private Material paintMaterial = null;
 
@@ -108,6 +111,10 @@ namespace Es.TexturePaint
 			ReleaseRenderTexture();
 		}
 
+		private void OnGUI()
+		{
+		}
+
 		#endregion UnityEventMethod
 
 		/// <summary>
@@ -154,16 +161,20 @@ namespace Es.TexturePaint
 			Graphics.Blit(mainTexture, paintTexture);
 			//マテリアルのテクスチャをRenderTextureに変更
 			material.SetTexture(mainTexturePropertyID, paintTexture);
-
-			//BumpTextureが設定されている場合
-			if(bumpTexture != null)
+			if(useBumpPaint)
 			{
-				//法線マップテクスチャの生成
-				paintBumpTexture = new RenderTexture(mainTexture.width, mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-				//法線マップのコピー
-				Graphics.Blit(bumpTexture, paintBumpTexture);
-				//マテリアルの法線マップテクスチャをRenderTextureに変更
-				material.SetTexture(bumpTexturePropertyID, paintBumpTexture);
+				//BumpTextureが設定されている場合
+				if(bumpTexture != null)
+				{
+					//法線マップテクスチャの生成
+					paintBumpTexture = new RenderTexture(mainTexture.width, mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+					//法線マップのコピー
+					Graphics.Blit(bumpTexture, paintBumpTexture);
+					//マテリアルの法線マップテクスチャをRenderTextureに変更
+					material.SetTexture(bumpTexturePropertyID, paintBumpTexture);
+				}
+				else
+					Debug.LogWarning("バンプマップペイントを利用するにはマテリアルにバンプマップテクスチャが設定されている必要があります");
 			}
 		}
 
@@ -270,7 +281,7 @@ namespace Es.TexturePaint
 			}
 
 			//バンプマップへのペイント
-			if(blush.BlushBumpTexture != null && paintBumpTexture != null && paintBumpTexture.IsCreated())
+			if(useBumpPaint && blush.BlushBumpTexture != null && paintBumpTexture != null && paintBumpTexture.IsCreated())
 			{
 				SetPaintBumpData(blush, uv);
 
