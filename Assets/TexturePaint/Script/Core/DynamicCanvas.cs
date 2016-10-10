@@ -325,6 +325,7 @@ namespace Es.TexturePaint
 				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistPointInTriangle(p, t1, t2, t3))
 					continue;
 
+				//UV座標算出
 				var uv1 = meshUV[meshTriangles[index0]];
 				var uv2 = meshUV[meshTriangles[index1]];
 				var uv3 = meshUV[meshTriangles[index2]];

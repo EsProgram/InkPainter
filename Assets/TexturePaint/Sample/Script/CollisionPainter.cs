@@ -14,7 +14,6 @@ public class CollisionPainter : MonoBehaviour
 	private int waitCount;
 
 	public void Awake()
-
 	{
 		GetComponent<MeshRenderer>().material.color = blush.Color;
 	}
