@@ -33,7 +33,7 @@ public class CollisionPainter : MonoBehaviour
 		{
 			var canvas = p.otherCollider.GetComponent<DynamicCanvas>();
 			if(canvas != null)
-				Debug.Log(canvas.Paint(blush, p.point));
+				canvas.Paint(blush, p.point);
 		}
 	}
 }
