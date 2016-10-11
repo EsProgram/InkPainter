@@ -17,7 +17,7 @@ namespace Es.TexturePaint.Sample
 				{
 					var paintObject = hitInfo.transform.GetComponent<DynamicCanvas>();
 					if(paintObject != null)
-						paintObject.Paint(blush, hitInfo.point);
+						paintObject.Paint(blush, hitInfo);
 				}
 			}
 		}

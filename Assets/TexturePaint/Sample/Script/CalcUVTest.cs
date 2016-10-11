@@ -74,7 +74,7 @@ public class CalcUVTest : MonoBehaviour
 					var uv1 = meshUV[meshTriangles[index0]];
 					var uv2 = meshUV[meshTriangles[index1]];
 					var uv3 = meshUV[meshTriangles[index2]];
-					Matrix4x4 mvp = Camera.main.projectionMatrix * Camera.main.worldToCameraMatrix * transform.localToWorldMatrix;
+					Matrix4x4 mvp = Camera.main.projectionMatrix * Camera.main.worldToCameraMatrix * hitInfo.transform.localToWorldMatrix;
 					var uv = Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
 
 					//値のチェック
