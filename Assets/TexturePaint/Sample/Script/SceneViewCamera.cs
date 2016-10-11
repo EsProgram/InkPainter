@@ -6,13 +6,13 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class SceneViewCamera : MonoBehaviour
 {
-	[SerializeField, Range(0.1f, 10f)]
+	[SerializeField, Range(0.1f, 100f)]
 	private float wheelSpeed = 1f;
 
-	[SerializeField, Range(0.1f, 10f)]
+	[SerializeField, Range(0.1f, 100f)]
 	private float moveSpeed = 0.3f;
 
-	[SerializeField, Range(0.1f, 10f)]
+	[SerializeField, Range(0.1f, 1f)]
 	private float rotateSpeed = 0.3f;
 
 	private Vector3 preMousePos;
