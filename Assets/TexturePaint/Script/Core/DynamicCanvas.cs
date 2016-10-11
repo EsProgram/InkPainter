@@ -1,27 +1,92 @@
-﻿using Es.Utility;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+#if UNITY_EDITOR
+
+using UnityEditor;
+
+#endif
+
 namespace Es.TexturePaint
 {
+	/// <summary>
+	/// テクスチャペイントを行うキャンバス
+	/// マテリアル単位で設定する
+	/// </summary>
 	[RequireComponent(typeof(Renderer))]
 	[RequireComponent(typeof(MeshCollider))]
 	[RequireComponent(typeof(MeshFilter))]
 	[DisallowMultipleComponent]
 	public class DynamicCanvas : MonoBehaviour
 	{
+		[Serializable]
+		private class PaintSet
+		{
+			/// <summary>
+			/// ペイントを適用するマテリアル
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public Material material;
+
+			[SerializeField, Tooltip("メインテクスチャのプロパティ名")]
+			public string mainTextureName = "_MainTex";
+
+			[SerializeField, Tooltip("バンプマップテクスチャのプロパティ名")]
+			public string bumpTextureName = "_BumpMap";
+
+			[SerializeField, Tooltip("バンプマップペイントをするか(マテリアルにバンプマップが設定されている必要があります)")]
+			public bool useBumpPaint = false;
+
+			/// <summary>
+			/// 最初にマテリアルにセットされているメインテクスチャ
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public Texture mainTexture;
+
+			/// <summary>
+			/// 最初にマテリアルにセットされているバンプマップ
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public RenderTexture paintMainTexture;
+
+			/// <summary>
+			/// メインテクスチャをコピーしたペイント用RenderTexture
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public Texture bumpTexture;
+
+			/// <summary>
+			/// バンプマップをコピーしたペイント用RenderTexture
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public RenderTexture paintBumpTexture;
+
+			#region ShaderPropertyID
+
+			[HideInInspector]
+			[NonSerialized]
+			public int mainTexturePropertyID;
+
+			[HideInInspector]
+			[NonSerialized]
+			public int bumpTexturePropertyID;
+
+			#endregion ShaderPropertyID
+		}
+
 		private const int DEFAULT_TEXTURE_SIZE = 256;
 
 		#region SerializedProperties
 
-		[SerializeField, Tooltip("メインテクスチャのプロパティ名")]
-		private string mainTextureName = "_MainTex";
-
-		[SerializeField, Tooltip("バンプマップテクスチャのプロパティ名")]
-		private string bumpTextureName = "_BumpMap";
-
 		[SerializeField]
-		private bool useBumpPaint = true;
+		private List<PaintSet> paintSet = null;
 
 		[SerializeField, HideInInspector, Tooltip("テクスチャペイント用マテリアル")]
 		private Material paintMaterial = null;
@@ -33,8 +98,6 @@ namespace Es.TexturePaint
 
 		#region ShaderPropertyID
 
-		private int mainTexturePropertyID;
-		private int bumpTexturePropertyID;
 		private int paintUVPropertyID;
 		private int blushTexturePropertyID;
 		private int blushScalePropertyID;
@@ -56,28 +119,6 @@ namespace Es.TexturePaint
 
 		#endregion ShaderKeywords
 
-		/// <summary>
-		/// 最初にマテリアルにセットされているメインテクスチャ
-		/// </summary>
-		private Texture mainTexture;
-
-		/// <summary>
-		/// 最初にマテリアルにセットされているバンプマップ
-		/// </summary>
-		private Texture bumpTexture;
-
-		/// <summary>
-		/// メインテクスチャをコピーしたペイント用RenderTexture
-		/// </summary>
-		private RenderTexture paintTexture;
-
-		/// <summary>
-		/// バンプマップをコピーしたペイント用RenderTexture
-		/// </summary>
-		private RenderTexture paintBumpTexture;
-
-		private Material material;
-
 		private MeshFilter meshFilter;
 		private Mesh mesh;
 		private int[] meshTriangles;
@@ -90,20 +131,10 @@ namespace Es.TexturePaint
 		{
 			InitPropertyID();
 			ColliderCheck();
-
-			var renderer = GetComponent<Renderer>();
-			material = renderer.material;
-			mainTexture = material.GetTexture(mainTexturePropertyID);
-			if(useBumpPaint)
-				bumpTexture = material.GetTexture(bumpTexturePropertyID);
-
+			SetMaterial();
+			SetTexture();
 			SetRenderTexture();
-
-			meshFilter = GetComponent<MeshFilter>();
-			mesh = meshFilter.sharedMesh;
-			meshTriangles = mesh.triangles;
-			meshVertices = mesh.vertices;
-			meshUV = mesh.uv;
+			MeshDataCache();
 		}
 
 		public void OnDestroy()
@@ -115,13 +146,27 @@ namespace Es.TexturePaint
 		#endregion UnityEventMethod
 
 		/// <summary>
+		/// メッシュから取得できるデータをキャッシュする。
+		/// </summary>
+		private void MeshDataCache()
+		{
+			meshFilter = GetComponent<MeshFilter>();
+			mesh = meshFilter.sharedMesh;
+			meshTriangles = mesh.triangles;
+			meshVertices = mesh.vertices;
+			meshUV = mesh.uv;
+		}
+
+		/// <summary>
 		/// シェーダーのプロパティIDを初期化する
 		/// </summary>
 		private void InitPropertyID()
 		{
-			mainTexturePropertyID = Shader.PropertyToID(mainTextureName);
-			bumpTexturePropertyID = Shader.PropertyToID(bumpTextureName);
-
+			foreach(var p in paintSet)
+			{
+				p.mainTexturePropertyID = Shader.PropertyToID(p.mainTextureName);
+				p.bumpTexturePropertyID = Shader.PropertyToID(p.bumpTextureName);
+			}
 			paintUVPropertyID = Shader.PropertyToID("_PaintUV");
 			blushTexturePropertyID = Shader.PropertyToID("_Blush");
 			blushScalePropertyID = Shader.PropertyToID("_BlushScale");
@@ -145,33 +190,61 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
+		/// マテリアルを取得しセットする
+		/// </summary>
+		private void SetMaterial()
+		{
+			var m = GetComponent<Renderer>().materials;
+			for(int i = 0; i < m.Length; ++i)
+			{
+				paintSet[i].material = m[i];
+			}
+		}
+
+		/// <summary>
+		/// テクスチャを取得しセットする
+		/// </summary>
+		private void SetTexture()
+		{
+			foreach(var p in paintSet)
+			{
+				p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
+				if(p.useBumpPaint)
+					p.bumpTexture = p.material.GetTexture(p.bumpTexturePropertyID);
+			}
+		}
+
+		/// <summary>
 		/// RenderTextureを生成しマテリアルにセットする
 		/// </summary>
 		private void SetRenderTexture()
 		{
-			//MainTextureが設定されていない場合は白テクスチャ
-			if(mainTexture == null)
-				mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
-			//DynamicPaint用RenderTextureの生成
-			paintTexture = new RenderTexture(mainTexture.width, mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-			//メインテクスチャのコピー
-			Graphics.Blit(mainTexture, paintTexture);
-			//マテリアルのテクスチャをRenderTextureに変更
-			material.SetTexture(mainTexturePropertyID, paintTexture);
-			if(useBumpPaint)
+			foreach(var p in paintSet)
 			{
-				//BumpTextureが設定されている場合
-				if(bumpTexture != null)
+				//MainTextureが設定されていない場合は白テクスチャ
+				if(p.mainTexture == null)
+					p.mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
+				//DynamicPaint用RenderTextureの生成
+				p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+				//メインテクスチャのコピー
+				Graphics.Blit(p.mainTexture, p.paintMainTexture);
+				//マテリアルのテクスチャをRenderTextureに変更
+				p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
+				if(p.useBumpPaint)
 				{
-					//法線マップテクスチャの生成
-					paintBumpTexture = new RenderTexture(mainTexture.width, mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-					//法線マップのコピー
-					Graphics.Blit(bumpTexture, paintBumpTexture);
-					//マテリアルの法線マップテクスチャをRenderTextureに変更
-					material.SetTexture(bumpTexturePropertyID, paintBumpTexture);
+					//BumpTextureが設定されている場合
+					if(p.bumpTexture != null)
+					{
+						//法線マップテクスチャの生成
+						p.paintBumpTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						//法線マップのコピー
+						Graphics.Blit(p.bumpTexture, p.paintBumpTexture);
+						//マテリアルの法線マップテクスチャをRenderTextureに変更
+						p.material.SetTexture(p.bumpTexturePropertyID, p.paintBumpTexture);
+					}
+					else
+						Debug.LogWarning("バンプマップペイントを利用するにはマテリアルにバンプマップテクスチャが設定されている必要があります");
 				}
-				else
-					Debug.LogWarning("バンプマップペイントを利用するにはマテリアルにバンプマップテクスチャが設定されている必要があります");
 			}
 		}
 
@@ -180,10 +253,13 @@ namespace Es.TexturePaint
 		/// </summary>
 		private void ReleaseRenderTexture()
 		{
-			if(RenderTexture.active != paintTexture && paintTexture != null && paintTexture.IsCreated())
-				paintTexture.Release();
-			if(RenderTexture.active != paintBumpTexture && paintBumpTexture != null && paintBumpTexture.IsCreated())
-				paintBumpTexture.Release();
+			foreach(var p in paintSet)
+			{
+				if(RenderTexture.active != p.paintMainTexture && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
+					p.paintMainTexture.Release();
+				if(RenderTexture.active != p.paintBumpTexture && p.paintBumpTexture != null && p.paintBumpTexture.IsCreated())
+					p.paintBumpTexture.Release();
+			}
 		}
 
 		/// <summary>
@@ -263,29 +339,32 @@ namespace Es.TexturePaint
 		/// <returns>ペイントの成否</returns>
 		public bool PaintUVDirect(PaintBlush blush, Vector2 uv)
 		{
-			RenderTexture buf = RenderTexture.GetTemporary(paintTexture.width, paintTexture.height);
-			if(buf == null)
+			foreach(var p in paintSet)
 			{
-				Debug.LogError("RenderTextureの生成に失敗しました");
-				return false;
-			}
-			//メインテクスチャへのペイント
-			if(blush.BlushTexture != null && paintTexture != null && paintTexture.IsCreated())
-			{
-				SetPaintData(blush, uv);
-				Graphics.Blit(paintTexture, buf, paintMaterial);
-				Graphics.Blit(buf, paintTexture);
-			}
+				RenderTexture buf = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
+				if(buf == null)
+				{
+					Debug.LogError("RenderTextureの生成に失敗しました");
+					return false;
+				}
+				//メインテクスチャへのペイント
+				if(blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
+				{
+					SetPaintData(blush, uv);
+					Graphics.Blit(p.paintMainTexture, buf, paintMaterial);
+					Graphics.Blit(buf, p.paintMainTexture);
+				}
 
-			//バンプマップへのペイント
-			if(useBumpPaint && blush.BlushBumpTexture != null && paintBumpTexture != null && paintBumpTexture.IsCreated())
-			{
-				SetPaintBumpData(blush, uv);
+				//バンプマップへのペイント
+				if(p.useBumpPaint && blush.BlushBumpTexture != null && p.paintBumpTexture != null && p.paintBumpTexture.IsCreated())
+				{
+					SetPaintBumpData(blush, uv);
 
-				Graphics.Blit(paintBumpTexture, buf, paintBumpMaterial);
-				Graphics.Blit(buf, paintBumpTexture);
+					Graphics.Blit(p.paintBumpTexture, buf, paintBumpMaterial);
+					Graphics.Blit(buf, p.paintBumpTexture);
+				}
+				RenderTexture.ReleaseTemporary(buf);
 			}
-			RenderTexture.ReleaseTemporary(buf);
 			return true;
 		}
 
@@ -320,10 +399,10 @@ namespace Es.TexturePaint
 				t3 = meshVertices[meshTriangles[index2]];
 
 				//平面上に存在しない
-				if(!Math.ExistPointInPlane(p, t1, t2, t3))
+				if(!Utility.Math.ExistPointInPlane(p, t1, t2, t3))
 					continue;
 				//三角形の辺または内部に存在しない
-				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistPointInTriangle(p, t1, t2, t3))
+				if(!Utility.Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Utility.Math.ExistPointInTriangle(p, t1, t2, t3))
 					continue;
 
 				//UV座標算出
@@ -331,7 +410,7 @@ namespace Es.TexturePaint
 				var uv2 = meshUV[meshTriangles[index1]];
 				var uv3 = meshUV[meshTriangles[index2]];
 				Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
-				var uv = Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
+				var uv = Utility.Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
 
 				return PaintUVDirect(blush, uv);
 			}
@@ -348,8 +427,6 @@ namespace Es.TexturePaint
 		{
 			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
 			{
-				var uv = hitInfo.textureCoord;
-
 				#region ErrorCheck
 
 				if(blush == null)
@@ -360,7 +437,7 @@ namespace Es.TexturePaint
 
 				#endregion ErrorCheck
 
-				return PaintUVDirect(blush, uv);
+				return PaintUVDirect(blush, hitInfo.textureCoord);
 			}
 			return false;
 		}
@@ -373,5 +450,68 @@ namespace Es.TexturePaint
 			ReleaseRenderTexture();
 			SetRenderTexture();
 		}
+
+#if UNITY_EDITOR
+
+		[CustomEditor(typeof(DynamicCanvas))]
+		[CanEditMultipleObjects]
+		private class DynamicCanvasInspectorExtension : Editor
+		{
+			private Renderer renderer;
+			private Material[] materials;
+			private List<bool> foldOut;
+
+			public override void OnInspectorGUI()
+			{
+				var instance = target as DynamicCanvas;
+				if(instance.paintSet == null)
+					instance.paintSet = new List<PaintSet>();
+
+				if(renderer == null)
+					renderer = instance.GetComponent<Renderer>();
+				if(materials == null)
+					materials = renderer.sharedMaterials;
+				if(foldOut == null)
+					foldOut = new List<bool>();
+
+				if(instance.paintSet.Count < materials.Length)
+				{
+					for(int i = instance.paintSet.Count; i < materials.Length; ++i)
+						instance.paintSet.Add(new PaintSet
+						{
+							mainTextureName = "_MainTex",
+							bumpTextureName = "_BumpMap",
+							useBumpPaint = false
+						});
+					foldOut.Clear();
+				}
+
+				if(instance.paintSet.Count > materials.Length)
+				{
+					instance.paintSet.RemoveRange(materials.Length, instance.paintSet.Count - materials.Length);
+					foldOut.Clear();
+				}
+
+				if(foldOut.Count < instance.paintSet.Count)
+				{
+					for(int i = foldOut.Count; i < instance.paintSet.Count; ++i)
+						foldOut.Add(true);
+				}
+
+				for(int i = 0; i < instance.paintSet.Count; ++i)
+				{
+					if(foldOut[i] = EditorGUILayout.Foldout(foldOut[i], string.Format("Material \"{0}\"", materials[i].name)))
+					{
+						EditorGUI.indentLevel = 1;
+						instance.paintSet[i].mainTextureName = EditorGUILayout.TextField("MainTexture Property Name", instance.paintSet[i].mainTextureName);
+						instance.paintSet[i].bumpTextureName = EditorGUILayout.TextField("BumpMap Property Name", instance.paintSet[i].bumpTextureName);
+						instance.paintSet[i].useBumpPaint = EditorGUILayout.Toggle("Use BumpMap Paint", instance.paintSet[i].useBumpPaint);
+						EditorGUI.indentLevel = 0;
+					}
+				}
+			}
+		}
+
+#endif
 	}
 }
