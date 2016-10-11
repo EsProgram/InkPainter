@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Es.TexturePaint
 {
-	[RequireComponent(typeof(MeshRenderer))]
+	[RequireComponent(typeof(Renderer))]
 	[RequireComponent(typeof(MeshCollider))]
 	[RequireComponent(typeof(MeshFilter))]
 	[DisallowMultipleComponent]
@@ -91,10 +91,11 @@ namespace Es.TexturePaint
 			InitPropertyID();
 			ColliderCheck();
 
-			var meshRenderer = GetComponent<MeshRenderer>();
-			material = meshRenderer.material;
+			var renderer = GetComponent<Renderer>();
+			material = renderer.material;
 			mainTexture = material.GetTexture(mainTexturePropertyID);
-			bumpTexture = material.GetTexture(bumpTexturePropertyID);
+			if(useBumpPaint)
+				bumpTexture = material.GetTexture(bumpTexturePropertyID);
 
 			SetRenderTexture();
 
