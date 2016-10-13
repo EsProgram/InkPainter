@@ -4,8 +4,23 @@ namespace Es.TexturePaint.Sample
 {
 	public class MousePainter : MonoBehaviour
 	{
+		/// <summary>
+		/// ペイントに使用するメソッドの種類
+		/// </summary>
+		[System.Serializable]
+		private enum UseMethodType
+		{
+			RaycastHitInfo,
+			WorldPoint,
+			NearestSurfacePoint,
+			DirectUV,
+		}
+
 		[SerializeField]
 		private PaintBlush blush;
+
+		[SerializeField]
+		private UseMethodType useMethodType = UseMethodType.RaycastHitInfo;
 
 		private void Update()
 		{
@@ -17,7 +32,28 @@ namespace Es.TexturePaint.Sample
 				{
 					var paintObject = hitInfo.transform.GetComponent<DynamicCanvas>();
 					if(paintObject != null)
-						paintObject.Paint(blush, hitInfo);
+						switch(useMethodType)
+						{
+							case UseMethodType.RaycastHitInfo:
+								paintObject.Paint(blush, hitInfo);
+								break;
+
+							case UseMethodType.WorldPoint:
+								paintObject.Paint(blush, hitInfo.point);
+
+								break;
+
+							case UseMethodType.NearestSurfacePoint:
+								paintObject.PaintNearestTriangleSurface(blush, hitInfo.point);
+								break;
+
+							case UseMethodType.DirectUV:
+								paintObject.PaintUVDirect(blush, hitInfo.textureCoord);
+								break;
+
+							default:
+								break;
+						}
 				}
 			}
 		}

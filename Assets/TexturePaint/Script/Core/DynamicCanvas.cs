@@ -16,7 +16,7 @@ namespace Es.TexturePaint
 	/// マテリアル単位で設定する
 	/// </summary>
 	[RequireComponent(typeof(Renderer))]
-	[RequireComponent(typeof(MeshCollider))]
+	[RequireComponent(typeof(Collider))]
 	[RequireComponent(typeof(MeshFilter))]
 	[DisallowMultipleComponent]
 	public class DynamicCanvas : MonoBehaviour
@@ -130,7 +130,6 @@ namespace Es.TexturePaint
 		public void Awake()
 		{
 			InitPropertyID();
-			ColliderCheck();
 			SetMaterial();
 			SetTexture();
 			SetRenderTexture();
@@ -173,20 +172,6 @@ namespace Es.TexturePaint
 			blushColorPropertyID = Shader.PropertyToID("_ControlColor");
 			blushBumpTexturePropertyID = Shader.PropertyToID("_BlushBump");
 			blushBumpBlendPropertyID = Shader.PropertyToID("_BumpBlend");
-		}
-
-		/// <summary>
-		/// コライダーが正しく設定されているかどうかをチェックする
-		/// コライダーはMeshColliderがただ一つアタッチされている必要がある
-		/// </summary>
-		private void ColliderCheck()
-		{
-			var colliders = GetComponents<Collider>();
-			if(colliders.Length != 1 || !(colliders.First() is MeshCollider))
-			{
-				Debug.LogWarning("ColliderはMeshColliderのみが設定されている必要があります");
-				Destroy(this);
-			}
 		}
 
 		/// <summary>
@@ -332,7 +317,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント処理(UVを直接指定して書き込み)
+		/// 直接UV座標を指定したペイント処理を行う
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
@@ -369,10 +354,45 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント処理
+		/// 与えられたworldPosに近いMeshSurface上の点に対してペイント処理を行う
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
-		/// <param name="worldPos">キャンバス上の塗る店(World-Space)</param>
+		/// <param name="worldPos">近似点</param>
+		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
+		/// <returns></returns>
+		public bool PaintNearestTriangleSurface(PaintBlush blush, Vector3 worldPos, Camera renderCamera = null)
+		{
+			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
+
+			//頂点の中で一番近いものを含む三角形を取得
+			var tris = Utility.Math.GetNearestVerticesTriangle(p, meshVertices, meshTriangles);
+
+			//それぞれの三角形空間でそれっぽいp'を計算
+			var pds = new List<Vector3>();
+			for(int i = 0; i < tris.Length; i += 3)
+			{
+				var i0 = i;
+				var i1 = i + 1;
+				var i2 = i + 2;
+				pds.Add(Utility.Math.TriangleSpaceProjection(p, tris[i0], tris[i1], tris[i2]));
+			}
+
+			//HACK:p'が三角形内部にない場合は一番近い頂点位置をp'に設定した方がいい？
+
+			//pに一番近いp'が求めたかったオブジェクト表面
+			var pd = pds.OrderBy(t => Vector3.Distance(p, t)).First();
+
+			return Paint(blush, transform.localToWorldMatrix.MultiplyPoint(pd), renderCamera);
+		}
+
+		/// <summary>
+		/// ペイント処理を行う
+		/// </summary>
+		/// <param name="blush">ブラシ</param>
+		/// <param name="worldPos">
+		/// キャンバス上の塗る点(World-Space)
+		/// メッシュが構成する形状のサーフェスの上の点
+		/// </param>
 		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
 		/// <returns>ペイント成否</returns>
 		public bool Paint(PaintBlush blush, Vector3 worldPos, Camera renderCamera = null)
@@ -418,7 +438,8 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント処理
+		/// ペイント処理を行う
+		/// CanvasにはMeshColliderが設定されている必要があります
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
 		/// <param name="hitInfo">RaycastのHit情報</param>
@@ -437,6 +458,13 @@ namespace Es.TexturePaint
 
 				#endregion ErrorCheck
 
+				//MeshColliderが設定されていない場合はヒット位置でペイントを行う
+				if(!(GetComponent<Collider>() is MeshCollider))
+				{
+					Debug.LogWarning("MeshColliderが設定されていないキャンバスにRayCastを利用したPaintを行うと予期せぬ動作をする場合があります");
+					//頂点のTriangleから一番近いサーフェス上の点を算出してPaintに渡すように
+					return PaintNearestTriangleSurface(blush, hitInfo.point);
+				}
 				return PaintUVDirect(blush, hitInfo.textureCoord);
 			}
 			return false;
