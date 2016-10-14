@@ -37,6 +37,9 @@ namespace Es.TexturePaint
 			[SerializeField, Tooltip("バンプマップテクスチャのプロパティ名")]
 			public string bumpTextureName = "_BumpMap";
 
+			[SerializeField, Tooltip("ペイントをするか")]
+			public bool useMainPaint = true;
+
 			[SerializeField, Tooltip("バンプマップペイントをするか(マテリアルにバンプマップが設定されている必要があります)")]
 			public bool useBumpPaint = false;
 
@@ -127,7 +130,7 @@ namespace Es.TexturePaint
 
 		#region UnityEventMethod
 
-		public void Awake()
+		private void Awake()
 		{
 			InitPropertyID();
 			SetMaterial();
@@ -136,7 +139,7 @@ namespace Es.TexturePaint
 			MeshDataCache();
 		}
 
-		public void OnDestroy()
+		private void OnDestroy()
 		{
 			Debug.Log("DynamicCanvasを破棄しました");
 			ReleaseRenderTexture();
@@ -145,12 +148,18 @@ namespace Es.TexturePaint
 		#endregion UnityEventMethod
 
 		/// <summary>
-		/// メッシュから取得できるデータをキャッシュする。
+		/// メッシュから取得できるデータをキャッシュする
 		/// </summary>
 		private void MeshDataCache()
 		{
 			meshFilter = GetComponent<MeshFilter>();
 			mesh = meshFilter.sharedMesh;
+			if(mesh == null)
+			{
+				Debug.LogError("MeshFilterにメッシュが設定されていません");
+				Destroy(this);
+				return;
+			}
 			meshTriangles = mesh.triangles;
 			meshVertices = mesh.vertices;
 			meshUV = mesh.uv;
@@ -193,7 +202,8 @@ namespace Es.TexturePaint
 		{
 			foreach(var p in paintSet)
 			{
-				p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
+				if(p.useMainPaint)
+					p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
 				if(p.useBumpPaint)
 					p.bumpTexture = p.material.GetTexture(p.bumpTexturePropertyID);
 			}
@@ -206,15 +216,18 @@ namespace Es.TexturePaint
 		{
 			foreach(var p in paintSet)
 			{
-				//MainTextureが設定されていない場合は白テクスチャ
-				if(p.mainTexture == null)
-					p.mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
-				//DynamicPaint用RenderTextureの生成
-				p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-				//メインテクスチャのコピー
-				Graphics.Blit(p.mainTexture, p.paintMainTexture);
-				//マテリアルのテクスチャをRenderTextureに変更
-				p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
+				if(p.useMainPaint)
+				{
+					//MainTextureが設定されていない場合は白テクスチャ
+					if(p.mainTexture == null)
+						p.mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
+					//DynamicPaint用RenderTextureの生成
+					p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+					//メインテクスチャのコピー
+					Graphics.Blit(p.mainTexture, p.paintMainTexture);
+					//マテリアルのテクスチャをRenderTextureに変更
+					p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
+				}
 				if(p.useBumpPaint)
 				{
 					//BumpTextureが設定されている場合
@@ -333,7 +346,7 @@ namespace Es.TexturePaint
 					return false;
 				}
 				//メインテクスチャへのペイント
-				if(blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
+				if(p.useMainPaint && blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
 					SetPaintData(blush, uv);
 					Graphics.Blit(p.paintMainTexture, buf, paintMaterial);
@@ -509,6 +522,7 @@ namespace Es.TexturePaint
 						{
 							mainTextureName = "_MainTex",
 							bumpTextureName = "_BumpMap",
+							useMainPaint = true,
 							useBumpPaint = false
 						});
 					foldOut.Clear();
@@ -533,6 +547,7 @@ namespace Es.TexturePaint
 						EditorGUI.indentLevel = 1;
 						instance.paintSet[i].mainTextureName = EditorGUILayout.TextField("MainTexture Property Name", instance.paintSet[i].mainTextureName);
 						instance.paintSet[i].bumpTextureName = EditorGUILayout.TextField("BumpMap Property Name", instance.paintSet[i].bumpTextureName);
+						instance.paintSet[i].useMainPaint = EditorGUILayout.Toggle("Use Main Paint", instance.paintSet[i].useMainPaint);
 						instance.paintSet[i].useBumpPaint = EditorGUILayout.Toggle("Use BumpMap Paint", instance.paintSet[i].useBumpPaint);
 						EditorGUI.indentLevel = 0;
 					}
