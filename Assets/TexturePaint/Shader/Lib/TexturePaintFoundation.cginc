@@ -17,17 +17,17 @@ float2 CalcBlushUV(float2 mainUV, float2 paintUV, float blushScale) {
 
 //メインテクスチャとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_COLOR_BLENDに設定
 #ifdef TEXTURE_PAINT_COLOR_BLEND_USE_CONTROL
-	#define TEXTURE_PAINT_COLOR_BLEND(mainColor, blushColor, controlColor) TexturePaintColorBlendUseControl(mainColor, blushColor, controlColor)
+	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, blushColor, controlColor) TexturePaintColorBlendUseControl(targetColor, blushColor, controlColor)
 #elif TEXTURE_PAINT_COLOR_BLEND_USE_BLUSH
-	#define TEXTURE_PAINT_COLOR_BLEND(mainColor, blushColor, controlColor) TexturePaintColorBlendUseBlush(mainColor, blushColor, controlColor)
+	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, blushColor, controlColor) TexturePaintColorBlendUseBlush(targetColor, blushColor, controlColor)
 #elif TEXTURE_PAINT_COLOR_BLEND_NEUTRAL
-	#define TEXTURE_PAINT_COLOR_BLEND(mainColor, blushColor, controlColor) TexturePaintColorBlendNeutral(mainColor, blushColor, controlColor)
+	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, blushColor, controlColor) TexturePaintColorBlendNeutral(targetColor, blushColor, controlColor)
 #else
-	#define TEXTURE_PAINT_COLOR_BLEND(mainColor, blushColor, controlColor) TexturePaintColorBlendUseControl(mainColor, blushColor, controlColor)
+	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, blushColor, controlColor) TexturePaintColorBlendUseControl(targetColor, blushColor, controlColor)
 #endif
 
-float4 ColorBlend(float4 targetColor, float4 mainColor, float blend) {
-	return mainColor * (1 - blend * targetColor.a) + targetColor * targetColor.a * blend;
+float4 ColorBlend(float4 targetColor, float4 blushColor, float blend) {
+	return blushColor * (1 - blend * targetColor.a) + targetColor * targetColor.a * blend;
 }
 
 #define __COLOR_BLEND(targetColor) ColorBlend((targetColor), mainColor, blushColor.a)
@@ -47,36 +47,36 @@ float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 blushColor, float4
 	return __COLOR_BLEND((blushColor + controlColor * controlColor.a) * 0.5);
 }
 
-//バンプマップとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_BUMP_BLENDに設定
-#ifdef TEXTURE_PAINT_BUMP_BLEND_USE_BLUSH
-	#define TEXTURE_PAINT_BUMP_BLEND(mainBump, blushBump, blend, blushAlpha) TexturePaintBumpBlendUseBlush(mainBump, blushBump, blend, blushAlpha)
-#elif TEXTURE_PAINT_BUMP_BLEND_MIN
-	#define TEXTURE_PAINT_BUMP_BLEND(mainBump, blushBump, blend, blushAlpha) TexturePaintBumpBlendMin(mainBump, blushBump, blend, blushAlpha)
-#elif TEXTURE_PAINT_BUMP_BLEND_MAX
-	#define TEXTURE_PAINT_BUMP_BLEND(mainBump, blushBump, blend, blushAlpha) TexturePaintBumpBlendMax(mainBump, blushBump, blend, blushAlpha)
+//バンプマップとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_Normal_BLENDに設定
+#ifdef TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH
+	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendUseBlush(mainNormal, blushNormal, blend, blushAlpha)
+#elif TEXTURE_PAINT_NORMAL_BLEND_MIN
+	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendMin(mainNormal, blushNormal, blend, blushAlpha)
+#elif TEXTURE_PAINT_NORMAL_BLEND_MAX
+	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendMax(mainNormal, blushNormal, blend, blushAlpha)
 #else
-	#define TEXTURE_PAINT_BUMP_BLEND(mainBump, blushBump, blend, blushAlpha) TexturePaintBumpBlendLerp(mainBump, blushBump, blend, blushAlpha)
+	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendLerp(mainNormal, blushNormal, blend, blushAlpha)
 #endif
 
-float4 BumpBlend(float4 targetBump,float4 mainBump, float blend, float blushAlpha) {
-	return normalize(lerp(mainBump, targetBump * blushAlpha, blend * blushAlpha));
+float4 NormalBlend(float4 targetNormal,float4 mainNormal, float blend, float blushAlpha) {
+	return normalize(lerp(mainNormal, targetNormal * blushAlpha, blend * blushAlpha));
 }
 
-#define __BUMP_BLEND(targetBump) BumpBlend((targetBump), mainBump, blend, blushAlpha)
+#define __NORMAL_BLEND(targetNormal) NormalBlend((targetNormal), mainNormal, blend, blushAlpha)
 
 //バンプマップブレンド後の値を取得(メインテクスチャとブラシを補間)
-float4 TexturePaintBumpBlendUseBlush(float4 mainBump, float4 blushBump, float blend, float blushAlpha) {
-	return __BUMP_BLEND(blushBump);
+float4 TexturePaintNormalBlendUseBlush(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
+	return __NORMAL_BLEND(blushNormal);
 }
 
 //バンプマップブレンド後の値を取得(値の低い方に補間)
-float4 TexturePaintBumpBlendMin(float4 mainBump, float4 blushBump, float blend, float blushAlpha) {
-	return __BUMP_BLEND(min(mainBump, blushBump));
+float4 TexturePaintNormalBlendMin(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
+	return __NORMAL_BLEND(min(mainNormal, blushNormal));
 }
 
 //バンプマップブレンド後の値を取得(値の高い方に補間)
-float4 TexturePaintBumpBlendMax(float4 mainBump, float4 blushBump, float blend, float blushAlpha) {
-	return __BUMP_BLEND(max(mainBump, blushBump));
+float4 TexturePaintNormalBlendMax(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
+	return __NORMAL_BLEND(max(mainNormal, blushNormal));
 }
 
 #endif //TEXTURE_PAINT_FOUNDATION

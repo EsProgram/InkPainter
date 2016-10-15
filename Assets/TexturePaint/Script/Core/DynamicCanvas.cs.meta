@@ -1,14 +1,13 @@
 fileFormatVersion: 2
 guid: 04cc1b9412eea6e4a8798f4b2f88b4ad
-timeCreated: 1475990653
+timeCreated: 1476500599
 licenseType: Pro
 MonoImporter:
   serializedVersion: 2
   defaultReferences:
-  - defaultBumpTexture: {fileID: 2800000, guid: e6aca82eec549a149b82e83f4d2b6bf0,
-      type: 3}
   - paintMaterial: {fileID: 2100000, guid: 6def3729ef8c97e4299aec17dcbeadea, type: 2}
-  - paintBumpMaterial: {fileID: 2100000, guid: 5f39031bec4f9e64cb89d191c0ba324e, type: 2}
+  - paintNormalMaterial: {fileID: 2100000, guid: 5f39031bec4f9e64cb89d191c0ba324e,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

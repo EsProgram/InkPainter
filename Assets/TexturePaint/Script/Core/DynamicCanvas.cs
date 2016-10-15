@@ -35,13 +35,13 @@ namespace Es.TexturePaint
 			public string mainTextureName = "_MainTex";
 
 			[SerializeField, Tooltip("バンプマップテクスチャのプロパティ名")]
-			public string bumpTextureName = "_BumpMap";
+			public string normalTextureName = "_BumpMap";
 
 			[SerializeField, Tooltip("ペイントをするか")]
 			public bool useMainPaint = true;
 
 			[SerializeField, Tooltip("バンプマップペイントをするか(マテリアルにバンプマップが設定されている必要があります)")]
-			public bool useBumpPaint = false;
+			public bool useNormalPaint = false;
 
 			/// <summary>
 			/// 最初にマテリアルにセットされているメインテクスチャ
@@ -62,14 +62,14 @@ namespace Es.TexturePaint
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
-			public Texture bumpTexture;
+			public Texture normalTexture;
 
 			/// <summary>
 			/// バンプマップをコピーしたペイント用RenderTexture
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
-			public RenderTexture paintBumpTexture;
+			public RenderTexture paintNormalTexture;
 
 			#region ShaderPropertyID
 
@@ -79,7 +79,7 @@ namespace Es.TexturePaint
 
 			[HideInInspector]
 			[NonSerialized]
-			public int bumpTexturePropertyID;
+			public int normalTexturePropertyID;
 
 			#endregion ShaderPropertyID
 		}
@@ -95,7 +95,7 @@ namespace Es.TexturePaint
 		private Material paintMaterial = null;
 
 		[SerializeField, HideInInspector, Tooltip("ブラシバンプマップ用マテリアル")]
-		private Material paintBumpMaterial = null;
+		private Material paintNormalMaterial = null;
 
 		#endregion SerializedProperties
 
@@ -105,8 +105,8 @@ namespace Es.TexturePaint
 		private int blushTexturePropertyID;
 		private int blushScalePropertyID;
 		private int blushColorPropertyID;
-		private int blushBumpTexturePropertyID;
-		private int blushBumpBlendPropertyID;
+		private int blushNormalTexturePropertyID;
+		private int blushNormalBlendPropertyID;
 
 		#endregion ShaderPropertyID
 
@@ -116,9 +116,9 @@ namespace Es.TexturePaint
 		private const string COLOR_BLEND_USE_BLUSH = "TEXTURE_PAINT_COLOR_BLEND_USE_BLUSH";
 		private const string COLOR_BLEND_NEUTRAL = "TEXTURE_PAINT_COLOR_BLEND_NEUTRAL";
 
-		private const string BUMP_BLEND_USE_BLUSH = "TEXTURE_PAINT_BUMP_BLEND_USE_BLUSH";
-		private const string BUMP_BLEND_MIN = "TEXTURE_PAINT_BUMP_BLEND_MIN";
-		private const string BUMP_BLEND_MAX = "TEXTURE_PAINT_BUMP_BLEND_MAX";
+		private const string NORMAL_BLEND_USE_BLUSH = "TEXTURE_PAINT_Normal_BLEND_USE_BLUSH";
+		private const string NORMAL_BLEND_MIN = "TEXTURE_PAINT_NORMAL_BLEND_MIN";
+		private const string NORMAL_BLEND_MAX = "TEXTURE_PAINT_NORMAL_BLEND_MAX";
 
 		#endregion ShaderKeywords
 
@@ -173,14 +173,14 @@ namespace Es.TexturePaint
 			foreach(var p in paintSet)
 			{
 				p.mainTexturePropertyID = Shader.PropertyToID(p.mainTextureName);
-				p.bumpTexturePropertyID = Shader.PropertyToID(p.bumpTextureName);
+				p.normalTexturePropertyID = Shader.PropertyToID(p.normalTextureName);
 			}
 			paintUVPropertyID = Shader.PropertyToID("_PaintUV");
 			blushTexturePropertyID = Shader.PropertyToID("_Blush");
 			blushScalePropertyID = Shader.PropertyToID("_BlushScale");
 			blushColorPropertyID = Shader.PropertyToID("_ControlColor");
-			blushBumpTexturePropertyID = Shader.PropertyToID("_BlushBump");
-			blushBumpBlendPropertyID = Shader.PropertyToID("_BumpBlend");
+			blushNormalTexturePropertyID = Shader.PropertyToID("_BlushNormal");
+			blushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
 		}
 
 		/// <summary>
@@ -204,8 +204,8 @@ namespace Es.TexturePaint
 			{
 				if(p.useMainPaint)
 					p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
-				if(p.useBumpPaint)
-					p.bumpTexture = p.material.GetTexture(p.bumpTexturePropertyID);
+				if(p.useNormalPaint)
+					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
 			}
 		}
 
@@ -228,17 +228,17 @@ namespace Es.TexturePaint
 					//マテリアルのテクスチャをRenderTextureに変更
 					p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
 				}
-				if(p.useBumpPaint)
+				if(p.useNormalPaint)
 				{
-					//BumpTextureが設定されている場合
-					if(p.bumpTexture != null)
+					//NormalTextureが設定されている場合
+					if(p.normalTexture != null)
 					{
 						//法線マップテクスチャの生成
-						p.paintBumpTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						p.paintNormalTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 						//法線マップのコピー
-						Graphics.Blit(p.bumpTexture, p.paintBumpTexture);
+						Graphics.Blit(p.normalTexture, p.paintNormalTexture);
 						//マテリアルの法線マップテクスチャをRenderTextureに変更
-						p.material.SetTexture(p.bumpTexturePropertyID, p.paintBumpTexture);
+						p.material.SetTexture(p.normalTexturePropertyID, p.paintNormalTexture);
 					}
 					else
 						Debug.LogWarning("バンプマップペイントを利用するにはマテリアルにバンプマップテクスチャが設定されている必要があります");
@@ -255,8 +255,8 @@ namespace Es.TexturePaint
 			{
 				if(RenderTexture.active != p.paintMainTexture && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 					p.paintMainTexture.Release();
-				if(RenderTexture.active != p.paintBumpTexture && p.paintBumpTexture != null && p.paintBumpTexture.IsCreated())
-					p.paintBumpTexture.Release();
+				if(RenderTexture.active != p.paintNormalTexture && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
+					p.paintNormalTexture.Release();
 			}
 		}
 
@@ -299,32 +299,32 @@ namespace Es.TexturePaint
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
-		private void SetPaintBumpData(PaintBlush blush, Vector2 uv)
+		private void SetPaintNormalData(PaintBlush blush, Vector2 uv)
 		{
-			paintBumpMaterial.SetVector(paintUVPropertyID, uv);
-			paintBumpMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
-			paintBumpMaterial.SetTexture(blushBumpTexturePropertyID, blush.BlushBumpTexture);
-			paintBumpMaterial.SetFloat(blushScalePropertyID, blush.Scale);
-			paintBumpMaterial.SetFloat(blushBumpBlendPropertyID, blush.BumpBlend);
+			paintNormalMaterial.SetVector(paintUVPropertyID, uv);
+			paintNormalMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
+			paintNormalMaterial.SetTexture(blushNormalTexturePropertyID, blush.BlushNormalTexture);
+			paintNormalMaterial.SetFloat(blushScalePropertyID, blush.Scale);
+			paintNormalMaterial.SetFloat(blushNormalBlendPropertyID, blush.NormalBlend);
 
-			foreach(var key in paintBumpMaterial.shaderKeywords)
-				paintBumpMaterial.DisableKeyword(key);
-			switch(blush.BumpBlending)
+			foreach(var key in paintNormalMaterial.shaderKeywords)
+				paintNormalMaterial.DisableKeyword(key);
+			switch(blush.NormalBlending)
 			{
-				case PaintBlush.BumpBlendType.UseBlush:
-					paintBumpMaterial.EnableKeyword(BUMP_BLEND_USE_BLUSH);
+				case PaintBlush.NormalBlendType.UseBlush:
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BLUSH);
 					break;
 
-				case PaintBlush.BumpBlendType.Min:
-					paintBumpMaterial.EnableKeyword(BUMP_BLEND_MIN);
+				case PaintBlush.NormalBlendType.Min:
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_MIN);
 					break;
 
-				case PaintBlush.BumpBlendType.Max:
-					paintBumpMaterial.EnableKeyword(BUMP_BLEND_MAX);
+				case PaintBlush.NormalBlendType.Max:
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_MAX);
 					break;
 
 				default:
-					paintBumpMaterial.EnableKeyword(BUMP_BLEND_USE_BLUSH);
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BLUSH);
 					break;
 			}
 		}
@@ -354,12 +354,12 @@ namespace Es.TexturePaint
 				}
 
 				//バンプマップへのペイント
-				if(p.useBumpPaint && blush.BlushBumpTexture != null && p.paintBumpTexture != null && p.paintBumpTexture.IsCreated())
+				if(p.useNormalPaint && blush.BlushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
-					SetPaintBumpData(blush, uv);
+					SetPaintNormalData(blush, uv);
 
-					Graphics.Blit(p.paintBumpTexture, buf, paintBumpMaterial);
-					Graphics.Blit(buf, p.paintBumpTexture);
+					Graphics.Blit(p.paintNormalTexture, buf, paintNormalMaterial);
+					Graphics.Blit(buf, p.paintNormalTexture);
 				}
 				RenderTexture.ReleaseTemporary(buf);
 			}
@@ -521,9 +521,9 @@ namespace Es.TexturePaint
 						instance.paintSet.Add(new PaintSet
 						{
 							mainTextureName = "_MainTex",
-							bumpTextureName = "_BumpMap",
+							normalTextureName = "_BumpMap",
 							useMainPaint = true,
-							useBumpPaint = false
+							useNormalPaint = false
 						});
 					foldOut.Clear();
 				}
@@ -545,10 +545,30 @@ namespace Es.TexturePaint
 					if(foldOut[i] = EditorGUILayout.Foldout(foldOut[i], string.Format("Material \"{0}\"", materials[i].name)))
 					{
 						EditorGUI.indentLevel = 1;
+						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].mainTextureName = EditorGUILayout.TextField("MainTexture Property Name", instance.paintSet[i].mainTextureName);
-						instance.paintSet[i].bumpTextureName = EditorGUILayout.TextField("BumpMap Property Name", instance.paintSet[i].bumpTextureName);
+						if(EditorGUI.EndChangeCheck())
+							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+								if(t.paintSet.Count > i)
+									t.paintSet[i].mainTextureName = instance.paintSet[i].mainTextureName;
+						EditorGUI.BeginChangeCheck();
+						instance.paintSet[i].normalTextureName = EditorGUILayout.TextField("NormalMap Property Name", instance.paintSet[i].normalTextureName);
+						if(EditorGUI.EndChangeCheck())
+							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+								if(t.paintSet.Count > i)
+									t.paintSet[i].normalTextureName = instance.paintSet[i].normalTextureName;
+						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].useMainPaint = EditorGUILayout.Toggle("Use Main Paint", instance.paintSet[i].useMainPaint);
-						instance.paintSet[i].useBumpPaint = EditorGUILayout.Toggle("Use BumpMap Paint", instance.paintSet[i].useBumpPaint);
+						if(EditorGUI.EndChangeCheck())
+							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+								if(t.paintSet.Count > i)
+									t.paintSet[i].useMainPaint = instance.paintSet[i].useMainPaint;
+						EditorGUI.BeginChangeCheck();
+						instance.paintSet[i].useNormalPaint = EditorGUILayout.Toggle("Use NormalMap Paint", instance.paintSet[i].useNormalPaint);
+						if(EditorGUI.EndChangeCheck())
+							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+								if(t.paintSet.Count > i)
+									t.paintSet[i].useNormalPaint = instance.paintSet[i].useNormalPaint;
 						EditorGUI.indentLevel = 0;
 					}
 				}

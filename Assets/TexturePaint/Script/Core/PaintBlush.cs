@@ -32,7 +32,7 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ブラシの凹凸情報合成方式
 		/// </summary>
-		public enum BumpBlendType
+		public enum NormalBlendType
 		{
 			/// <summary>
 			/// ブラシ設定値を利用する
@@ -54,13 +54,13 @@ namespace Es.TexturePaint
 		private Texture2D blushTexture;
 
 		[SerializeField]
-		private Texture2D blushBumpTexture;
+		private Texture2D blushNormalTexture;
 
 		[SerializeField, Range(0, 1)]
 		private float blushScale = 0.1f;
 
 		[SerializeField, Range(0, 1)]
-		private float blushBumpBlend = 0.1f;
+		private float blushNormalBlend = 0.1f;
 
 		[SerializeField]
 		private Color blushColor;
@@ -69,7 +69,7 @@ namespace Es.TexturePaint
 		private ColorBlendType colorBlendType;
 
 		[SerializeField]
-		private BumpBlendType bumpBlendType;
+		private NormalBlendType normalBlendType;
 
 		/// <summary>
 		/// ブラシのテクスチャ
@@ -83,10 +83,10 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ブラシ法線マップテクスチャ
 		/// </summary>
-		public Texture2D BlushBumpTexture
+		public Texture2D BlushNormalTexture
 		{
-			get { return blushBumpTexture; }
-			set { blushBumpTexture = value; }
+			get { return blushNormalTexture; }
+			set { blushNormalTexture = value; }
 		}
 
 		/// <summary>
@@ -103,10 +103,10 @@ namespace Es.TexturePaint
 		/// 法線マップブレンド係数
 		/// [0,1]の範囲を取る
 		/// </summary>
-		public float BumpBlend
+		public float NormalBlend
 		{
-			get { return Mathf.Clamp01(blushBumpBlend); }
-			set { blushBumpBlend = Mathf.Clamp01(value); }
+			get { return Mathf.Clamp01(blushNormalBlend); }
+			set { blushNormalBlend = Mathf.Clamp01(value); }
 		}
 
 		/// <summary>
@@ -130,10 +130,10 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// 凹凸情報合成方式
 		/// </summary>
-		public BumpBlendType BumpBlending
+		public NormalBlendType NormalBlending
 		{
-			get { return bumpBlendType; }
-			set { bumpBlendType = value; }
+			get { return normalBlendType; }
+			set { normalBlendType = value; }
 		}
 
 		public PaintBlush(Texture2D blushTex, float scale, Color color)
@@ -143,18 +143,18 @@ namespace Es.TexturePaint
 			Color = color;
 		}
 
-		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D bumpTex, float bumpBlend)
+		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D NormalTex, float normalBlend)
 		  : this(blushTex, scale, color)
 		{
-			BlushBumpTexture = bumpTex;
-			BumpBlend = bumpBlend;
+			BlushNormalTexture = NormalTex;
+			blushNormalBlend = normalBlend;
 		}
 
-		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D bumpTex, float bumpBlend, ColorBlendType colorBlending, BumpBlendType bumpBlending)
-		: this(blushTex, scale, color, bumpTex, bumpBlend)
+		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D NormalTex, float normalBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
+		: this(blushTex, scale, color, NormalTex, normalBlend)
 		{
 			ColorBlending = colorBlending;
-			BumpBlending = bumpBlending;
+			NormalBlending = normalBlending;
 		}
 
 		public PaintBlush ShallowCopy()
@@ -163,8 +163,8 @@ namespace Es.TexturePaint
 				BlushTexture,
 				Scale,
 				Color,
-				BlushBumpTexture,
-				BumpBlend);
+				BlushNormalTexture,
+				NormalBlend);
 		}
 	}
 }
