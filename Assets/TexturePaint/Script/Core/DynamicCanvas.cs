@@ -37,11 +37,17 @@ namespace Es.TexturePaint
 			[SerializeField, Tooltip("法線マップテクスチャのプロパティ名")]
 			public string normalTextureName = "_BumpMap";
 
+			[SerializeField, Tooltip("ハイトマップテクスチャのプロパティ名")]
+			public string heightTextureName = "_ParallaxMap";
+
 			[SerializeField, Tooltip("ペイントをするか")]
 			public bool useMainPaint = true;
 
 			[SerializeField, Tooltip("法線マップペイントをするか(マテリアルに法線マップが設定されている必要があります)")]
 			public bool useNormalPaint = false;
+
+			[SerializeField, Tooltip("ハイトマップペイントをするか(マテリアルにハイトマップが設定されている必要があります)")]
+			public bool useHeightPaint = false;
 
 			/// <summary>
 			/// 最初にマテリアルにセットされているメインテクスチャ
@@ -51,14 +57,14 @@ namespace Es.TexturePaint
 			public Texture mainTexture;
 
 			/// <summary>
-			/// 最初にマテリアルにセットされている法線マップ
+			/// メインテクスチャをコピーしたペイント用RenderTexture
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public RenderTexture paintMainTexture;
 
 			/// <summary>
-			/// メインテクスチャをコピーしたペイント用RenderTexture
+			/// 最初にマテリアルにセットされている法線マップ
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
@@ -71,6 +77,20 @@ namespace Es.TexturePaint
 			[NonSerialized]
 			public RenderTexture paintNormalTexture;
 
+			/// <summary>
+			/// 最初にマテリアルにセットされているハイトマップ
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public Texture heightTexture;
+
+			/// <summary>
+			/// ハイトマップをコピーしたペイント用RenderTexture
+			/// </summary>
+			[HideInInspector]
+			[NonSerialized]
+			public RenderTexture paintHeightTexture;
+
 			#region ShaderPropertyID
 
 			[HideInInspector]
@@ -80,6 +100,10 @@ namespace Es.TexturePaint
 			[HideInInspector]
 			[NonSerialized]
 			public int normalTexturePropertyID;
+
+			[HideInInspector]
+			[NonSerialized]
+			public int heightTexturePropertyID;
 
 			#endregion ShaderPropertyID
 		}
@@ -94,19 +118,25 @@ namespace Es.TexturePaint
 		[SerializeField, HideInInspector, Tooltip("テクスチャペイント用マテリアル")]
 		private Material paintMaterial = null;
 
-		[SerializeField, HideInInspector, Tooltip("ブラシ法線マップ用マテリアル")]
+		[SerializeField, HideInInspector, Tooltip("法線マップペイント用マテリアル")]
 		private Material paintNormalMaterial = null;
+
+		[SerializeField, HideInInspector, Tooltip("ハイトマップペイント用マテリアル")]
+		private Material paintHeightMaterial = null;
 
 		#endregion SerializedProperties
 
 		#region ShaderPropertyID
 
 		private int paintUVPropertyID;
+
 		private int blushTexturePropertyID;
 		private int blushScalePropertyID;
 		private int blushColorPropertyID;
 		private int blushNormalTexturePropertyID;
 		private int blushNormalBlendPropertyID;
+		private int blushHeightTexturePropertyID;
+		private int blushHeightBlendPropertyID;
 
 		#endregion ShaderPropertyID
 
@@ -119,6 +149,12 @@ namespace Es.TexturePaint
 		private const string NORMAL_BLEND_USE_BLUSH = "TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH";
 		private const string NORMAL_BLEND_MIN = "TEXTURE_PAINT_NORMAL_BLEND_MIN";
 		private const string NORMAL_BLEND_MAX = "TEXTURE_PAINT_NORMAL_BLEND_MAX";
+
+		private const string HEIGHT_BLEND_USE_BLUSH = "TEXTURE_PAINT_HEIGHT_BLEND_USE_BLUSH";
+		private const string HEIGHT_BLEND_ADD = "TEXTURE_PAINT_HEIGHT_BLEND_ADD";
+		private const string HEIGHT_BLEND_SUB = "TEXTURE_PAINT_HEIGHT_BLEND_SUB";
+		private const string HEIGHT_BLEND_MIN = "TEXTURE_PAINT_HEIGHT_BLEND_MIN";
+		private const string HEIGHT_BLEND_MAX = "TEXTURE_PAINT_HEIGHT_BLEND_MAX";
 
 		#endregion ShaderKeywords
 
@@ -174,6 +210,7 @@ namespace Es.TexturePaint
 			{
 				p.mainTexturePropertyID = Shader.PropertyToID(p.mainTextureName);
 				p.normalTexturePropertyID = Shader.PropertyToID(p.normalTextureName);
+				p.heightTexturePropertyID = Shader.PropertyToID(p.heightTextureName);
 			}
 			paintUVPropertyID = Shader.PropertyToID("_PaintUV");
 			blushTexturePropertyID = Shader.PropertyToID("_Blush");
@@ -181,6 +218,8 @@ namespace Es.TexturePaint
 			blushColorPropertyID = Shader.PropertyToID("_ControlColor");
 			blushNormalTexturePropertyID = Shader.PropertyToID("_BlushNormal");
 			blushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
+			blushHeightTexturePropertyID = Shader.PropertyToID("_BlushHeight");
+			blushHeightBlendPropertyID = Shader.PropertyToID("_HeightBlend");
 		}
 
 		/// <summary>
@@ -206,6 +245,8 @@ namespace Es.TexturePaint
 					p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
 				if(p.useNormalPaint)
 					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
+				if(p.useHeightPaint)
+					p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
 			}
 		}
 
@@ -243,6 +284,21 @@ namespace Es.TexturePaint
 					else
 						Debug.LogWarning("法線マップペイントを利用するにはマテリアルに法線マップテクスチャが設定されている必要があります");
 				}
+				if(p.useHeightPaint)
+				{
+					//HeightTextureが設定されている場合
+					if(p.heightTexture != null)
+					{
+						//ハイトマップテクスチャの生成
+						p.paintHeightTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						//ハイトマップのコピー
+						Graphics.Blit(p.heightTexture, p.paintHeightTexture);
+						//マテリアルのハイトマップテクスチャをRenderTextureに変更
+						p.material.SetTexture(p.heightTexturePropertyID, p.paintHeightTexture);
+					}
+					else
+						Debug.LogWarning("ハイトマップペイントを利用するにはマテリアルにハイトマップテクスチャが設定されている必要があります");
+				}
 			}
 		}
 
@@ -257,6 +313,8 @@ namespace Es.TexturePaint
 					p.paintMainTexture.Release();
 				if(RenderTexture.active != p.paintNormalTexture && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 					p.paintNormalTexture.Release();
+				if(RenderTexture.active != p.paintHeightTexture && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
+					p.paintHeightTexture.Release();
 			}
 		}
 
@@ -330,6 +388,49 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
+		/// ハイトマップペイントに必要なデータをシェーダーにセットする
+		/// </summary>
+		/// <param name="blush">ブラシ</param>
+		/// <param name="uv">ヒット位置のUV座標</param>
+		private void SetPaintHeightData(PaintBlush blush, Vector2 uv)
+		{
+			paintHeightMaterial.SetVector(paintUVPropertyID, uv);
+			paintHeightMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
+			paintHeightMaterial.SetTexture(blushHeightTexturePropertyID, blush.BlushHeightTexture);
+			paintHeightMaterial.SetFloat(blushScalePropertyID, blush.Scale);
+			paintHeightMaterial.SetFloat(blushHeightBlendPropertyID, blush.HeightBlend);
+
+			foreach(var key in paintHeightMaterial.shaderKeywords)
+				paintHeightMaterial.DisableKeyword(key);
+			switch(blush.HeightBlending)
+			{
+				case PaintBlush.HeightBlendType.UseBlush:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_USE_BLUSH);
+					break;
+
+				case PaintBlush.HeightBlendType.Add:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_ADD);
+					break;
+
+				case PaintBlush.HeightBlendType.Sub:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_SUB);
+					break;
+
+				case PaintBlush.HeightBlendType.Min:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_MIN);
+					break;
+
+				case PaintBlush.HeightBlendType.Max:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_MAX);
+					break;
+
+				default:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_ADD);
+					break;
+			}
+		}
+
+		/// <summary>
 		/// 直接UV座標を指定したペイント処理を行う
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
@@ -360,6 +461,14 @@ namespace Es.TexturePaint
 
 					Graphics.Blit(p.paintNormalTexture, buf, paintNormalMaterial);
 					Graphics.Blit(buf, p.paintNormalTexture);
+				}
+				//ハイトマップへのペイント
+				if(p.useHeightPaint && blush.BlushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
+				{
+					SetPaintHeightData(blush, uv);
+
+					Graphics.Blit(p.paintHeightTexture, buf, paintHeightMaterial);
+					Graphics.Blit(buf, p.paintHeightTexture);
 				}
 				RenderTexture.ReleaseTemporary(buf);
 			}
@@ -522,6 +631,7 @@ namespace Es.TexturePaint
 						{
 							mainTextureName = "_MainTex",
 							normalTextureName = "_BumpMap",
+							heightTextureName = "_ParallaxMap",
 							useMainPaint = true,
 							useNormalPaint = false
 						});
@@ -558,6 +668,12 @@ namespace Es.TexturePaint
 								if(t.paintSet.Count > i)
 									t.paintSet[i].normalTextureName = instance.paintSet[i].normalTextureName;
 						EditorGUI.BeginChangeCheck();
+						instance.paintSet[i].heightTextureName = EditorGUILayout.TextField("HeightMap Property Name", instance.paintSet[i].heightTextureName);
+						if(EditorGUI.EndChangeCheck())
+							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+								if(t.paintSet.Count > i)
+									t.paintSet[i].heightTextureName = instance.paintSet[i].heightTextureName;
+						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].useMainPaint = EditorGUILayout.Toggle("Use Main Paint", instance.paintSet[i].useMainPaint);
 						if(EditorGUI.EndChangeCheck())
 							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
@@ -569,6 +685,12 @@ namespace Es.TexturePaint
 							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
 								if(t.paintSet.Count > i)
 									t.paintSet[i].useNormalPaint = instance.paintSet[i].useNormalPaint;
+						EditorGUI.BeginChangeCheck();
+						instance.paintSet[i].useHeightPaint = EditorGUILayout.Toggle("Use HeightMap Paint", instance.paintSet[i].useHeightPaint);
+						if(EditorGUI.EndChangeCheck())
+							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+								if(t.paintSet.Count > i)
+									t.paintSet[i].useHeightPaint = instance.paintSet[i].useHeightPaint;
 						EditorGUI.indentLevel = 0;
 					}
 				}
