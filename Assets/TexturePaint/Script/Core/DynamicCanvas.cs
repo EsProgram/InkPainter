@@ -34,13 +34,13 @@ namespace Es.TexturePaint
 			[SerializeField, Tooltip("メインテクスチャのプロパティ名")]
 			public string mainTextureName = "_MainTex";
 
-			[SerializeField, Tooltip("バンプマップテクスチャのプロパティ名")]
+			[SerializeField, Tooltip("法線マップテクスチャのプロパティ名")]
 			public string normalTextureName = "_BumpMap";
 
 			[SerializeField, Tooltip("ペイントをするか")]
 			public bool useMainPaint = true;
 
-			[SerializeField, Tooltip("バンプマップペイントをするか(マテリアルにバンプマップが設定されている必要があります)")]
+			[SerializeField, Tooltip("法線マップペイントをするか(マテリアルに法線マップが設定されている必要があります)")]
 			public bool useNormalPaint = false;
 
 			/// <summary>
@@ -51,7 +51,7 @@ namespace Es.TexturePaint
 			public Texture mainTexture;
 
 			/// <summary>
-			/// 最初にマテリアルにセットされているバンプマップ
+			/// 最初にマテリアルにセットされている法線マップ
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
@@ -65,7 +65,7 @@ namespace Es.TexturePaint
 			public Texture normalTexture;
 
 			/// <summary>
-			/// バンプマップをコピーしたペイント用RenderTexture
+			/// 法線マップをコピーしたペイント用RenderTexture
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
@@ -94,7 +94,7 @@ namespace Es.TexturePaint
 		[SerializeField, HideInInspector, Tooltip("テクスチャペイント用マテリアル")]
 		private Material paintMaterial = null;
 
-		[SerializeField, HideInInspector, Tooltip("ブラシバンプマップ用マテリアル")]
+		[SerializeField, HideInInspector, Tooltip("ブラシ法線マップ用マテリアル")]
 		private Material paintNormalMaterial = null;
 
 		#endregion SerializedProperties
@@ -116,7 +116,7 @@ namespace Es.TexturePaint
 		private const string COLOR_BLEND_USE_BLUSH = "TEXTURE_PAINT_COLOR_BLEND_USE_BLUSH";
 		private const string COLOR_BLEND_NEUTRAL = "TEXTURE_PAINT_COLOR_BLEND_NEUTRAL";
 
-		private const string NORMAL_BLEND_USE_BLUSH = "TEXTURE_PAINT_Normal_BLEND_USE_BLUSH";
+		private const string NORMAL_BLEND_USE_BLUSH = "TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH";
 		private const string NORMAL_BLEND_MIN = "TEXTURE_PAINT_NORMAL_BLEND_MIN";
 		private const string NORMAL_BLEND_MAX = "TEXTURE_PAINT_NORMAL_BLEND_MAX";
 
@@ -241,7 +241,7 @@ namespace Es.TexturePaint
 						p.material.SetTexture(p.normalTexturePropertyID, p.paintNormalTexture);
 					}
 					else
-						Debug.LogWarning("バンプマップペイントを利用するにはマテリアルにバンプマップテクスチャが設定されている必要があります");
+						Debug.LogWarning("法線マップペイントを利用するにはマテリアルに法線マップテクスチャが設定されている必要があります");
 				}
 			}
 		}
@@ -295,7 +295,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// バンプマップペイントに必要なデータをシェーダーにセットする
+		/// 法線マップペイントに必要なデータをシェーダーにセットする
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
@@ -353,7 +353,7 @@ namespace Es.TexturePaint
 					Graphics.Blit(buf, p.paintMainTexture);
 				}
 
-				//バンプマップへのペイント
+				//法線マップへのペイント
 				if(p.useNormalPaint && blush.BlushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
 					SetPaintNormalData(blush, uv);
