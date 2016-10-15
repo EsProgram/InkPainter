@@ -2,7 +2,7 @@
 
 This asset allows you to Texture-Paint on Unity.
 
-Click here for [details]](http://esprog.hatenablog.com/archive/category/UnityTexturePaint).
+Click here for [details](http://esprog.hatenablog.com/archive/category/UnityTexturePaint).
 
 <p align="center">
   <img src="Capture/heightmap3.gif" width="600"/>
