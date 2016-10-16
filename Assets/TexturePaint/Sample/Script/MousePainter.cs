@@ -27,6 +27,7 @@ namespace Es.TexturePaint.Sample
 			if(Input.GetMouseButton(0))
 			{
 				var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				bool success = true;
 				RaycastHit hitInfo;
 				if(Physics.Raycast(ray, out hitInfo))
 				{
@@ -35,25 +36,27 @@ namespace Es.TexturePaint.Sample
 						switch(useMethodType)
 						{
 							case UseMethodType.RaycastHitInfo:
-								paintObject.Paint(blush, hitInfo);
+								success = paintObject.Paint(blush, hitInfo);
 								break;
 
 							case UseMethodType.WorldPoint:
-								paintObject.Paint(blush, hitInfo.point);
+								success = paintObject.Paint(blush, hitInfo.point);
 
 								break;
 
 							case UseMethodType.NearestSurfacePoint:
-								paintObject.PaintNearestTriangleSurface(blush, hitInfo.point);
+								success = paintObject.PaintNearestTriangleSurface(blush, hitInfo.point);
 								break;
 
 							case UseMethodType.DirectUV:
-								paintObject.PaintUVDirect(blush, hitInfo.textureCoord);
+								success = paintObject.PaintUVDirect(blush, hitInfo.textureCoord);
 								break;
 
 							default:
 								break;
 						}
+					if(!success)
+						Debug.LogError("ペイントに失敗しました");
 				}
 			}
 		}

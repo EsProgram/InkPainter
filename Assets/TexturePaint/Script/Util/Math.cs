@@ -27,7 +27,7 @@ namespace Es.Utility
 			var vp = p - t1;
 
 			var nv = Vector3.Cross(v1, v2);
-			var val = Vector3.Dot(nv, vp);
+			var val = Vector3.Dot(nv.normalized, vp.normalized);
 			if(-TOLERANCE < val && val < TOLERANCE)
 				return true;
 			return false;
@@ -42,7 +42,7 @@ namespace Es.Utility
 		/// <returns>点pが辺上に存在しているかどうか</returns>
 		public static bool ExistPointOnEdge(Vector3 p, Vector3 v1, Vector3 v2)
 		{
-			return 1 - TOLERANCE < Vector3.Dot(v2 - p, v2 - v1);
+			return 1 - TOLERANCE < Vector3.Dot((v2 - p).normalized, (v2 - v1).normalized);
 		}
 
 		/// <summary>
