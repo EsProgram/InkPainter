@@ -4,9 +4,18 @@ This asset allows you to Texture-Paint on Unity.
 
 Click here for [details](http://esprog.hatenablog.com/archive/category/UnityTexturePaint).
 
+
+
+## Examples
+
 <p align="center">
   <img src="Capture/heightmap3.gif" width="600"/>
 </p>
+
+<p align="center">
+  <img src="Capture/displacement_rolling.gif" width="600"/>
+</p>
+
 
 
 ## Main function
