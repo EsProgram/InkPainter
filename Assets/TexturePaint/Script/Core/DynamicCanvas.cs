@@ -163,7 +163,6 @@ namespace Es.TexturePaint
 		private int[] meshTriangles;
 		private Vector3[] meshVertices;
 		private Vector2[] meshUV;
-		private Vector3[] meshNormals;
 
 		#region UnityEventMethod
 
@@ -200,7 +199,6 @@ namespace Es.TexturePaint
 			meshTriangles = mesh.triangles;
 			meshVertices = mesh.vertices;
 			meshUV = mesh.uv;
-			meshNormals = mesh.normals;
 		}
 
 		/// <summary>
@@ -489,7 +487,7 @@ namespace Es.TexturePaint
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
 
 			//頂点の中で一番近いものを含む三角形を取得
-			var tris = Utility.Math.GetNearestVerticesTriangleIndex(p, meshVertices, meshTriangles);
+			var tris = Utility.Math.GetNearestVerticesTriangle(p, meshVertices, meshTriangles);
 
 			//それぞれの三角形空間でそれっぽいp'を計算
 			var pds = new List<Vector3>();
@@ -498,9 +496,10 @@ namespace Es.TexturePaint
 				var i0 = i;
 				var i1 = i + 1;
 				var i2 = i + 2;
-				var n = (meshNormals[tris[i0]] + meshNormals[tris[i1]] + meshNormals[tris[i2]]).normalized;
-				pds.Add(Utility.Math.TriangleSpaceProjection(p, meshVertices[tris[i0]], meshVertices[tris[i1]], meshVertices[tris[i2]], n));
+				pds.Add(Utility.Math.TriangleSpaceProjection(p, tris[i0], tris[i1], tris[i2]));
 			}
+
+			//HACK:p'が三角形内部にない場合は一番近い頂点位置をp'に設定した方がいい？
 
 			//pに一番近いp'が求めたかったオブジェクト表面
 			var pd = pds.OrderBy(t => Vector3.Distance(p, t)).First();
