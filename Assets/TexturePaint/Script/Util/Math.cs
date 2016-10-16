@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Es.Utility
@@ -26,8 +27,8 @@ namespace Es.Utility
 			var v2 = t3 - t1;
 			var vp = p - t1;
 
-			var nv = Vector3.Cross(v1, v2);
-			var val = Vector3.Dot(nv, vp);
+			var nv = Vector3.Cross(v1.normalized, v2.normalized);
+			var val = Vector3.Dot(nv.normalized, vp.normalized);
 			if(-TOLERANCE < val && val < TOLERANCE)
 				return true;
 			return false;
@@ -42,7 +43,10 @@ namespace Es.Utility
 		/// <returns>点pが辺上に存在しているかどうか</returns>
 		public static bool ExistPointOnEdge(Vector3 p, Vector3 v1, Vector3 v2)
 		{
-			return 1 - TOLERANCE < Vector3.Dot(v2 - p, v2 - v1);
+			var border = 1 - TOLERANCE;
+			var angle = Vector3.Dot((v2 - p).normalized, (v2 - v1).normalized);
+			return border < angle;
+			//return 1 - TOLERANCE < Vector3.Dot(v2 - p, v2 - v1);
 		}
 
 		/// <summary>
@@ -71,9 +75,9 @@ namespace Es.Utility
 		/// <returns>点pが三角形内部に存在するかどうか</returns>
 		public static bool ExistPointInTriangle(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
-			var a = Vector3.Cross(t1 - t3, p - t1).normalized;
-			var b = Vector3.Cross(t2 - t1, p - t2).normalized;
-			var c = Vector3.Cross(t3 - t2, p - t3).normalized;
+			var a = Vector3.Cross((t1 - t3).normalized, (p - t1).normalized).normalized;
+			var b = Vector3.Cross((t2 - t1).normalized, (p - t2).normalized).normalized;
+			var c = Vector3.Cross((t3 - t2).normalized, (p - t3).normalized).normalized;
 
 			var d_ab = Vector3.Dot(a, b);
 			var d_bc = Vector3.Dot(b, c);
@@ -81,6 +85,20 @@ namespace Es.Utility
 			if(1 - TOLERANCE < d_ab && 1 - TOLERANCE < d_bc)
 				return true;
 			return false;
+		}
+
+		/// <summary>
+		/// 点pが与えられた3点がなす三角形上に存在するかを調査する
+		/// 入力(p, t1, t2, t3)各点は同一平面上に存在する必要がある
+		/// </summary>
+		/// <param name="p">調査点p</param>
+		/// <param name="t1">三角形をなす頂点</param>
+		/// <param name="t2">三角形をなす頂点</param>
+		/// <param name="t3">三角形をなす頂点</param>
+		/// <returns>点pが三角形上に存在するかどうか</returns>
+		public static bool ExistPointOnTriangle(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
+		{
+			return ExistPointOnTriangleEdge(p, t1, t2, t3) || ExistPointInTriangle(p, t1, t2, t3);
 		}
 
 		/// <summary>
@@ -128,9 +146,9 @@ namespace Es.Utility
 		/// <param name="vertices">頂点リスト</param>
 		/// <param name="triangles">頂点の三角形リスト</param>
 		/// <returns></returns>
-		public static Vector3[] GetNearestVerticesTriangle(Vector3 p, Vector3[] vertices, int[] triangles)
+		public static int[] GetNearestVerticesTriangleIndex(Vector3 p, Vector3[] vertices, int[] triangles)
 		{
-			List<Vector3> ret = new List<Vector3>();
+			List<int> ret = new List<int>();
 
 			int nearestIndex = triangles[0];
 			float nearestDistance = Vector3.Distance(vertices[nearestIndex], p);
@@ -171,9 +189,9 @@ namespace Es.Utility
 						default:
 							break;
 					}
-					ret.Add(vertices[triangles[i0]]);
-					ret.Add(vertices[triangles[i1]]);
-					ret.Add(vertices[triangles[i2]]);
+					ret.Add(triangles[i0]);
+					ret.Add(triangles[i1]);
+					ret.Add(triangles[i2]);
 				}
 			}
 			return ret.ToArray();
@@ -186,30 +204,33 @@ namespace Es.Utility
 		/// <param name="t1">三角形頂点</param>
 		/// <param name="t2">三角形頂点</param>
 		/// <param name="t3">三角形頂点</param>
+		/// <param name="n">三角形の法線</param>
 		/// <returns>投影後の三角形空間上の点</returns>
-		public static Vector3 TriangleSpaceProjection(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
+		public static Vector3 TriangleSpaceProjection(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3, Vector3 n)
 		{
-			var g = (t1 + t2 + t3) / 3;
-			var pa = t1 - p;
-			var pb = t2 - p;
-			var pc = t3 - p;
-			var ga = t1 - g;
-			var gb = t2 - g;
-			var gc = t3 - g;
+			//三角形のなす平面上でpに最も近い点p'を取得
+			var pd = p + n * (Vector3.Dot(n, t1) - Vector3.Dot(n, p));
 
-			var _pa_ = pa.magnitude;
-			var _pb_ = pb.magnitude;
-			var _pc_ = pc.magnitude;
+			//p'が三角形上の点であればそれを返す
+			if(ExistPointOnTriangle(pd, t1, t2, t3))
+				return pd;
 
-			var lmin = Mathf.Min(Mathf.Min(_pa_, _pb_), _pc_);
+			//一番近い頂点2つを選択
+			var tris = new List<Vector3> { t1, t2, t3 };
+			tris.OrderBy(s => Vector3.Distance(s, pd));
 
-			Func<float, float, float> k = (t, u) => (t - lmin + u - lmin) / 2;
+			//直線の内分点を求める
+			var a = tris[1] - tris[0];
+			var b = pd - tris[0];
 
-			var A = k(_pb_, _pc_);
-			var B = k(_pc_, _pa_);
-			var C = k(_pa_, _pb_);
-			var pd = g + (ga * A + gb * B + gc * C);
-			return pd;
+			var r = Vector3.Dot(a, b);
+
+			if(r <= 0)
+				return tris[0];
+			else if(r >= 1)
+				return tris[1];
+			else
+				return tris[0] + r * a;
 		}
 	}
 }

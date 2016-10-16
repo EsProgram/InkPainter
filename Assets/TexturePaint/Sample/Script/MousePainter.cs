@@ -17,14 +17,17 @@ namespace Es.TexturePaint.Sample
 		}
 
 		[SerializeField]
-		private PaintBlush blush;
+		private bool continuous = true;
+
+		[SerializeField]
+		private PaintBlush blush = null;
 
 		[SerializeField]
 		private UseMethodType useMethodType = UseMethodType.RaycastHitInfo;
 
 		private void Update()
 		{
-			if(Input.GetMouseButton(0))
+			if(!continuous && Input.GetMouseButtonDown(0) || continuous && Input.GetMouseButton(0))
 			{
 				var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hitInfo;
