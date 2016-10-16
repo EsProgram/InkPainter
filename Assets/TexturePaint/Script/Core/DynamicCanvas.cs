@@ -241,8 +241,7 @@ namespace Es.TexturePaint
 		{
 			foreach(var p in paintSet)
 			{
-				if(p.useMainPaint)
-					p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
+				p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
 				if(p.useNormalPaint)
 					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
 				if(p.useHeightPaint)
@@ -275,7 +274,7 @@ namespace Es.TexturePaint
 					if(p.normalTexture != null)
 					{
 						//法線マップテクスチャの生成
-						p.paintNormalTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						p.paintNormalTexture = new RenderTexture(p.normalTexture.width, p.normalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 						//法線マップのコピー
 						Graphics.Blit(p.normalTexture, p.paintNormalTexture);
 						//マテリアルの法線マップテクスチャをRenderTextureに変更
@@ -290,7 +289,7 @@ namespace Es.TexturePaint
 					if(p.heightTexture != null)
 					{
 						//ハイトマップテクスチャの生成
-						p.paintHeightTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						p.paintHeightTexture = new RenderTexture(p.heightTexture.width, p.heightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 						//ハイトマップのコピー
 						Graphics.Blit(p.heightTexture, p.paintHeightTexture);
 						//マテリアルのハイトマップテクスチャをRenderTextureに変更
@@ -440,15 +439,12 @@ namespace Es.TexturePaint
 		{
 			foreach(var p in paintSet)
 			{
-				RenderTexture buf = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
-				if(buf == null)
-				{
-					Debug.LogError("RenderTextureの生成に失敗しました");
-					return false;
-				}
+				RenderTexture buf = null;
 				//メインテクスチャへのペイント
 				if(p.useMainPaint && blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
+					if(buf == null)
+						buf = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
 					SetPaintData(blush, uv);
 					Graphics.Blit(p.paintMainTexture, buf, paintMaterial);
 					Graphics.Blit(buf, p.paintMainTexture);
@@ -457,6 +453,9 @@ namespace Es.TexturePaint
 				//法線マップへのペイント
 				if(p.useNormalPaint && blush.BlushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
+					if(buf == null)
+						buf = RenderTexture.GetTemporary(p.normalTexture.width, p.normalTexture.height);
+
 					SetPaintNormalData(blush, uv);
 
 					Graphics.Blit(p.paintNormalTexture, buf, paintNormalMaterial);
@@ -465,6 +464,8 @@ namespace Es.TexturePaint
 				//ハイトマップへのペイント
 				if(p.useHeightPaint && blush.BlushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
+					if(buf == null)
+						buf = RenderTexture.GetTemporary(p.heightTexture.width, p.heightTexture.height);
 					SetPaintHeightData(blush, uv);
 
 					Graphics.Blit(p.paintHeightTexture, buf, paintHeightMaterial);
