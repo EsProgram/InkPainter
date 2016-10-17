@@ -100,27 +100,27 @@ float4 HeightBlend(float4 targetHeight,float4 mainHeight, float blend, float blu
 
 #define __HEIGHT_BLEND(targetHeight) HeightBlend((targetHeight), mainHeight, blend, blushAlpha)
 
-//法線マップブレンド後の値を取得(メインテクスチャとブラシを補間)
+//ハイトマップブレンド後の値を取得(メインテクスチャとブラシを補間)
 float4 TexturePaintHeightBlendUseBlush(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(blushHeight);
 }
 
-//法線マップブレンド後の値を取得(値を加算)
+//ハイトマップブレンド後の値を取得(値を加算)
 float4 TexturePaintHeightBlendAdd(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(mainHeight + blushHeight);
 }
 
-//法線マップブレンド後の値を取得(値を加算)
+//ハイトマップブレンド後の値を取得(値を加算)
 float4 TexturePaintHeightBlendSub(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(mainHeight - blushHeight);
 }
 
-//法線マップブレンド後の値を取得(値の低い方に補間)
+//ハイトマップブレンド後の値を取得(値の低い方に補間)
 float4 TexturePaintHeightBlendMin(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(min(mainHeight, blushHeight));
 }
 
-//法線マップブレンド後の値を取得(値の高い方に補間)
+//ハイトマップブレンド後の値を取得(値の高い方に補間)
 float4 TexturePaintHeightBlendMax(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(max(mainHeight, blushHeight));
 }
