@@ -110,7 +110,7 @@ namespace Es.TexturePaint
 
 		private const int DEFAULT_TEXTURE_SIZE = 256;
 
-		#region SerializedProperties
+		#region SerializedField
 
 		[SerializeField]
 		private List<PaintSet> paintSet = null;
@@ -124,7 +124,7 @@ namespace Es.TexturePaint
 		[SerializeField, HideInInspector, Tooltip("ハイトマップペイント用マテリアル")]
 		private Material paintHeightMaterial = null;
 
-		#endregion SerializedProperties
+		#endregion SerializedField
 
 		#region ShaderPropertyID
 
@@ -158,11 +158,15 @@ namespace Es.TexturePaint
 
 		#endregion ShaderKeywords
 
+		#region MeshData
+
 		private MeshFilter meshFilter;
 		private Mesh mesh;
 		private int[] meshTriangles;
 		private Vector3[] meshVertices;
 		private Vector2[] meshUV;
+
+		#endregion MeshData
 
 		#region UnityEventMethod
 
@@ -182,6 +186,8 @@ namespace Es.TexturePaint
 		}
 
 		#endregion UnityEventMethod
+
+		#region PrivateMethod
 
 		/// <summary>
 		/// メッシュから取得できるデータをキャッシュする
@@ -429,6 +435,10 @@ namespace Es.TexturePaint
 			}
 		}
 
+		#endregion PrivateMethod
+
+		#region PublicMethod
+
 		/// <summary>
 		/// 直接UV座標を指定したペイント処理を行う
 		/// </summary>
@@ -439,39 +449,34 @@ namespace Es.TexturePaint
 		{
 			foreach(var p in paintSet)
 			{
-				RenderTexture buf = null;
 				//メインテクスチャへのペイント
 				if(p.useMainPaint && blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
-					if(buf == null)
-						buf = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
+					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
 					SetPaintData(blush, uv);
-					Graphics.Blit(p.paintMainTexture, buf, paintMaterial);
-					Graphics.Blit(buf, p.paintMainTexture);
+					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMaterial);
+					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
+					RenderTexture.ReleaseTemporary(mainPaintTextureBuffer);
 				}
 
 				//法線マップへのペイント
 				if(p.useNormalPaint && blush.BlushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
-					if(buf == null)
-						buf = RenderTexture.GetTemporary(p.normalTexture.width, p.normalTexture.height);
-
+					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.normalTexture.width, p.normalTexture.height);
 					SetPaintNormalData(blush, uv);
-
-					Graphics.Blit(p.paintNormalTexture, buf, paintNormalMaterial);
-					Graphics.Blit(buf, p.paintNormalTexture);
+					Graphics.Blit(p.paintNormalTexture, normalPaintTextureBuffer, paintNormalMaterial);
+					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
+					RenderTexture.ReleaseTemporary(normalPaintTextureBuffer);
 				}
 				//ハイトマップへのペイント
 				if(p.useHeightPaint && blush.BlushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
-					if(buf == null)
-						buf = RenderTexture.GetTemporary(p.heightTexture.width, p.heightTexture.height);
+					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.heightTexture.width, p.heightTexture.height);
 					SetPaintHeightData(blush, uv);
-
-					Graphics.Blit(p.paintHeightTexture, buf, paintHeightMaterial);
-					Graphics.Blit(buf, p.paintHeightTexture);
+					Graphics.Blit(p.paintHeightTexture, heightPaintTextureBuffer, paintHeightMaterial);
+					Graphics.Blit(heightPaintTextureBuffer, p.paintHeightTexture);
+					RenderTexture.ReleaseTemporary(heightPaintTextureBuffer);
 				}
-				RenderTexture.ReleaseTemporary(buf);
 			}
 			return true;
 		}
@@ -602,6 +607,10 @@ namespace Es.TexturePaint
 			SetRenderTexture();
 		}
 
+		#endregion PublicMethod
+
+		#region CustomEditor
+
 #if UNITY_EDITOR
 
 		[CustomEditor(typeof(DynamicCanvas))]
@@ -699,5 +708,7 @@ namespace Es.TexturePaint
 		}
 
 #endif
+
+		#endregion CustomEditor
 	}
 }
