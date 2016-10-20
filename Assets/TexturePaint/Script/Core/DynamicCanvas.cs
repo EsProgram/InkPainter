@@ -147,6 +147,8 @@ namespace Es.TexturePaint
 		private const string COLOR_BLEND_NEUTRAL = "TEXTURE_PAINT_COLOR_BLEND_NEUTRAL";
 
 		private const string NORMAL_BLEND_USE_BLUSH = "TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH";
+		private const string NORMAL_BLEND_ADD = "TEXTURE_PAINT_NORMAL_BLEND_ADD";
+		private const string NORMAL_BLEND_SUB = "TEXTURE_PAINT_NORMAL_BLEND_SUB";
 		private const string NORMAL_BLEND_MIN = "TEXTURE_PAINT_NORMAL_BLEND_MIN";
 		private const string NORMAL_BLEND_MAX = "TEXTURE_PAINT_NORMAL_BLEND_MAX";
 
@@ -328,7 +330,7 @@ namespace Es.TexturePaint
 		/// </summary>
 		/// <param name="blush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
-		private void SetPaintData(PaintBlush blush, Vector2 uv)
+		private void SetPaintMainData(PaintBlush blush, Vector2 uv)
 		{
 			paintMaterial.SetVector(paintUVPropertyID, uv);
 			paintMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
@@ -376,6 +378,14 @@ namespace Es.TexturePaint
 			{
 				case PaintBlush.NormalBlendType.UseBlush:
 					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BLUSH);
+					break;
+
+				case PaintBlush.NormalBlendType.Add:
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_ADD);
+					break;
+
+				case PaintBlush.NormalBlendType.Sub:
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_SUB);
 					break;
 
 				case PaintBlush.NormalBlendType.Min:
@@ -453,7 +463,7 @@ namespace Es.TexturePaint
 				if(p.useMainPaint && blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
 					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
-					SetPaintData(blush, uv);
+					SetPaintMainData(blush, uv);
 					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMaterial);
 					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
 					RenderTexture.ReleaseTemporary(mainPaintTextureBuffer);

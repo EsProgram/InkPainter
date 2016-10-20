@@ -13,7 +13,7 @@
 		[HideInInspector]
 		_NormalBlend("NormalBlend", FLOAT) = 1
 		[HideInInspector]
-		[KeywordEnum(USE_BLUSH, MIN, MAX)]
+		[KeywordEnum(USE_BLUSH, ADD, SUB MIN, MAX)]
 		TEXTURE_PAINT_NORMAL_BLEND("Normal Blend Keyword", FLOAT) = 0
 	}
 
@@ -42,7 +42,7 @@
 
 		Pass{
 			CGPROGRAM
-#pragma multi_compile TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH TEXTURE_PAINT_NORMAL_BLEND_MIN TEXTURE_PAINT_NORMAL_BLEND_MAX
+#pragma multi_compile TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH TEXTURE_PAINT_NORMAL_BLEND_ADD TEXTURE_PAINT_NORMAL_BLEND_SUB TEXTURE_PAINT_NORMAL_BLEND_MIN TEXTURE_PAINT_NORMAL_BLEND_MAX
 #pragma vertex vert
 #pragma fragment frag
 

@@ -50,6 +50,10 @@ float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 blushColor, float4
 //法線マップとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_NORMAL_BLENDに設定
 #ifdef TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH
 	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendUseBlush(mainNormal, blushNormal, blend, blushAlpha)
+#elif TEXTURE_PAINT_NORMAL_BLEND_ADD
+	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendAdd(mainNormal, blushNormal, blend, blushAlpha)
+#elif TEXTURE_PAINT_NORMAL_BLEND_SUB
+	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendSub(mainNormal, blushNormal, blend, blushAlpha)
 #elif TEXTURE_PAINT_NORMAL_BLEND_MIN
 	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendMin(mainNormal, blushNormal, blend, blushAlpha)
 #elif TEXTURE_PAINT_NORMAL_BLEND_MAX
@@ -59,7 +63,14 @@ float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 blushColor, float4
 #endif
 
 float4 NormalBlend(float4 targetNormal,float4 mainNormal, float blend, float blushAlpha) {
-	return normalize(lerp(mainNormal, targetNormal * blushAlpha, blend * blushAlpha));
+	float4 normal = lerp(mainNormal, targetNormal, blend * blushAlpha);
+#if defined(UNITY_NO_DXT5nm)
+	return normal;
+#else
+	normal.w = normal.x;
+	normal.xyz = normal.y;
+	return normal;
+#endif
 }
 
 #define __NORMAL_BLEND(targetNormal) NormalBlend((targetNormal), mainNormal, blend, blushAlpha)
@@ -67,6 +78,16 @@ float4 NormalBlend(float4 targetNormal,float4 mainNormal, float blend, float blu
 //法線マップブレンド後の値を取得(メインテクスチャとブラシを補間)
 float4 TexturePaintNormalBlendUseBlush(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
 	return __NORMAL_BLEND(blushNormal);
+}
+
+//法線マップブレンド後の値を取得(値を加算)
+float4 TexturePaintNormalBlendAdd(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
+	return __NORMAL_BLEND((mainNormal + blushNormal));
+}
+
+//法線マップブレンド後の値を取得(値を減算)
+float4 TexturePaintNormalBlendSub(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
+	return __NORMAL_BLEND((mainNormal - blushNormal));
 }
 
 //法線マップブレンド後の値を取得(値の低い方に補間)

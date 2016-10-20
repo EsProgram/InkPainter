@@ -40,6 +40,16 @@ namespace Es.TexturePaint
 			UseBlush,
 
 			/// <summary>
+			/// 対象を加算する
+			/// </summary>
+			Add,
+
+			/// <summary>
+			/// 対象を減算する
+			/// </summary>
+			Sub,
+
+			/// <summary>
 			/// 対象と比較して小さい方の値を利用する
 			/// </summary>
 			Min,
