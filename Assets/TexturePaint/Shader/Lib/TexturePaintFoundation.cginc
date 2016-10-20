@@ -116,7 +116,7 @@ float4 TexturePaintNormalBlendMax(float4 mainNormal, float4 blushNormal, float b
 #endif
 
 float4 HeightBlend(float4 targetHeight,float4 mainHeight, float blend, float blushAlpha) {
-	return lerp(mainHeight, targetHeight * blushAlpha, blend * blushAlpha);
+	return lerp(mainHeight, targetHeight, blend * blushAlpha);
 }
 
 #define __HEIGHT_BLEND(targetHeight) HeightBlend((targetHeight), mainHeight, blend, blushAlpha)
