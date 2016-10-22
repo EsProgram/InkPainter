@@ -1,7 +1,7 @@
-#ifndef TEXTURE_PAINT_FOUNDATION
+ï»¿#ifndef TEXTURE_PAINT_FOUNDATION
 #define TEXTURE_PAINT_FOUNDATION
 
-//ƒyƒCƒ“ƒgƒuƒ‰ƒV‚ª•`‰æ”ÍˆÍ“à‚©‚Ç‚¤‚©‚ğ’²‚×‚é
+//ãƒšã‚¤ãƒ³ãƒˆãƒ–ãƒ©ã‚·ãŒæç”»ç¯„å›²å†…ã‹ã©ã†ã‹ã‚’èª¿ã¹ã‚‹
 bool IsPaintRange(float2 mainUV, float2 paintUV, float blushScale) {
 	return
 		paintUV.x - blushScale < mainUV.x &&
@@ -10,7 +10,7 @@ bool IsPaintRange(float2 mainUV, float2 paintUV, float blushScale) {
 		mainUV.y < paintUV.y + blushScale;
 }
 
-//•`‰æ”ÍˆÍ“à‚Å—˜—p‚Å‚«‚éƒuƒ‰ƒV—pUV‚ğŒvZ‚·‚é
+//æç”»ç¯„å›²å†…ã§åˆ©ç”¨ã§ãã‚‹ãƒ–ãƒ©ã‚·ç”¨UVã‚’è¨ˆç®—ã™ã‚‹
 float2 CalcBlushUV(float2 mainUV, float2 paintUV, float blushScale) {
 #if UNITY_UV_STARTS_AT_TOP
 	return (mainUV - paintUV) / blushScale * 0.5 + 0.5;
@@ -19,7 +19,7 @@ float2 CalcBlushUV(float2 mainUV, float2 paintUV, float blushScale) {
 #endif
 }
 
-//ƒƒCƒ“ƒeƒNƒXƒ`ƒƒ‚Æƒuƒ‰ƒV‚ÌƒuƒŒƒ“ƒfƒBƒ“ƒOƒAƒ‹ƒSƒŠƒYƒ€‚ğTEXTURE_PAINT_COLOR_BLEND‚Éİ’è
+//ãƒ¡ã‚¤ãƒ³ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ãƒ–ãƒ©ã‚·ã®ãƒ–ãƒ¬ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã‚’TEXTURE_PAINT_COLOR_BLENDã«è¨­å®š
 #ifdef TEXTURE_PAINT_COLOR_BLEND_USE_CONTROL
 	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, blushColor, controlColor) TexturePaintColorBlendUseControl(targetColor, blushColor, controlColor)
 #elif TEXTURE_PAINT_COLOR_BLEND_USE_BLUSH
@@ -36,22 +36,22 @@ float4 ColorBlend(float4 targetColor, float4 blushColor, float blend) {
 
 #define __COLOR_BLEND(targetColor) ColorBlend((targetColor), mainColor, blushColor.a)
 
-//ƒuƒŒƒ“ƒhŒã‚ÌF‚ğæ“¾(w’èF‚ğg‚¤)
+//ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®è‰²ã‚’å–å¾—(æŒ‡å®šè‰²ã‚’ä½¿ã†)
 float4 TexturePaintColorBlendUseControl(float4 mainColor, float4 blushColor, float4 controlColor) {
 	return __COLOR_BLEND(controlColor);
 }
 
-//ƒuƒŒƒ“ƒhŒã‚ÌF‚ğæ“¾(ƒuƒ‰ƒVƒeƒNƒXƒ`ƒƒF‚ğg‚¤)
+//ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®è‰²ã‚’å–å¾—(ãƒ–ãƒ©ã‚·ãƒ†ã‚¯ã‚¹ãƒãƒ£è‰²ã‚’ä½¿ã†)
 float4 TexturePaintColorBlendUseBlush(float4 mainColor, float4 blushColor, float4 controlColor) {
 	return __COLOR_BLEND(blushColor);
 }
 
-//ƒuƒŒƒ“ƒhŒã‚ÌF‚ğæ“¾(w’èF‚Æƒuƒ‰ƒVƒeƒNƒXƒ`ƒƒF‚Ì’†ŠÔF)
+//ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®è‰²ã‚’å–å¾—(æŒ‡å®šè‰²ã¨ãƒ–ãƒ©ã‚·ãƒ†ã‚¯ã‚¹ãƒãƒ£è‰²ã®ä¸­é–“è‰²)
 float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 blushColor, float4 controlColor) {
 	return __COLOR_BLEND((blushColor + controlColor * controlColor.a) * 0.5);
 }
 
-//–@üƒ}ƒbƒv‚Æƒuƒ‰ƒV‚ÌƒuƒŒƒ“ƒfƒBƒ“ƒOƒAƒ‹ƒSƒŠƒYƒ€‚ğTEXTURE_PAINT_NORMAL_BLEND‚Éİ’è
+//æ³•ç·šãƒãƒƒãƒ—ã¨ãƒ–ãƒ©ã‚·ã®ãƒ–ãƒ¬ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã‚’TEXTURE_PAINT_NORMAL_BLENDã«è¨­å®š
 #ifdef TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH
 	#define TEXTURE_PAINT_NORMAL_BLEND(mainNormal, blushNormal, blend, blushAlpha) TexturePaintNormalBlendUseBlush(mainNormal, blushNormal, blend, blushAlpha)
 #elif TEXTURE_PAINT_NORMAL_BLEND_ADD
@@ -79,32 +79,32 @@ float4 NormalBlend(float4 targetNormal,float4 mainNormal, float blend, float blu
 
 #define __NORMAL_BLEND(targetNormal) NormalBlend((targetNormal), mainNormal, blend, blushAlpha)
 
-//–@üƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(ƒƒCƒ“ƒeƒNƒXƒ`ƒƒ‚Æƒuƒ‰ƒV‚ğ•âŠÔ)
+//æ³•ç·šãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(ãƒ¡ã‚¤ãƒ³ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ãƒ–ãƒ©ã‚·ã‚’è£œé–“)
 float4 TexturePaintNormalBlendUseBlush(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
 	return __NORMAL_BLEND(blushNormal);
 }
 
-//–@üƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚ğ‰ÁZ)
+//æ³•ç·šãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã‚’åŠ ç®—)
 float4 TexturePaintNormalBlendAdd(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
 	return __NORMAL_BLEND((mainNormal + blushNormal));
 }
 
-//–@üƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚ğŒ¸Z)
+//æ³•ç·šãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã‚’æ¸›ç®—)
 float4 TexturePaintNormalBlendSub(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
 	return __NORMAL_BLEND((mainNormal - blushNormal));
 }
 
-//–@üƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚Ì’á‚¢•û‚É•âŠÔ)
+//æ³•ç·šãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã®ä½ã„æ–¹ã«è£œé–“)
 float4 TexturePaintNormalBlendMin(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
 	return __NORMAL_BLEND(min(mainNormal, blushNormal));
 }
 
-//–@üƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚Ì‚‚¢•û‚É•âŠÔ)
+//æ³•ç·šãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã®é«˜ã„æ–¹ã«è£œé–“)
 float4 TexturePaintNormalBlendMax(float4 mainNormal, float4 blushNormal, float blend, float blushAlpha) {
 	return __NORMAL_BLEND(max(mainNormal, blushNormal));
 }
 
-//ƒnƒCƒgƒ}ƒbƒv‚Æƒuƒ‰ƒV‚ÌƒuƒŒƒ“ƒfƒBƒ“ƒOƒAƒ‹ƒSƒŠƒYƒ€‚ğTEXTURE_PAINT_HEIGHT_BLEND‚Éİ’è
+//ãƒã‚¤ãƒˆãƒãƒƒãƒ—ã¨ãƒ–ãƒ©ã‚·ã®ãƒ–ãƒ¬ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã‚’TEXTURE_PAINT_HEIGHT_BLENDã«è¨­å®š
 #ifdef TEXTURE_PAINT_HEIGHT_BLEND_USE_BLUSH
 	#define TEXTURE_PAINT_HEIGHT_BLEND(mainHeight, blushHeight, blend, blushAlpha) TexturePaintHeightBlendUseBlush(mainHeight, blushHeight, blend, blushAlpha)
 #elif TEXTURE_PAINT_HEIGHT_BLEND_ADD
@@ -125,27 +125,27 @@ float4 HeightBlend(float4 targetHeight,float4 mainHeight, float blend, float blu
 
 #define __HEIGHT_BLEND(targetHeight) HeightBlend((targetHeight), mainHeight, blend, blushAlpha)
 
-//ƒnƒCƒgƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(ƒƒCƒ“ƒeƒNƒXƒ`ƒƒ‚Æƒuƒ‰ƒV‚ğ•âŠÔ)
+//ãƒã‚¤ãƒˆãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(ãƒ¡ã‚¤ãƒ³ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ãƒ–ãƒ©ã‚·ã‚’è£œé–“)
 float4 TexturePaintHeightBlendUseBlush(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(blushHeight);
 }
 
-//ƒnƒCƒgƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚ğ‰ÁZ)
+//ãƒã‚¤ãƒˆãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã‚’åŠ ç®—)
 float4 TexturePaintHeightBlendAdd(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(mainHeight + blushHeight);
 }
 
-//ƒnƒCƒgƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚ğ‰ÁZ)
+//ãƒã‚¤ãƒˆãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã‚’åŠ ç®—)
 float4 TexturePaintHeightBlendSub(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(mainHeight - blushHeight);
 }
 
-//ƒnƒCƒgƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚Ì’á‚¢•û‚É•âŠÔ)
+//ãƒã‚¤ãƒˆãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã®ä½ã„æ–¹ã«è£œé–“)
 float4 TexturePaintHeightBlendMin(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(min(mainHeight, blushHeight));
 }
 
-//ƒnƒCƒgƒ}ƒbƒvƒuƒŒƒ“ƒhŒã‚Ì’l‚ğæ“¾(’l‚Ì‚‚¢•û‚É•âŠÔ)
+//ãƒã‚¤ãƒˆãƒãƒƒãƒ—ãƒ–ãƒ¬ãƒ³ãƒ‰å¾Œã®å€¤ã‚’å–å¾—(å€¤ã®é«˜ã„æ–¹ã«è£œé–“)
 float4 TexturePaintHeightBlendMax(float4 mainHeight, float4 blushHeight, float blend, float blushAlpha) {
 	return __HEIGHT_BLEND(max(mainHeight, blushHeight));
 }
