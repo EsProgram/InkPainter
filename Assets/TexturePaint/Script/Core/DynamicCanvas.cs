@@ -6,6 +6,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
 #endif
 
@@ -675,45 +676,58 @@ namespace Es.TexturePaint
 					if(foldOut[i] = EditorGUILayout.Foldout(foldOut[i], string.Format("Material \"{0}\"", materials[i].name)))
 					{
 						EditorGUI.indentLevel = 1;
+
 						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].mainTextureName = EditorGUILayout.TextField("MainTexture Property Name", instance.paintSet[i].mainTextureName);
 						if(EditorGUI.EndChangeCheck())
-							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
-								if(t.paintSet.Count > i)
-									t.paintSet[i].mainTextureName = instance.paintSet[i].mainTextureName;
+							ChangeValue(i, "Main Texture Name", p => p.mainTextureName = instance.paintSet[i].mainTextureName);
+
 						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].normalTextureName = EditorGUILayout.TextField("NormalMap Property Name", instance.paintSet[i].normalTextureName);
 						if(EditorGUI.EndChangeCheck())
-							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
-								if(t.paintSet.Count > i)
-									t.paintSet[i].normalTextureName = instance.paintSet[i].normalTextureName;
+							ChangeValue(i, "Normal Texture Name", p => p.normalTextureName = instance.paintSet[i].normalTextureName);
+
 						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].heightTextureName = EditorGUILayout.TextField("HeightMap Property Name", instance.paintSet[i].heightTextureName);
 						if(EditorGUI.EndChangeCheck())
-							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
-								if(t.paintSet.Count > i)
-									t.paintSet[i].heightTextureName = instance.paintSet[i].heightTextureName;
+							ChangeValue(i, "Height Texture Name", p => p.heightTextureName = instance.paintSet[i].heightTextureName);
+
 						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].useMainPaint = EditorGUILayout.Toggle("Use Main Paint", instance.paintSet[i].useMainPaint);
 						if(EditorGUI.EndChangeCheck())
-							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
-								if(t.paintSet.Count > i)
-									t.paintSet[i].useMainPaint = instance.paintSet[i].useMainPaint;
+							ChangeValue(i, "Use Main Paint", p => p.useMainPaint = instance.paintSet[i].useMainPaint);
+
 						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].useNormalPaint = EditorGUILayout.Toggle("Use NormalMap Paint", instance.paintSet[i].useNormalPaint);
 						if(EditorGUI.EndChangeCheck())
-							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
-								if(t.paintSet.Count > i)
-									t.paintSet[i].useNormalPaint = instance.paintSet[i].useNormalPaint;
+							ChangeValue(i, "Use Normal Paint", p => p.useNormalPaint = instance.paintSet[i].useNormalPaint);
+
 						EditorGUI.BeginChangeCheck();
 						instance.paintSet[i].useHeightPaint = EditorGUILayout.Toggle("Use HeightMap Paint", instance.paintSet[i].useHeightPaint);
 						if(EditorGUI.EndChangeCheck())
-							foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
-								if(t.paintSet.Count > i)
-									t.paintSet[i].useHeightPaint = instance.paintSet[i].useHeightPaint;
+							ChangeValue(i, "Use Height Paint", p => p.useHeightPaint = instance.paintSet[i].useHeightPaint);
+
 						EditorGUI.indentLevel = 0;
 					}
 				}
+			}
+
+			/// <summary>
+			/// 値の変更を行う
+			/// </summary>
+			/// <param name="paintSetIndex">変更対象のPaintSetのIndex</param>
+			/// <param name="recordName">Undo登録時のレコード名</param>
+			/// <param name="assign">代入処理</param>
+			private void ChangeValue(int paintSetIndex, string recordName, Action<PaintSet> assign)
+			{
+				Undo.RecordObjects(targets, "Change " + recordName);
+				foreach(var t in targets.Where(_t => _t is DynamicCanvas).Select(_t => _t as DynamicCanvas))
+					if(t.paintSet.Count > paintSetIndex)
+					{
+						assign(t.paintSet[paintSetIndex]);
+						EditorUtility.SetDirty(t);
+					}
+				EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 			}
 		}
 
