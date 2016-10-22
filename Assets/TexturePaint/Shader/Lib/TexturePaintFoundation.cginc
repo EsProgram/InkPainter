@@ -12,7 +12,11 @@ bool IsPaintRange(float2 mainUV, float2 paintUV, float blushScale) {
 
 //描画範囲内で利用できるブラシ用UVを計算する
 float2 CalcBlushUV(float2 mainUV, float2 paintUV, float blushScale) {
-	return (paintUV.xy - mainUV) / blushScale * 0.5 + 0.5;
+#if UNITY_UV_STARTS_AT_TOP
+	return (mainUV - paintUV) / blushScale * 0.5 + 0.5;
+#else
+	return (paintUV - mainUV) / blushScale * 0.5 + 0.5;
+#endif
 }
 
 //メインテクスチャとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_COLOR_BLENDに設定

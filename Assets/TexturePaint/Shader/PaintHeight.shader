@@ -55,15 +55,15 @@
 
 			float4 frag(v2f i) : SV_TARGET {
 				float h = _BlushScale;
-				float4 base = tex2D(_MainTex, i.uv);
+				float4 base = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
 
 				if (IsPaintRange(i.uv, _PaintUV, h)) {
 					float2 uv = CalcBlushUV(i.uv, _PaintUV, h);
-					float4 blushColor = tex2D(_Blush, uv);
+					float4 blushColor = tex2Dlod(_Blush, float4(uv.xy, 0, 0));
 
 					if (blushColor.a > 0) {
 						float2 heightUV = CalcBlushUV(i.uv, _PaintUV, h);
-						float4 height = tex2D(_BlushHeight, heightUV);
+						float4 height = tex2Dlod(_BlushHeight, float4(heightUV.xy, 0, 0));
 						return TEXTURE_PAINT_HEIGHT_BLEND(base, height, _HeightBlend, blushColor.a);
 					}
 				}

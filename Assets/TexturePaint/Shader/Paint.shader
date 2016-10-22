@@ -52,12 +52,12 @@
 
 			float4 frag(v2f i) : SV_TARGET {
 				float h = _BlushScale;
-				float4 base = tex2D(_MainTex, i.uv);
+				float4 base = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
 				float4 blushColor = float4(1, 1, 1, 1);
 
 				if (IsPaintRange(i.uv, _PaintUV, h)) {
 					float2 uv = CalcBlushUV(i.uv, _PaintUV, h);
-					blushColor = tex2D(_Blush, uv);
+					blushColor = tex2Dlod(_Blush, float4(uv.xy, 0, 0));
 
 					return TEXTURE_PAINT_COLOR_BLEND(base, blushColor, _ControlColor);
 				}
