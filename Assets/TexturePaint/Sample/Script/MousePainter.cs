@@ -17,7 +17,7 @@ namespace Es.TexturePaint.Sample
 		}
 
 		[SerializeField]
-		private PaintBlush blush;
+		private PaintBrush brush;
 
 		[SerializeField]
 		private UseMethodType useMethodType = UseMethodType.RaycastHitInfo;
@@ -36,20 +36,20 @@ namespace Es.TexturePaint.Sample
 						switch(useMethodType)
 						{
 							case UseMethodType.RaycastHitInfo:
-								success = paintObject.Paint(blush, hitInfo);
+								success = paintObject.Paint(brush, hitInfo);
 								break;
 
 							case UseMethodType.WorldPoint:
-								success = paintObject.Paint(blush, hitInfo.point);
+								success = paintObject.Paint(brush, hitInfo.point);
 
 								break;
 
 							case UseMethodType.NearestSurfacePoint:
-								success = paintObject.PaintNearestTriangleSurface(blush, hitInfo.point);
+								success = paintObject.PaintNearestTriangleSurface(brush, hitInfo.point);
 								break;
 
 							case UseMethodType.DirectUV:
-								success = paintObject.PaintUVDirect(blush, hitInfo.textureCoord);
+								success = paintObject.PaintUVDirect(brush, hitInfo.textureCoord);
 								break;
 
 							default:

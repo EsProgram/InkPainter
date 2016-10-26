@@ -12,7 +12,7 @@ public class CalcUVTest : MonoBehaviour
 	private bool click = true;
 
 	[SerializeField]
-	private PaintBlush blush;
+	private PaintBrush brush;
 
 	private MeshFilter meshFilter;
 	private Mesh mesh;
@@ -87,7 +87,7 @@ public class CalcUVTest : MonoBehaviour
 					//値が結構違う
 					else
 						Debug.LogWarning(strUV1 + " : " + strUV2);
-					hitInfo.transform.GetComponent<DynamicCanvas>().Paint(blush, hitInfo.point);
+					hitInfo.transform.GetComponent<DynamicCanvas>().Paint(brush, hitInfo.point);
 					return;
 				}
 				//Raycastではヒットしたのにスルーされた！！

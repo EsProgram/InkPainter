@@ -131,29 +131,29 @@ namespace Es.TexturePaint
 
 		private int paintUVPropertyID;
 
-		private int blushTexturePropertyID;
-		private int blushScalePropertyID;
-		private int blushColorPropertyID;
-		private int blushNormalTexturePropertyID;
-		private int blushNormalBlendPropertyID;
-		private int blushHeightTexturePropertyID;
-		private int blushHeightBlendPropertyID;
+		private int brushTexturePropertyID;
+		private int brushScalePropertyID;
+		private int brushColorPropertyID;
+		private int brushNormalTexturePropertyID;
+		private int brushNormalBlendPropertyID;
+		private int brushHeightTexturePropertyID;
+		private int brushHeightBlendPropertyID;
 
 		#endregion ShaderPropertyID
 
 		#region ShaderKeywords
 
 		private const string COLOR_BLEND_USE_CONTROL = "TEXTURE_PAINT_COLOR_BLEND_USE_CONTROL";
-		private const string COLOR_BLEND_USE_BLUSH = "TEXTURE_PAINT_COLOR_BLEND_USE_BLUSH";
+		private const string COLOR_BLEND_USE_BRUSH = "TEXTURE_PAINT_COLOR_BLEND_USE_BRUSH";
 		private const string COLOR_BLEND_NEUTRAL = "TEXTURE_PAINT_COLOR_BLEND_NEUTRAL";
 
-		private const string NORMAL_BLEND_USE_BLUSH = "TEXTURE_PAINT_NORMAL_BLEND_USE_BLUSH";
+		private const string NORMAL_BLEND_USE_BRUSH = "TEXTURE_PAINT_NORMAL_BLEND_USE_BRUSH";
 		private const string NORMAL_BLEND_ADD = "TEXTURE_PAINT_NORMAL_BLEND_ADD";
 		private const string NORMAL_BLEND_SUB = "TEXTURE_PAINT_NORMAL_BLEND_SUB";
 		private const string NORMAL_BLEND_MIN = "TEXTURE_PAINT_NORMAL_BLEND_MIN";
 		private const string NORMAL_BLEND_MAX = "TEXTURE_PAINT_NORMAL_BLEND_MAX";
 
-		private const string HEIGHT_BLEND_USE_BLUSH = "TEXTURE_PAINT_HEIGHT_BLEND_USE_BLUSH";
+		private const string HEIGHT_BLEND_USE_BRUSH = "TEXTURE_PAINT_HEIGHT_BLEND_USE_BRUSH";
 		private const string HEIGHT_BLEND_ADD = "TEXTURE_PAINT_HEIGHT_BLEND_ADD";
 		private const string HEIGHT_BLEND_SUB = "TEXTURE_PAINT_HEIGHT_BLEND_SUB";
 		private const string HEIGHT_BLEND_MIN = "TEXTURE_PAINT_HEIGHT_BLEND_MIN";
@@ -222,13 +222,13 @@ namespace Es.TexturePaint
 				p.heightTexturePropertyID = Shader.PropertyToID(p.heightTextureName);
 			}
 			paintUVPropertyID = Shader.PropertyToID("_PaintUV");
-			blushTexturePropertyID = Shader.PropertyToID("_Blush");
-			blushScalePropertyID = Shader.PropertyToID("_BlushScale");
-			blushColorPropertyID = Shader.PropertyToID("_ControlColor");
-			blushNormalTexturePropertyID = Shader.PropertyToID("_BlushNormal");
-			blushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
-			blushHeightTexturePropertyID = Shader.PropertyToID("_BlushHeight");
-			blushHeightBlendPropertyID = Shader.PropertyToID("_HeightBlend");
+			brushTexturePropertyID = Shader.PropertyToID("_Brush");
+			brushScalePropertyID = Shader.PropertyToID("_BrushScale");
+			brushColorPropertyID = Shader.PropertyToID("_ControlColor");
+			brushNormalTexturePropertyID = Shader.PropertyToID("_BrushNormal");
+			brushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
+			brushHeightTexturePropertyID = Shader.PropertyToID("_BrushHeight");
+			brushHeightBlendPropertyID = Shader.PropertyToID("_HeightBlend");
 		}
 
 		/// <summary>
@@ -329,28 +329,28 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ペイントに必要なデータをシェーダーにセットする
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
-		private void SetPaintMainData(PaintBlush blush, Vector2 uv)
+		private void SetPaintMainData(PaintBrush brush, Vector2 uv)
 		{
 			paintMaterial.SetVector(paintUVPropertyID, uv);
-			paintMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
-			paintMaterial.SetFloat(blushScalePropertyID, blush.Scale);
-			paintMaterial.SetVector(blushColorPropertyID, blush.Color);
+			paintMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
+			paintMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintMaterial.SetVector(brushColorPropertyID, brush.Color);
 
 			foreach(var key in paintMaterial.shaderKeywords)
 				paintMaterial.DisableKeyword(key);
-			switch(blush.ColorBlending)
+			switch(brush.ColorBlending)
 			{
-				case PaintBlush.ColorBlendType.UseColor:
+				case PaintBrush.ColorBlendType.UseColor:
 					paintMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
 					break;
 
-				case PaintBlush.ColorBlendType.UseBlush:
-					paintMaterial.EnableKeyword(COLOR_BLEND_USE_BLUSH);
+				case PaintBrush.ColorBlendType.UseBrush:
+					paintMaterial.EnableKeyword(COLOR_BLEND_USE_BRUSH);
 					break;
 
-				case PaintBlush.ColorBlendType.Neutral:
+				case PaintBrush.ColorBlendType.Neutral:
 					paintMaterial.EnableKeyword(COLOR_BLEND_NEUTRAL);
 					break;
 
@@ -363,42 +363,42 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// 法線マップペイントに必要なデータをシェーダーにセットする
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
-		private void SetPaintNormalData(PaintBlush blush, Vector2 uv)
+		private void SetPaintNormalData(PaintBrush brush, Vector2 uv)
 		{
 			paintNormalMaterial.SetVector(paintUVPropertyID, uv);
-			paintNormalMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
-			paintNormalMaterial.SetTexture(blushNormalTexturePropertyID, blush.BlushNormalTexture);
-			paintNormalMaterial.SetFloat(blushScalePropertyID, blush.Scale);
-			paintNormalMaterial.SetFloat(blushNormalBlendPropertyID, blush.NormalBlend);
+			paintNormalMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
+			paintNormalMaterial.SetTexture(brushNormalTexturePropertyID, brush.BrushNormalTexture);
+			paintNormalMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintNormalMaterial.SetFloat(brushNormalBlendPropertyID, brush.NormalBlend);
 
 			foreach(var key in paintNormalMaterial.shaderKeywords)
 				paintNormalMaterial.DisableKeyword(key);
-			switch(blush.NormalBlending)
+			switch(brush.NormalBlending)
 			{
-				case PaintBlush.NormalBlendType.UseBlush:
-					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BLUSH);
+				case PaintBrush.NormalBlendType.UseBrush:
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BRUSH);
 					break;
 
-				case PaintBlush.NormalBlendType.Add:
+				case PaintBrush.NormalBlendType.Add:
 					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_ADD);
 					break;
 
-				case PaintBlush.NormalBlendType.Sub:
+				case PaintBrush.NormalBlendType.Sub:
 					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_SUB);
 					break;
 
-				case PaintBlush.NormalBlendType.Min:
+				case PaintBrush.NormalBlendType.Min:
 					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_MIN);
 					break;
 
-				case PaintBlush.NormalBlendType.Max:
+				case PaintBrush.NormalBlendType.Max:
 					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_MAX);
 					break;
 
 				default:
-					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BLUSH);
+					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BRUSH);
 					break;
 			}
 		}
@@ -406,37 +406,37 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ハイトマップペイントに必要なデータをシェーダーにセットする
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
-		private void SetPaintHeightData(PaintBlush blush, Vector2 uv)
+		private void SetPaintHeightData(PaintBrush brush, Vector2 uv)
 		{
 			paintHeightMaterial.SetVector(paintUVPropertyID, uv);
-			paintHeightMaterial.SetTexture(blushTexturePropertyID, blush.BlushTexture);
-			paintHeightMaterial.SetTexture(blushHeightTexturePropertyID, blush.BlushHeightTexture);
-			paintHeightMaterial.SetFloat(blushScalePropertyID, blush.Scale);
-			paintHeightMaterial.SetFloat(blushHeightBlendPropertyID, blush.HeightBlend);
+			paintHeightMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
+			paintHeightMaterial.SetTexture(brushHeightTexturePropertyID, brush.BrushHeightTexture);
+			paintHeightMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintHeightMaterial.SetFloat(brushHeightBlendPropertyID, brush.HeightBlend);
 
 			foreach(var key in paintHeightMaterial.shaderKeywords)
 				paintHeightMaterial.DisableKeyword(key);
-			switch(blush.HeightBlending)
+			switch(brush.HeightBlending)
 			{
-				case PaintBlush.HeightBlendType.UseBlush:
-					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_USE_BLUSH);
+				case PaintBrush.HeightBlendType.UseBrush:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_USE_BRUSH);
 					break;
 
-				case PaintBlush.HeightBlendType.Add:
+				case PaintBrush.HeightBlendType.Add:
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_ADD);
 					break;
 
-				case PaintBlush.HeightBlendType.Sub:
+				case PaintBrush.HeightBlendType.Sub:
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_SUB);
 					break;
 
-				case PaintBlush.HeightBlendType.Min:
+				case PaintBrush.HeightBlendType.Min:
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_MIN);
 					break;
 
-				case PaintBlush.HeightBlendType.Max:
+				case PaintBrush.HeightBlendType.Max:
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_MAX);
 					break;
 
@@ -453,37 +453,37 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// 直接UV座標を指定したペイント処理を行う
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="uv">ヒット位置のUV座標</param>
 		/// <returns>ペイントの成否</returns>
-		public bool PaintUVDirect(PaintBlush blush, Vector2 uv)
+		public bool PaintUVDirect(PaintBrush brush, Vector2 uv)
 		{
 			foreach(var p in paintSet)
 			{
 				//メインテクスチャへのペイント
-				if(p.useMainPaint && blush.BlushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
+				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
 					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
-					SetPaintMainData(blush, uv);
+					SetPaintMainData(brush, uv);
 					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMaterial);
 					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
 					RenderTexture.ReleaseTemporary(mainPaintTextureBuffer);
 				}
 
 				//法線マップへのペイント
-				if(p.useNormalPaint && blush.BlushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
+				if(p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
 					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.normalTexture.width, p.normalTexture.height);
-					SetPaintNormalData(blush, uv);
+					SetPaintNormalData(brush, uv);
 					Graphics.Blit(p.paintNormalTexture, normalPaintTextureBuffer, paintNormalMaterial);
 					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
 					RenderTexture.ReleaseTemporary(normalPaintTextureBuffer);
 				}
 				//ハイトマップへのペイント
-				if(p.useHeightPaint && blush.BlushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
+				if(p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
 					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.heightTexture.width, p.heightTexture.height);
-					SetPaintHeightData(blush, uv);
+					SetPaintHeightData(brush, uv);
 					Graphics.Blit(p.paintHeightTexture, heightPaintTextureBuffer, paintHeightMaterial);
 					Graphics.Blit(heightPaintTextureBuffer, p.paintHeightTexture);
 					RenderTexture.ReleaseTemporary(heightPaintTextureBuffer);
@@ -495,11 +495,11 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// 与えられたworldPosに近いMeshSurface上の点に対してペイント処理を行う
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="worldPos">近似点</param>
 		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
 		/// <returns></returns>
-		public bool PaintNearestTriangleSurface(PaintBlush blush, Vector3 worldPos, Camera renderCamera = null)
+		public bool PaintNearestTriangleSurface(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
 
@@ -521,20 +521,20 @@ namespace Es.TexturePaint
 			//pに一番近いp'が求めたかったオブジェクト表面
 			var pd = pds.OrderBy(t => Vector3.Distance(p, t)).First();
 
-			return Paint(blush, transform.localToWorldMatrix.MultiplyPoint(pd), renderCamera);
+			return Paint(brush, transform.localToWorldMatrix.MultiplyPoint(pd), renderCamera);
 		}
 
 		/// <summary>
 		/// ペイント処理を行う
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="worldPos">
 		/// キャンバス上の塗る点(World-Space)
 		/// メッシュが構成する形状のサーフェスの上の点
 		/// </param>
 		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
 		/// <returns>ペイント成否</returns>
-		public bool Paint(PaintBlush blush, Vector3 worldPos, Camera renderCamera = null)
+		public bool Paint(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			if(renderCamera == null)
 				renderCamera = Camera.main;
@@ -571,7 +571,7 @@ namespace Es.TexturePaint
 				Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
 				var uv = Utility.Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
 
-				return PaintUVDirect(blush, uv);
+				return PaintUVDirect(brush, uv);
 			}
 			return false;
 		}
@@ -580,16 +580,16 @@ namespace Es.TexturePaint
 		/// ペイント処理を行う
 		/// CanvasにはMeshColliderが設定されている必要があります
 		/// </summary>
-		/// <param name="blush">ブラシ</param>
+		/// <param name="brush">ブラシ</param>
 		/// <param name="hitInfo">RaycastのHit情報</param>
 		/// <returns>ペイントの成否</returns>
-		public bool Paint(PaintBlush blush, RaycastHit hitInfo)
+		public bool Paint(PaintBrush brush, RaycastHit hitInfo)
 		{
 			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
 			{
 				#region ErrorCheck
 
-				if(blush == null)
+				if(brush == null)
 				{
 					Debug.LogError("ブラシが設定されていません");
 					return false;
@@ -602,9 +602,9 @@ namespace Es.TexturePaint
 				{
 					Debug.LogWarning("MeshColliderが設定されていないキャンバスにRayCastを利用したPaintを行うと予期せぬ動作をする場合があります");
 					//頂点のTriangleから一番近いサーフェス上の点を算出してPaintに渡すように
-					return PaintNearestTriangleSurface(blush, hitInfo.point);
+					return PaintNearestTriangleSurface(brush, hitInfo.point);
 				}
-				return PaintUVDirect(blush, hitInfo.textureCoord);
+				return PaintUVDirect(brush, hitInfo.textureCoord);
 			}
 			return false;
 		}

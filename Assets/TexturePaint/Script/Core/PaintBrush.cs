@@ -6,7 +6,7 @@ namespace Es.TexturePaint
 	/// テクスチャペイントのブラシ情報を管理するクラス
 	/// </summary>
 	[System.Serializable]
-	public class PaintBlush
+	public class PaintBrush
 	{
 		/// <summary>
 		/// ブラシの色合成方式
@@ -21,7 +21,7 @@ namespace Es.TexturePaint
 			/// <summary>
 			/// ブラシに設定したテクスチャを利用する
 			/// </summary>
-			UseBlush,
+			UseBrush,
 
 			/// <summary>
 			/// ブラシ設定値とテクスチャを合成する
@@ -37,7 +37,7 @@ namespace Es.TexturePaint
 			/// <summary>
 			/// ブラシ設定値を利用する
 			/// </summary>
-			UseBlush,
+			UseBrush,
 
 			/// <summary>
 			/// 対象を加算する
@@ -65,7 +65,7 @@ namespace Es.TexturePaint
 			/// <summary>
 			/// ブラシ設定値を利用する
 			/// </summary>
-			UseBlush,
+			UseBrush,
 
 			/// <summary>
 			/// 対象を加算する
@@ -89,25 +89,25 @@ namespace Es.TexturePaint
 		}
 
 		[SerializeField]
-		private Texture2D blushTexture;
+		private Texture2D brushTexture;
 
 		[SerializeField]
-		private Texture2D blushNormalTexture;
+		private Texture2D brushNormalTexture;
 
 		[SerializeField]
-		private Texture2D blushHeightTexture;
+		private Texture2D brushHeightTexture;
 
 		[SerializeField, Range(0, 1)]
-		private float blushScale = 0.1f;
+		private float brushScale = 0.1f;
 
 		[SerializeField, Range(0, 1)]
-		private float blushNormalBlend = 0.1f;
+		private float brushNormalBlend = 0.1f;
 
 		[SerializeField, Range(0, 1)]
-		private float blushHeightBlend = 0.1f;
+		private float brushHeightBlend = 0.1f;
 
 		[SerializeField]
-		private Color blushColor;
+		private Color brushColor;
 
 		[SerializeField]
 		private ColorBlendType colorBlendType;
@@ -121,28 +121,28 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ブラシのテクスチャ
 		/// </summary>
-		public Texture2D BlushTexture
+		public Texture2D BrushTexture
 		{
-			get { return blushTexture; }
-			set { blushTexture = value; }
+			get { return brushTexture; }
+			set { brushTexture = value; }
 		}
 
 		/// <summary>
 		/// ブラシ法線マップテクスチャ
 		/// </summary>
-		public Texture2D BlushNormalTexture
+		public Texture2D BrushNormalTexture
 		{
-			get { return blushNormalTexture; }
-			set { blushNormalTexture = value; }
+			get { return brushNormalTexture; }
+			set { brushNormalTexture = value; }
 		}
 
 		/// <summary>
 		/// ブラシハイトマップテクスチャ
 		/// </summary>
-		public Texture2D BlushHeightTexture
+		public Texture2D BrushHeightTexture
 		{
-			get { return blushHeightTexture; }
-			set { blushHeightTexture = value; }
+			get { return brushHeightTexture; }
+			set { brushHeightTexture = value; }
 		}
 
 		/// <summary>
@@ -151,8 +151,8 @@ namespace Es.TexturePaint
 		/// </summary>
 		public float Scale
 		{
-			get { return Mathf.Clamp01(blushScale); }
-			set { blushScale = Mathf.Clamp01(value); }
+			get { return Mathf.Clamp01(brushScale); }
+			set { brushScale = Mathf.Clamp01(value); }
 		}
 
 		/// <summary>
@@ -161,8 +161,8 @@ namespace Es.TexturePaint
 		/// </summary>
 		public float NormalBlend
 		{
-			get { return Mathf.Clamp01(blushNormalBlend); }
-			set { blushNormalBlend = Mathf.Clamp01(value); }
+			get { return Mathf.Clamp01(brushNormalBlend); }
+			set { brushNormalBlend = Mathf.Clamp01(value); }
 		}
 
 		/// <summary>
@@ -171,8 +171,8 @@ namespace Es.TexturePaint
 		/// </summary>
 		public float HeightBlend
 		{
-			get { return Mathf.Clamp01(blushHeightBlend); }
-			set { blushHeightBlend = Mathf.Clamp01(value); }
+			get { return Mathf.Clamp01(brushHeightBlend); }
+			set { brushHeightBlend = Mathf.Clamp01(value); }
 		}
 
 		/// <summary>
@@ -180,8 +180,8 @@ namespace Es.TexturePaint
 		/// </summary>
 		public Color Color
 		{
-			get { return blushColor; }
-			set { blushColor = value; }
+			get { return brushColor; }
+			set { brushColor = value; }
 		}
 
 		/// <summary>
@@ -211,41 +211,41 @@ namespace Es.TexturePaint
 			set { heightBlendType = value; }
 		}
 
-		public PaintBlush(Texture2D blushTex, float scale, Color color)
+		public PaintBrush(Texture2D brushTex, float scale, Color color)
 		{
-			BlushTexture = blushTex;
+			BrushTexture = brushTex;
 			Scale = scale;
 			Color = color;
 		}
 
-		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D normalTex, float normalBlend)
-		  : this(blushTex, scale, color)
+		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend)
+		  : this(brushTex, scale, color)
 		{
-			BlushNormalTexture = normalTex;
+			BrushNormalTexture = normalTex;
 			NormalBlend = normalBlend;
 		}
 
-		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D normalTex, float normalBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
-		: this(blushTex, scale, color, normalTex, normalBlend)
+		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
+		: this(brushTex, scale, color, normalTex, normalBlend)
 		{
 			ColorBlending = colorBlending;
 			NormalBlending = normalBlending;
 		}
 
-		public PaintBlush(Texture2D blushTex, float scale, Color color, Texture2D normalTex, float normalBlend, Texture2D heightTex, float heightBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
-		: this(blushTex, scale, color, normalTex, normalBlend, colorBlending, normalBlending)
+		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend, Texture2D heightTex, float heightBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
+		: this(brushTex, scale, color, normalTex, normalBlend, colorBlending, normalBlending)
 		{
-			BlushHeightTexture = heightTex;
+			BrushHeightTexture = heightTex;
 			HeightBlend = heightBlend;
 		}
 
-		public PaintBlush ShallowCopy()
+		public PaintBrush ShallowCopy()
 		{
-			return new PaintBlush(
-				BlushTexture,
+			return new PaintBrush(
+				BrushTexture,
 				Scale,
 				Color,
-				BlushNormalTexture,
+				BrushNormalTexture,
 				NormalBlend);
 		}
 	}

@@ -6,7 +6,7 @@ using UnityEngine;
 public class CollisionPainter : MonoBehaviour
 {
 	[SerializeField]
-	private PaintBlush blush = null;
+	private PaintBrush brush = null;
 
 	[SerializeField]
 	private int wait = 3;
@@ -15,7 +15,7 @@ public class CollisionPainter : MonoBehaviour
 
 	public void Awake()
 	{
-		GetComponent<MeshRenderer>().material.color = blush.Color;
+		GetComponent<MeshRenderer>().material.color = brush.Color;
 	}
 
 	public void FixedUpdate()
@@ -33,7 +33,7 @@ public class CollisionPainter : MonoBehaviour
 		{
 			var canvas = p.otherCollider.GetComponent<DynamicCanvas>();
 			if(canvas != null)
-				canvas.Paint(blush, p.point);
+				canvas.Paint(brush, p.point);
 		}
 	}
 }
