@@ -618,6 +618,84 @@ namespace Es.TexturePaint
 			SetRenderTexture();
 		}
 
+		/// <summary>
+		/// 元のメインテクスチャを取得する
+		/// </summary>
+		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
+		/// <returns>元のメインテクスチャ</returns>
+		public Texture GetMainTexture(string materialName)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+				return null;
+			return data.mainTexture;
+		}
+
+		/// <summary>
+		/// ペイント中のメインテクスチャを取得する
+		/// </summary>
+		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
+		/// <returns>ペイント中のメインテクスチャ</returns>
+		public RenderTexture GetPaintMainTexture(string materialName)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+				return null;
+			return data.paintMainTexture;
+		}
+
+		/// <summary>
+		/// 元の法線マップを取得する
+		/// </summary>
+		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
+		/// <returns>元の法線マップ</returns>
+		public Texture GetNormalTexture(string materialName)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+				return null;
+			return data.normalTexture;
+		}
+
+		/// <summary>
+		/// ペイント中の法線マップを取得する
+		/// </summary>
+		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
+		/// <returns>ペイント中の法線マップ</returns>
+		public RenderTexture GetPaintNormalTexture(string materialName)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+				return null;
+			return data.paintNormalTexture;
+		}
+
+		/// <summary>
+		/// 元のハイトマップを取得する
+		/// </summary>
+		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
+		/// <returns>元のハイトマップ</returns>
+		public Texture GetHeightTexture(string materialName)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+				return null;
+			return data.heightTexture;
+		}
+
+		/// <summary>
+		/// ペイント中のハイトマップを取得する
+		/// </summary>
+		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
+		/// <returns>ペイント中のハイトマップ</returns>
+		public RenderTexture GetPaintHeightTexture(string materialName)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+				return null;
+			return data.paintHeightTexture;
+		}
+
 		#endregion PublicMethod
 
 		#region CustomEditor
