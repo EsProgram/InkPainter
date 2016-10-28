@@ -146,6 +146,7 @@ namespace Es.TexturePaint
 		private const string COLOR_BLEND_USE_CONTROL = "TEXTURE_PAINT_COLOR_BLEND_USE_CONTROL";
 		private const string COLOR_BLEND_USE_BRUSH = "TEXTURE_PAINT_COLOR_BLEND_USE_BRUSH";
 		private const string COLOR_BLEND_NEUTRAL = "TEXTURE_PAINT_COLOR_BLEND_NEUTRAL";
+		private const string COLOR_BLEND_ALPHA_ONLY = "TEXTURE_PAINT_COLOR_BLEND_ALPHA_ONLY";
 
 		private const string NORMAL_BLEND_USE_BRUSH = "TEXTURE_PAINT_NORMAL_BLEND_USE_BRUSH";
 		private const string NORMAL_BLEND_ADD = "TEXTURE_PAINT_NORMAL_BLEND_ADD";
@@ -352,6 +353,10 @@ namespace Es.TexturePaint
 
 				case PaintBrush.ColorBlendType.Neutral:
 					paintMaterial.EnableKeyword(COLOR_BLEND_NEUTRAL);
+					break;
+
+				case PaintBrush.ColorBlendType.AlphaOnly:
+					paintMaterial.EnableKeyword(COLOR_BLEND_ALPHA_ONLY);
 					break;
 
 				default:

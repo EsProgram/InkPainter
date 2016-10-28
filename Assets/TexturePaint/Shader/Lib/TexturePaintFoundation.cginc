@@ -26,6 +26,8 @@ float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale) {
 	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, brushColor, controlColor) TexturePaintColorBlendUseBrush(targetColor, brushColor, controlColor)
 #elif TEXTURE_PAINT_COLOR_BLEND_NEUTRAL
 	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, brushColor, controlColor) TexturePaintColorBlendNeutral(targetColor, brushColor, controlColor)
+#elif TEXTURE_PAINT_COLOR_BLEND_ALPHA_ONLY
+	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, brushColor, controlColor) TexturePaintColorBlendAlphaOnly(targetColor, brushColor, controlColor)
 #else
 	#define TEXTURE_PAINT_COLOR_BLEND(targetColor, brushColor, controlColor) TexturePaintColorBlendUseControl(targetColor, brushColor, controlColor)
 #endif
@@ -49,6 +51,13 @@ float4 TexturePaintColorBlendUseBrush(float4 mainColor, float4 brushColor, float
 //ブレンド後の色を取得(指定色とブラシテクスチャ色の中間色)
 float4 TexturePaintColorBlendNeutral(float4 mainColor, float4 brushColor, float4 controlColor) {
 	return __COLOR_BLEND((brushColor + controlColor * controlColor.a) * 0.5);
+}
+
+//ブレンド後の色を取得(アルファ値のみ書き込み)
+float4 TexturePaintColorBlendAlphaOnly(float4 mainColor, float4 brushColor, float4 controlColor) {
+	float4 col = mainColor;
+	col.a = controlColor.a;
+	return __COLOR_BLEND(col);
 }
 
 //法線マップとブラシのブレンディングアルゴリズムをTEXTURE_PAINT_NORMAL_BLENDに設定

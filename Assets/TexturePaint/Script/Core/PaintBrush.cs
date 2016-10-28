@@ -27,6 +27,11 @@ namespace Es.TexturePaint
 			/// ブラシ設定値とテクスチャを合成する
 			/// </summary>
 			Neutral,
+
+			/// <summary>
+			/// ブラシ設定値のアルファ値のみを合成する
+			/// </summary>
+			AlphaOnly,
 		}
 
 		/// <summary>
