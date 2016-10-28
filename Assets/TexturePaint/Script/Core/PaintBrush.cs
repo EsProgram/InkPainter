@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Es.TexturePaint
 {
@@ -6,7 +7,7 @@ namespace Es.TexturePaint
 	/// テクスチャペイントのブラシ情報を管理するクラス
 	/// </summary>
 	[System.Serializable]
-	public class PaintBrush
+	public class PaintBrush : ICloneable
 	{
 		/// <summary>
 		/// ブラシの色合成方式
@@ -237,21 +238,17 @@ namespace Es.TexturePaint
 			NormalBlending = normalBlending;
 		}
 
-		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend, Texture2D heightTex, float heightBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
+		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend, Texture2D heightTex, float heightBlend, ColorBlendType colorBlending, NormalBlendType normalBlending, HeightBlendType heightBlending)
 		: this(brushTex, scale, color, normalTex, normalBlend, colorBlending, normalBlending)
 		{
 			BrushHeightTexture = heightTex;
 			HeightBlend = heightBlend;
+			HeightBlending = heightBlending;
 		}
 
-		public PaintBrush ShallowCopy()
+		public object Clone()
 		{
-			return new PaintBrush(
-				BrushTexture,
-				Scale,
-				Color,
-				BrushNormalTexture,
-				NormalBlend);
+			return MemberwiseClone();
 		}
 	}
 }
