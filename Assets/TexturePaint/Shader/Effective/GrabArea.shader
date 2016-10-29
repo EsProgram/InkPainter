@@ -8,6 +8,8 @@
 		_ClipScale("Clipping Scale", FLOAT) = 0.1
 		[HideInInspector]
 		_ClipUV("Target UV Position", VECTOR) = (0,0,0,0)
+		[KeywordEnum(CLAMP, REPEAT, CLIP)]
+		WRAP_MODE("Color Blend Keyword", FLOAT) = 0
 	}
 
 	SubShader{
@@ -32,6 +34,7 @@
 
 		Pass{
 			CGPROGRAM
+#pragma multi_compile WRAP_MODE_CLAMP WRAP_MODE_REPEAT WRAP_MODE_CLIP
 #pragma vertex vert
 #pragma fragment frag
 
@@ -47,9 +50,21 @@
 				float uv_x = (i.uv.x - 0.5) * _ClipScale * 2 + _ClipUV.x;
 				float uv_y = (i.uv.y - 0.5) * _ClipScale * 2 + _ClipUV.y;
 
+#if WRAP_MODE_CLAMP
+				//Clamp UV
+				uv_x = clamp(uv_x, 0, 1);
+				uv_y = clamp(uv_y, 0, 1);
+#elif WRAP_MODE_REPEAT
 				//Repeat UV
-				uv_x = fmod(uv_x, 1);
-				uv_y = fmod(uv_y, 1);
+				uv_x = fmod(abs(uv_x), 1);
+				uv_y = fmod(abs(uv_y), 1);
+#elif WRAP_MODE_CLIP
+				//Clip UV
+				clip(uv_x);
+				clip(uv_y);
+				clip(trunc(uv_x) * -1);
+				clip(trunc(uv_y) * -1);
+#endif
 
 				float4 base = tex2Dlod(_TargetTex, float4(uv_x, uv_y, 0, 0));
 				base.a = alpha;

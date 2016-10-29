@@ -12,6 +12,9 @@ public class ClipTest : MonoBehaviour
 	[SerializeField]
 	private PaintBrush brush = null;
 
+	[SerializeField]
+	private GrabArea.GrabTextureWrapMode wrapMode = GrabArea.GrabTextureWrapMode.Repeat;
+
 	private RenderTexture t = null;
 	private RaycastHit hitInfo;
 
@@ -43,7 +46,7 @@ public class ClipTest : MonoBehaviour
 				}
 				if(grab)
 				{
-					GrabArea.Clip(brush.BrushTexture, brush.Scale, hitInfo.transform.GetComponent<MeshRenderer>().sharedMaterial.mainTexture, hitInfo.textureCoord, t);
+					GrabArea.Clip(brush.BrushTexture, brush.Scale, hitInfo.transform.GetComponent<MeshRenderer>().sharedMaterial.mainTexture, hitInfo.textureCoord, wrapMode, t);
 					brush.BrushTexture = t;
 					brush.ColorBlending = PaintBrush.ColorBlendType.UseBrush;
 					grab = false;
