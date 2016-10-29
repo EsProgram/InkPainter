@@ -95,13 +95,13 @@ namespace Es.TexturePaint
 		}
 
 		[SerializeField]
-		private Texture2D brushTexture;
+		private Texture brushTexture;
 
 		[SerializeField]
-		private Texture2D brushNormalTexture;
+		private Texture brushNormalTexture;
 
 		[SerializeField]
-		private Texture2D brushHeightTexture;
+		private Texture brushHeightTexture;
 
 		[SerializeField, Range(0, 1)]
 		private float brushScale = 0.1f;
@@ -127,7 +127,7 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ブラシのテクスチャ
 		/// </summary>
-		public Texture2D BrushTexture
+		public Texture BrushTexture
 		{
 			get { return brushTexture; }
 			set { brushTexture = value; }
@@ -136,7 +136,7 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ブラシ法線マップテクスチャ
 		/// </summary>
-		public Texture2D BrushNormalTexture
+		public Texture BrushNormalTexture
 		{
 			get { return brushNormalTexture; }
 			set { brushNormalTexture = value; }
@@ -145,7 +145,7 @@ namespace Es.TexturePaint
 		/// <summary>
 		/// ブラシハイトマップテクスチャ
 		/// </summary>
-		public Texture2D BrushHeightTexture
+		public Texture BrushHeightTexture
 		{
 			get { return brushHeightTexture; }
 			set { brushHeightTexture = value; }
@@ -217,28 +217,28 @@ namespace Es.TexturePaint
 			set { heightBlendType = value; }
 		}
 
-		public PaintBrush(Texture2D brushTex, float scale, Color color)
+		public PaintBrush(Texture brushTex, float scale, Color color)
 		{
 			BrushTexture = brushTex;
 			Scale = scale;
 			Color = color;
 		}
 
-		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend)
+		public PaintBrush(Texture brushTex, float scale, Color color, Texture normalTex, float normalBlend)
 		  : this(brushTex, scale, color)
 		{
 			BrushNormalTexture = normalTex;
 			NormalBlend = normalBlend;
 		}
 
-		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
+		public PaintBrush(Texture brushTex, float scale, Color color, Texture normalTex, float normalBlend, ColorBlendType colorBlending, NormalBlendType normalBlending)
 		: this(brushTex, scale, color, normalTex, normalBlend)
 		{
 			ColorBlending = colorBlending;
 			NormalBlending = normalBlending;
 		}
 
-		public PaintBrush(Texture2D brushTex, float scale, Color color, Texture2D normalTex, float normalBlend, Texture2D heightTex, float heightBlend, ColorBlendType colorBlending, NormalBlendType normalBlending, HeightBlendType heightBlending)
+		public PaintBrush(Texture brushTex, float scale, Color color, Texture normalTex, float normalBlend, Texture heightTex, float heightBlend, ColorBlendType colorBlending, NormalBlendType normalBlending, HeightBlendType heightBlending)
 		: this(brushTex, scale, color, normalTex, normalBlend, colorBlending, normalBlending)
 		{
 			BrushHeightTexture = heightTex;
