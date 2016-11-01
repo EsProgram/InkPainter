@@ -13,7 +13,10 @@ Click here for [details](http://esprog.hatenablog.com/archive/category/UnityText
 </p>
 
 <p align="center">
-  <img src="Capture/displacement_rolling.gif" width="600"/>
+  <img src="Capture/recoversnow.gif" width="600"/>
+</p>
+<p align="center">
+  <img src="Capture/refpaint.gif" width="600"/>
 </p>
 
 
@@ -38,6 +41,7 @@ Click here for [details](http://esprog.hatenablog.com/archive/category/UnityText
   <img src="Capture/heightmap.gif" width="600"/>
 </p>
 
+<p align="center">© UTJ/UCL</p>
 
 
 
