@@ -20,7 +20,12 @@ namespace Es.TexturePaint
 
 		public MeshOperator(Mesh mesh)
 		{
-			MeshDataCache(mesh);
+			if(mesh == null)
+				throw new System.ArgumentNullException("mesh");
+			this.mesh = mesh;
+			meshTriangles = this.mesh.triangles;
+			meshVertices = this.mesh.vertices;
+			meshUV = this.mesh.uv;
 		}
 
 		/// <summary>
@@ -98,25 +103,5 @@ namespace Es.TexturePaint
 		}
 
 		#endregion PublicMethod
-
-		#region PrivateMethod
-
-		/// <summary>
-		/// メッシュから取得できるデータをキャッシュする
-		/// </summary>
-		private void MeshDataCache(Mesh mesh)
-		{
-			this.mesh = mesh;
-			if(this.mesh == null)
-			{
-				Debug.LogError("MeshFilterにメッシュが設定されていません");
-				return;
-			}
-			meshTriangles = this.mesh.triangles;
-			meshVertices = this.mesh.vertices;
-			meshUV = this.mesh.uv;
-		}
-
-		#endregion PrivateMethod
 	}
 }
