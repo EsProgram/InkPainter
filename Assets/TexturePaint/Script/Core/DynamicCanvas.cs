@@ -521,8 +521,6 @@ namespace Es.TexturePaint
 				pds.Add(Math.TriangleSpaceProjection(p, tris[i0], tris[i1], tris[i2]));
 			}
 
-			//HACK:p'が三角形内部にない場合は一番近い頂点位置をp'に設定した方がいい？
-
 			//pに一番近いp'が求めたかったオブジェクト表面
 			var pd = pds.OrderBy(t => Vector3.Distance(p, t)).First();
 
