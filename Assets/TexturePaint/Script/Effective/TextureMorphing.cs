@@ -10,7 +10,7 @@ namespace Es.Effective
 	{
 		#region PrivateField
 
-		private const string TEXTURE_MORPHING_SHADER = "Es/TextureMorphing";
+		private const string TEXTURE_MORPHING_SHADER = "Es/Effective/TextureMorphing";
 		private const string LERP_COEFFICIENT = "_LerpCoef";
 		private const string SRC_TEX = "_SrcTex";
 		private const string DST_TEX = "_DstTex";

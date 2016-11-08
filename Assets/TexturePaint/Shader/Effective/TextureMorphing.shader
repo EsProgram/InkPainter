@@ -1,4 +1,4 @@
-﻿Shader "Es/TextureMorphing"
+﻿Shader "Es/Effective/TextureMorphing"
 {
 	Properties
 	{

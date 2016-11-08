@@ -19,7 +19,7 @@ namespace Es.Effective
 
 		#region PrivateField
 
-		private const string GRAB_AREA_SHADER = "Es/GrabArea";
+		private const string GRAB_AREA_SHADER = "Es/Effective/GrabArea";
 		private const string CLIP = "_ClipTex";
 		private const string TARGET = "_TargetTex";
 		private const string CLIP_SCALE = "_ClipScale";

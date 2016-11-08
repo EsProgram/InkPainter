@@ -6,7 +6,7 @@ namespace Es.Effective
 	{
 		#region PrivateField
 
-		private const string REVERSE_UV_SHADER = "Es/ReverseUV";
+		private const string REVERSE_UV_SHADER = "Es/Effective/ReverseUV";
 		private const string REVERSE_X = "_ReverseX";
 		private const string REVERSE_Y = "_ReverseY";
 

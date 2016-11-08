@@ -1,4 +1,4 @@
-﻿Shader "Es/GrabArea"{
+﻿Shader "Es/Effective/GrabArea"{
 	Properties{
 		[HideInInspector]
 		_ClipTex("Clipping Texture", 2D) = "white"
