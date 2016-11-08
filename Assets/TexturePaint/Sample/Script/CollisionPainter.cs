@@ -2,38 +2,41 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider), typeof(MeshRenderer))]
-public class CollisionPainter : MonoBehaviour
+namespace Es.TexturePaint.Sample
 {
-	[SerializeField]
-	private PaintBrush brush = null;
-
-	[SerializeField]
-	private int wait = 3;
-
-	private int waitCount;
-
-	public void Awake()
+	[RequireComponent(typeof(Collider), typeof(MeshRenderer))]
+	public class CollisionPainter : MonoBehaviour
 	{
-		GetComponent<MeshRenderer>().material.color = brush.Color;
-	}
+		[SerializeField]
+		private PaintBrush brush = null;
 
-	public void FixedUpdate()
-	{
-		++waitCount;
-	}
+		[SerializeField]
+		private int wait = 3;
 
-	public void OnCollisionStay(Collision collision)
-	{
-		if(waitCount < wait)
-			return;
-		waitCount = 0;
+		private int waitCount;
 
-		foreach(var p in collision.contacts)
+		public void Awake()
 		{
-			var canvas = p.otherCollider.GetComponent<DynamicCanvas>();
-			if(canvas != null)
-				canvas.Paint(brush, p.point);
+			GetComponent<MeshRenderer>().material.color = brush.Color;
+		}
+
+		public void FixedUpdate()
+		{
+			++waitCount;
+		}
+
+		public void OnCollisionStay(Collision collision)
+		{
+			if(waitCount < wait)
+				return;
+			waitCount = 0;
+
+			foreach(var p in collision.contacts)
+			{
+				var canvas = p.otherCollider.GetComponent<DynamicCanvas>();
+				if(canvas != null)
+					canvas.Paint(brush, p.point);
+			}
 		}
 	}
 }

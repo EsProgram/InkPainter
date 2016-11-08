@@ -509,7 +509,7 @@ namespace Es.TexturePaint
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
 
 			//頂点の中で一番近いものを含む三角形を取得
-			var tris = Utility.Math.GetNearestVerticesTriangle(p, meshVertices, meshTriangles);
+			var tris = Math.GetNearestVerticesTriangle(p, meshVertices, meshTriangles);
 
 			//それぞれの三角形空間でそれっぽいp'を計算
 			var pds = new List<Vector3>();
@@ -518,7 +518,7 @@ namespace Es.TexturePaint
 				var i0 = i;
 				var i1 = i + 1;
 				var i2 = i + 2;
-				pds.Add(Utility.Math.TriangleSpaceProjection(p, tris[i0], tris[i1], tris[i2]));
+				pds.Add(Math.TriangleSpaceProjection(p, tris[i0], tris[i1], tris[i2]));
 			}
 
 			//HACK:p'が三角形内部にない場合は一番近い頂点位置をp'に設定した方がいい？
@@ -563,10 +563,10 @@ namespace Es.TexturePaint
 				t3 = meshVertices[meshTriangles[index2]];
 
 				//平面上に存在しない
-				if(!Utility.Math.ExistPointInPlane(p, t1, t2, t3))
+				if(!Math.ExistPointInPlane(p, t1, t2, t3))
 					continue;
 				//三角形の辺または内部に存在しない
-				if(!Utility.Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Utility.Math.ExistPointInTriangle(p, t1, t2, t3))
+				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistPointInTriangle(p, t1, t2, t3))
 					continue;
 
 				//UV座標算出
@@ -574,7 +574,7 @@ namespace Es.TexturePaint
 				var uv2 = meshUV[meshTriangles[index1]];
 				var uv3 = meshUV[meshTriangles[index2]];
 				Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
-				var uv = Utility.Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
+				var uv = Math.TextureCoordinateCalculation(p, t1, uv1, t2, uv2, t3, uv3, mvp);
 
 				return PaintUVDirect(brush, uv);
 			}
