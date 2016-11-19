@@ -2,6 +2,9 @@
 
 namespace Es.Effective
 {
+	/// <summary>
+	/// UVの反転を行うクラス
+	/// </summary>
 	public class ReverseUV
 	{
 		#region PrivateField
@@ -19,6 +22,11 @@ namespace Es.Effective
 
 		#region PublicMethod
 
+		/// <summary>
+		/// 横方向の反転を行う
+		/// </summary>
+		/// <param name="src">反転対象のテクスチャ</param>
+		/// <param name="dst">反転後のテクスチャ格納先</param>
 		public static void Horizontal(Texture src, RenderTexture dst)
 		{
 			if(reverseUVMaterial == null)
@@ -27,6 +35,11 @@ namespace Es.Effective
 			Blit(src, dst);
 		}
 
+		/// <summary>
+		/// 縦方向の反転を行う
+		/// </summary>
+		/// <param name="src">反転対象のテクスチャ</param>
+		/// <param name="dst">反転後のテクスチャ格納先</param>
 		public static void Vertical(Texture src, RenderTexture dst)
 		{
 			if(reverseUVMaterial == null)
@@ -35,6 +48,11 @@ namespace Es.Effective
 			Blit(src, dst);
 		}
 
+		/// <summary>
+		/// 縦横方向の反転を行う
+		/// </summary>
+		/// <param name="src">反転対象のテクスチャ</param>
+		/// <param name="dst">反転後のテクスチャ格納先</param>
 		public static void HorizontalAndVertical(Texture src, RenderTexture dst)
 		{
 			if(reverseUVMaterial == null)

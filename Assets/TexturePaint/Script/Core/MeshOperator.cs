@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Es.TexturePaint
 {
+	/// <summary>
+	/// Mesh操作を行うクラス
+	/// </summary>
 	public class MeshOperator
 	{
 		#region MeshData

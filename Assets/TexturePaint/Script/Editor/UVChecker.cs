@@ -14,7 +14,7 @@ namespace Es.Editor.Window
 		private MeshFilter targetMeshFilter;
 		private Texture2D tex;
 
-		[MenuItem("Window/UVChecker")]
+		[MenuItem("Window/TexturePaint/UVChecker")]
 		private static void Open()
 		{
 			GetWindow<UVChecker>();
