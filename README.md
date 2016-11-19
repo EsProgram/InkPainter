@@ -4,6 +4,7 @@ This asset allows you to Texture-Paint on Unity.
 
 Click here for [details](http://esprog.hatenablog.com/archive/category/UnityTexturePaint).
 
+Document is [here](https://esprogram.github.io/UnityTexturePaintDocument/).
 
 
 ## Examples
