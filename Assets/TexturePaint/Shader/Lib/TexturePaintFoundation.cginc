@@ -124,6 +124,8 @@ float4 TexturePaintNormalBlendMax(float4 mainNormal, float4 brushNormal, float b
 	#define TEXTURE_PAINT_HEIGHT_BLEND(mainHeight, brushHeight, blend, brushAlpha) TexturePaintHeightBlendMin(mainHeight, brushHeight, blend, brushAlpha)
 #elif TEXTURE_PAINT_HEIGHT_BLEND_MAX
 	#define TEXTURE_PAINT_HEIGHT_BLEND(mainHeight, brushHeight, blend, brushAlpha) TexturePaintHeightBlendMax(mainHeight, brushHeight, blend, brushAlpha)
+#elif TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A
+	#define TEXTURE_PAINT_HEIGHT_BLEND(mainHeight, brushHeight, blend, brushAlpha) TexturePaintHeightBlendColorRGBHeightA(mainHeight, brushHeight, blend, brushAlpha)
 #else
 	#define TEXTURE_PAINT_HEIGHT_BLEND(mainHeight, brushHeight, blend, brushAlpha) TexturePaintHeightBlendUseBrush(mainHeight, brushHeight, blend, brushAlpha)
 #endif
@@ -157,6 +159,11 @@ float4 TexturePaintHeightBlendMin(float4 mainHeight, float4 brushHeight, float b
 //ハイトマップブレンド後の値を取得(値の高い方に補間)
 float4 TexturePaintHeightBlendMax(float4 mainHeight, float4 brushHeight, float blend, float brushAlpha) {
 	return __HEIGHT_BLEND(max(mainHeight, brushHeight));
+}
+
+//ハイトマップブレンド後の値を取得(RGBは指定色でAが高さ)
+float4 TexturePaintHeightBlendColorRGBHeightA(float4 mainHeight, float4 brushHeight, float blend, float brushAlpha) {
+	return __HEIGHT_BLEND(brushHeight);
 }
 
 #endif //TEXTURE_PAINT_FOUNDATION

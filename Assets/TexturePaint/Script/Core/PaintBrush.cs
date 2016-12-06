@@ -92,6 +92,11 @@ namespace Es.TexturePaint
 			/// 対象と比較して大きい方の値を利用する
 			/// </summary>
 			Max,
+
+			/// <summary>
+			/// カラー情報をrgbに格納し、高さデータをaに格納する
+			/// </summary>
+			ColorRGB_HeightA,
 		}
 
 		[SerializeField]

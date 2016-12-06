@@ -4,7 +4,6 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_ColorMap("ColorMap", 2D) = "white" {}
-		_Color("Color", COLOR) = (0,0,0,0)
 	}
 	SubShader
 	{
@@ -34,7 +33,6 @@
 			sampler2D _MainTex;
 			sampler2D _ColorMap;
 			float4 _MainTex_ST;
-			float4 _Color;
 
 			v2f vert (appdata v)
 			{
@@ -48,8 +46,8 @@
 			{
 				float4 mainCol = tex2D(_MainTex, i.uv);
 
-				if (length(mainCol.xyz) > 0) {
-					return _Color;
+				if (mainCol.a > 0) {
+					return float4(mainCol.rgb, 1);
 				}
 
 				return tex2D(_ColorMap, i.uv);

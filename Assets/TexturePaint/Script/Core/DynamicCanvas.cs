@@ -138,6 +138,7 @@ namespace Es.TexturePaint
 		private int brushNormalBlendPropertyID;
 		private int brushHeightTexturePropertyID;
 		private int brushHeightBlendPropertyID;
+		private int brushHeightColorPropertyID;
 
 		#endregion ShaderPropertyID
 
@@ -159,6 +160,7 @@ namespace Es.TexturePaint
 		private const string HEIGHT_BLEND_SUB = "TEXTURE_PAINT_HEIGHT_BLEND_SUB";
 		private const string HEIGHT_BLEND_MIN = "TEXTURE_PAINT_HEIGHT_BLEND_MIN";
 		private const string HEIGHT_BLEND_MAX = "TEXTURE_PAINT_HEIGHT_BLEND_MAX";
+		private const string HEIGHT_BLEND_COLOR_RGB_HEIGHT_A = "TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A";
 
 		#endregion ShaderKeywords
 
@@ -217,6 +219,7 @@ namespace Es.TexturePaint
 			brushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
 			brushHeightTexturePropertyID = Shader.PropertyToID("_BrushHeight");
 			brushHeightBlendPropertyID = Shader.PropertyToID("_HeightBlend");
+			brushHeightColorPropertyID = Shader.PropertyToID("_Color");
 		}
 
 		/// <summary>
@@ -407,6 +410,7 @@ namespace Es.TexturePaint
 			paintHeightMaterial.SetTexture(brushHeightTexturePropertyID, brush.BrushHeightTexture);
 			paintHeightMaterial.SetFloat(brushScalePropertyID, brush.Scale);
 			paintHeightMaterial.SetFloat(brushHeightBlendPropertyID, brush.HeightBlend);
+			paintHeightMaterial.SetVector(brushHeightColorPropertyID, brush.Color);
 
 			foreach(var key in paintHeightMaterial.shaderKeywords)
 				paintHeightMaterial.DisableKeyword(key);
@@ -430,6 +434,10 @@ namespace Es.TexturePaint
 
 				case PaintBrush.HeightBlendType.Max:
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_MAX);
+					break;
+
+				case PaintBrush.HeightBlendType.ColorRGB_HeightA:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_COLOR_RGB_HEIGHT_A);
 					break;
 
 				default:

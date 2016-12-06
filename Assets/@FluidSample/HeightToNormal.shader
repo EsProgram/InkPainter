@@ -58,18 +58,18 @@
 				float2 shiftX = { _MainTex_TexelSize.x, 0 };
 				float2 shiftZ = { 0, _MainTex_TexelSize.y };
 
-				float3 texX = 2 * tex2Dlod(_MainTex, float4(i.uv.xy + shiftX, 0, 0)) - 1;
-				float3 texx = 2 * tex2Dlod(_MainTex, float4(i.uv.xy - shiftX, 0, 0)) - 1;
-				float3 texZ = 2 * tex2Dlod(_MainTex, float4(i.uv.xy + shiftZ, 0, 0)) - 1;
-				float3 texz = 2 * tex2Dlod(_MainTex, float4(i.uv.xy - shiftZ, 0, 0)) - 1;
+				float4 texX = 2 * tex2Dlod(_MainTex, float4(i.uv.xy + shiftX, 0, 0)) - 1;
+				float4 texx = 2 * tex2Dlod(_MainTex, float4(i.uv.xy - shiftX, 0, 0)) - 1;
+				float4 texZ = 2 * tex2Dlod(_MainTex, float4(i.uv.xy + shiftZ, 0, 0)) - 1;
+				float4 texz = 2 * tex2Dlod(_MainTex, float4(i.uv.xy - shiftZ, 0, 0)) - 1;
 
-				float3 du = { 0, _NormalScaleFactor * (texX.x - texx.x), 1 };
-				float3 dv = { 1, _NormalScaleFactor * (texZ.x - texz.x), 0 };
+				float3 du = { 0, _NormalScaleFactor * (texX.a - texx.a), 1 };
+				float3 dv = { 1, _NormalScaleFactor * (texZ.a - texz.a), 0 };
 
 				float3 normal = normalize(cross(du, dv));
 
-				float3 tex = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
-				if (length(tex.xyz) <= 0)
+				float4 tex = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
+				if (tex.a <= 0)
 					return tex2Dlod(_BumpMap, float4(i.uv.xy, 0, 0));
 
 				return PackNormal(normal * 0.5 + 0.5);

@@ -15,7 +15,7 @@ public class HeightFluid : MonoBehaviour
 	private Material height2Color;
 
 	[SerializeField]
-	private Color color = Color.black;
+	private Material singleColorFill;
 
 	[SerializeField]
 	private Vector2 flowDirection;
@@ -29,8 +29,26 @@ public class HeightFluid : MonoBehaviour
 	[SerializeField]
 	private float normalScaleFactor = 1;
 
+	private void OnGUI()
+	{
+		if(GUI.Button(new Rect(0, 30, 150, 50), "真のリセット"))
+		{
+			var canvas = GetComponent<DynamicCanvas>();
+			canvas.ResetPaint();
+			Start();
+		}
+	}
+
 	private void Start()
 	{
+		var canvas = GetComponent<DynamicCanvas>();
+		var materialName = canvas.GetComponent<Renderer>().sharedMaterial.name;
+		var heightPaint = canvas.GetPaintHeightTexture(materialName);
+		var heightTmp = RenderTexture.GetTemporary(heightPaint.width, heightPaint.height);
+		singleColorFill.SetVector("_Color", Vector4.zero);
+		Graphics.Blit(heightPaint, heightTmp, singleColorFill);
+		Graphics.Blit(heightTmp, heightPaint);
+		RenderTexture.ReleaseTemporary(heightTmp);
 	}
 
 	private void OnWillRenderObject()
@@ -52,7 +70,6 @@ public class HeightFluid : MonoBehaviour
 		var mainPaint = canvas.GetPaintMainTexture(materialName);
 		var mainTmp = RenderTexture.GetTemporary(mainPaint.width, mainPaint.height);
 		height2Color.SetTexture("_ColorMap", mainPaint);
-		height2Color.SetColor("_Color", color);
 		Graphics.Blit(heightPaint, mainTmp, height2Color);
 		Graphics.Blit(mainTmp, mainPaint);
 		RenderTexture.ReleaseTemporary(mainTmp);

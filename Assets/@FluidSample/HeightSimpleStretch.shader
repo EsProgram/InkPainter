@@ -51,25 +51,34 @@
 			{
 				float4 col = tex2D(_MainTex, i.uv);
 
-				float2 shiftZ = { _FlowDirection.x * _MainTex_TexelSize.x, _FlowDirection.y * _MainTex_TexelSize.y };
-				float2 shiftx = { -_MainTex_TexelSize.x * _FlowDirection.y, -_MainTex_TexelSize.y * _FlowDirection.x, };
-				float2 shiftX = { _MainTex_TexelSize.x * _FlowDirection.y, _MainTex_TexelSize.y * _FlowDirection.x, };
+				//TODO:VITIATEにちっちゃいノイズ入れたい。
+				const float VITIATE_X = 0.3;//どのくらい横の液体を考慮するかの係数。
+				float2 shiftZ = float2(_FlowDirection.x * _MainTex_TexelSize.x, _FlowDirection.y * _MainTex_TexelSize.y) * _ScaleFactor * _Viscosity;
+				float2 shiftX = float2(_MainTex_TexelSize.x * _FlowDirection.y, _MainTex_TexelSize.y * _FlowDirection.x) * _ScaleFactor * _Viscosity * VITIATE_X;
+				float2 shiftz = -shiftZ;
+				float2 shiftx = -shiftX;
 
-				shiftZ *= _ScaleFactor * _Viscosity;
-				//shiftx *= _ScaleFactor * _Viscosity;
-				//shiftX *= _ScaleFactor * _Viscosity;
-				const float VITIATE = 0.5;
-				shiftx *= _ScaleFactor * _Viscosity * VITIATE;
-				shiftX *= _ScaleFactor * _Viscosity * VITIATE;
+				//TODO:直下の高さを取ってきて、その高さに応じてどの程度流れるかを決めたい
+				float4 texZ = tex2Dlod(_MainTex, float4(clamp(i.uv.xy + shiftZ, 0, 1), 0, 0));
+				float4 texx = tex2Dlod(_MainTex, float4(clamp(i.uv.xy + shiftx + shiftZ, 0, 1), 0, 0));
+				float4 texX = tex2Dlod(_MainTex, float4(clamp(i.uv.xy + shiftX + shiftZ, 0, 1), 0, 0));
 
-				float4 texZ = tex2Dlod(_MainTex, float4(i.uv.xy + shiftZ, 0, 0));
-				float4 texx = tex2Dlod(_MainTex, float4(i.uv.xy + shiftx + shiftZ, 0, 0));
-				float4 texX = tex2Dlod(_MainTex, float4(i.uv.xy + shiftX + shiftZ, 0, 0));
+				//ピクセルの液体付着量を計算
+				float amountUp = texZ.a * 0.5 + texx.a * 0.25 + texX.a * 0.25;//上にある液体の付着量(重みは直上優先)
 
-				if (abs(length(texZ.xyz)) < _Viscosity)
-					return col;
+				//上のピクセルが塗られていた場合、垂れてくると仮定して加算
+				if (amountUp > 0) {
+					//垂れてきた液体を加算した合計の液体付着量
+					float resultAmount = (col.a + amountUp) * 0.5;
+					//垂れた液体の色を計算
+					float3 maxRGB = max(col.rgb, max(texZ.rgb, max(texx.rgb, texX.rgb)));//全ての範囲の色の最大値(これで計算すると全体的に明るくなるのでまずい)
+					float3 resultRGB = lerp(maxRGB, texZ.rgb, clamp(amountUp - _Viscosity, 0, 1));//垂れてくる液体との線形補間
 
-				return (col + texZ + texx + texX) * 0.25;
+					return float4(resultRGB, resultAmount);
+				}
+
+				//上のピクセルが塗られていない場合、今現在参照しているピクセルの色をそのまま帰す
+				return col;
 			}
 			ENDCG
 		}
