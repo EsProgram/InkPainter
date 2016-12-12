@@ -71,8 +71,9 @@
 #if TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A
 						height.a = 0.299 * height.r + 0.587 * height.g + 0.114 * height.b;
 						height.rgb = _Color.rgb;
+						brushColor.a = _Color.a;
 #endif
-						return TEXTURE_PAINT_HEIGHT_BLEND(base, height, _HeightBlend, brushColor.a);
+						return TEXTURE_PAINT_HEIGHT_BLEND(base, height, _HeightBlend, brushColor);
 					}
 				}
 
