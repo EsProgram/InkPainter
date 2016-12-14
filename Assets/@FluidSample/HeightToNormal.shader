@@ -63,8 +63,8 @@
 				float4 texZ = 2 * tex2Dlod(_MainTex, float4(i.uv.xy + shiftZ, 0, 0)) - 1;
 				float4 texz = 2 * tex2Dlod(_MainTex, float4(i.uv.xy - shiftZ, 0, 0)) - 1;
 
-				float3 du = { 0, _NormalScaleFactor * (texX.a - texx.a), 1 };
-				float3 dv = { 1, _NormalScaleFactor * (texZ.a - texz.a), 0 };
+				float3 du = { 1, 0, _NormalScaleFactor * (texX.a - texx.a) };
+				float3 dv = { 0, 1, _NormalScaleFactor * (texZ.a - texz.a)};
 
 				float3 normal = normalize(cross(du, dv));
 
