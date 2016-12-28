@@ -67,7 +67,8 @@
 				float amountUp = texZ.a * 0.5 + texx.a * 0.25 + texX.a * 0.25;//上にある液体の付着量(重みは直上優先)
 
 				//上のピクセルが塗られていた場合、垂れてくると仮定して加算
-				if (amountUp > 0) {
+				if (amountUp > (1 - _Viscosity)) {
+					//TODO:色合成のアルゴリズム変更(maxだと明るくなる・・・)
 					//垂れてきた液体を加算した合計の液体付着量
 					float resultAmount = (col.a + amountUp) * 0.5;
 					//垂れた液体の色を計算
