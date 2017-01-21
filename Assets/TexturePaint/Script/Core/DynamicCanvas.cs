@@ -110,20 +110,14 @@ namespace Es.TexturePaint
 		}
 
 		private const int DEFAULT_TEXTURE_SIZE = 256;
+		private static Material paintMaterial = null;
+		private static Material paintNormalMaterial = null;
+		private static Material paintHeightMaterial = null;
 
 		#region SerializedField
 
 		[SerializeField]
 		private List<PaintSet> paintSet = null;
-
-		[SerializeField, HideInInspector, Tooltip("テクスチャペイント用マテリアル")]
-		private Material paintMaterial = null;
-
-		[SerializeField, HideInInspector, Tooltip("法線マップペイント用マテリアル")]
-		private Material paintNormalMaterial = null;
-
-		[SerializeField, HideInInspector, Tooltip("ハイトマップペイント用マテリアル")]
-		private Material paintHeightMaterial = null;
 
 		#endregion SerializedField
 
@@ -227,6 +221,12 @@ namespace Es.TexturePaint
 		/// </summary>
 		private void SetMaterial()
 		{
+			if(paintMaterial == null)
+				paintMaterial = new Material(Shader.Find("Es/TexturePaint/Paint"));
+			if(paintNormalMaterial == null)
+				paintNormalMaterial = new Material(Shader.Find("Es/TexturePaint/PaintNormal"));
+			if(paintHeightMaterial == null)
+				paintHeightMaterial = new Material(Shader.Find("Es/TexturePaint/PaintHeight"));
 			var m = GetComponent<Renderer>().materials;
 			for(int i = 0; i < m.Length; ++i)
 			{

@@ -55,15 +55,15 @@
 
 			float4 frag(v2f i) : SV_TARGET {
 				float h = _BrushScale;
-				float4 base = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
+				float4 base = SampleTexture(_MainTex, i.uv.xy);
 
 				if (IsPaintRange(i.uv, _PaintUV, h)) {
 					float2 uv = CalcBrushUV(i.uv, _PaintUV, h);
-					float4 brushColor = tex2Dlod(_Brush, float4(uv.xy, 0, 0));
+					float4 brushColor = SampleTexture(_Brush, uv.xy);
 
 					if (brushColor.a > 0) {
 						float2 normalUV = CalcBrushUV(i.uv, _PaintUV, h);
-						float4 normal = tex2Dlod(_BrushNormal, float4(normalUV.xy, 0, 0));
+						float4 normal = SampleTexture(_BrushNormal, normalUV.xy);
 						return TEXTURE_PAINT_NORMAL_BLEND(base, normal, _NormalBlend, brushColor.a);
 					}
 				}

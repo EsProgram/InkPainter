@@ -1,13 +1,34 @@
 ﻿#ifndef TEXTURE_PAINT_FOUNDATION
 #define TEXTURE_PAINT_FOUNDATION
 
+#pragma target 3.0
+
+float4 SampleTexture(sampler2D tex, float2 uv) {
+#if SHADER_TARGET < 30
+	return tex2D(tex, uv);
+#else
+	return tex2Dlod(tex, float4(uv, 0, 0));
+#endif
+}
+
 //ペイントブラシが描画範囲内かどうかを調べる
 bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale) {
+	//return
+	//	paintUV.x - brushScale < mainUV.x &&
+	//	mainUV.x < paintUV.x + brushScale &&
+	//	paintUV.y - brushScale < mainUV.y &&
+	//	mainUV.y < paintUV.y + brushScale;
+	//tex2Dだと何故かピクセルのズレが生じるため、その分を考慮(マシにはなるが未解決)
+	//tex2Dlodであれば問題なくいけるがプラットフォームに制限がかかる
+	//UNITY_HALF_TEXEL_OFFSET(DirectXで1/2 テクセルのオフセット調整)が原因？OpenGLでも起こるので別っぽい？
+	const float MARGIN = 1;
+	float pixelWidth = 1 / _ScreenParams.x;
+	float pixelHeight = 1 / _ScreenParams.y;
 	return
-		paintUV.x - brushScale < mainUV.x &&
-		mainUV.x < paintUV.x + brushScale &&
-		paintUV.y - brushScale < mainUV.y &&
-		mainUV.y < paintUV.y + brushScale;
+		paintUV.x - brushScale < mainUV.x - pixelWidth * MARGIN &&
+		mainUV.x + pixelWidth * MARGIN < paintUV.x + brushScale &&
+		paintUV.y - brushScale < mainUV.y - pixelHeight * MARGIN &&
+		mainUV.y + pixelHeight * MARGIN < paintUV.y + brushScale;
 }
 
 //描画範囲内で利用できるブラシ用UVを計算する
@@ -130,7 +151,7 @@ float4 TexturePaintNormalBlendMax(float4 mainNormal, float4 brushNormal, float b
 	#define TEXTURE_PAINT_HEIGHT_BLEND(mainHeight, brushHeight, blend, brushAlpha) TexturePaintHeightBlendUseBrush(mainHeight, brushHeight, blend, brushAlpha)
 #endif
 
-float4 HeightBlend(float4 targetHeight,float4 mainHeight, float blend, float4 brushColor) {
+float4 HeightBlend(float4 targetHeight, float4 mainHeight, float blend, float4 brushColor) {
 	return lerp(mainHeight, targetHeight, blend * brushColor.a);
 }
 

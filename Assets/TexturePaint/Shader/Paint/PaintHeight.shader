@@ -41,7 +41,6 @@
 			float _BrushScale;
 			float _HeightBlend;
 			float4 _Color;
-
 		ENDCG
 
 		Pass{
@@ -59,15 +58,15 @@
 
 			float4 frag(v2f i) : SV_TARGET {
 				float h = _BrushScale;
-				float4 base = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
+				float4 base = SampleTexture(_MainTex, i.uv.xy);
 
 				if (IsPaintRange(i.uv, _PaintUV, h)) {
 					float2 uv = CalcBrushUV(i.uv, _PaintUV, h);
-					float4 brushColor = tex2Dlod(_Brush, float4(uv.xy, 0, 0));
+					float4 brushColor = SampleTexture(_Brush, uv.xy);
 
 					if (brushColor.a > 0) {
 						float2 heightUV = CalcBrushUV(i.uv, _PaintUV, h);
-						float4 height = tex2Dlod(_BrushHeight, float4(heightUV.xy, 0, 0));
+						float4 height = SampleTexture(_BrushHeight, heightUV.xy);
 #if TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A
 						height.a = 0.299 * height.r + 0.587 * height.g + 0.114 * height.b;
 						height.rgb = _Color.rgb;
