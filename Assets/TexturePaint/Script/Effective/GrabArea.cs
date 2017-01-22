@@ -19,7 +19,7 @@ namespace Es.Effective
 
 		#region PrivateField
 
-		private const string GRAB_AREA_SHADER = "Es/Effective/GrabArea";
+		private const string GRAB_AREA_MATERIAL = "Es.TexturePaint.Effective.GrabArea";
 		private const string CLIP = "_ClipTex";
 		private const string TARGET = "_TargetTex";
 		private const string CLIP_SCALE = "_ClipScale";
@@ -63,8 +63,7 @@ namespace Es.Effective
 		/// </summary>
 		private static void InitGrabAreaMaterial()
 		{
-			var shader = Shader.Find(GRAB_AREA_SHADER);
-			grabAreaMaterial = new Material(shader);
+			grabAreaMaterial = Resources.Load<Material>(GRAB_AREA_MATERIAL);
 		}
 
 		/// <summary>

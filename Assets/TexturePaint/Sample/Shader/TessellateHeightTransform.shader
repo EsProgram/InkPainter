@@ -68,7 +68,6 @@
 					v2h o = (v2h)0;
 					o.pos = mul(UNITY_MATRIX_MV, float4(i.w_vert.xyz, 1.0f));
 					o.texcoord = i.texcoord;
-					//o.normal = i.normal;
 					o.normal = mul(UNITY_MATRIX_IT_MV, i.normal);
 					return o;
 				}
@@ -113,7 +112,6 @@
 
 					half3 worldNormal = UnityObjectToWorldNormal(normal);
 					half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
-					//o.diffuse = nl * _LightColor0;
 					o.diffuse = nl * _LightColor0 * dx * dy;
 					o.diffuse.rgb += ShadeSH9(half4(worldNormal,1));
 
@@ -133,4 +131,5 @@
 				ENDCG
 			}
 	}
+	FallBack "Custom/VTFHeightTransform"
 }

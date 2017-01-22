@@ -59,9 +59,9 @@
 				float2 shiftx = -shiftX;
 
 				//TODO:直下の高さを取ってきて、その高さに応じてどの程度流れるかを決めたい
-				float4 texZ = tex2Dlod(_MainTex, float4(clamp(i.uv.xy + shiftZ, 0, 1), 0, 0));
-				float4 texx = tex2Dlod(_MainTex, float4(clamp(i.uv.xy + shiftx + shiftZ, 0, 1), 0, 0));
-				float4 texX = tex2Dlod(_MainTex, float4(clamp(i.uv.xy + shiftX + shiftZ, 0, 1), 0, 0));
+				float4 texZ = tex2D(_MainTex, clamp(i.uv.xy + shiftZ, 0, 1));
+				float4 texx = tex2D(_MainTex, clamp(i.uv.xy + shiftx + shiftZ, 0, 1));
+				float4 texX = tex2D(_MainTex, clamp(i.uv.xy + shiftX + shiftZ, 0, 1));
 
 				//ピクセルの液体付着量を計算
 				float amountUp = texZ.a * 0.5 + texx.a * 0.25 + texX.a * 0.25;//上にある液体の付着量(重みは直上優先)
