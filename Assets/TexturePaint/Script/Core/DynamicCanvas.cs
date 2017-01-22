@@ -222,11 +222,11 @@ namespace Es.TexturePaint
 		private void SetMaterial()
 		{
 			if(paintMaterial == null)
-				paintMaterial = new Material(Shader.Find("Es/TexturePaint/Paint"));
+				paintMaterial = Resources.Load<Material>("TexturePaint");
 			if(paintNormalMaterial == null)
-				paintNormalMaterial = new Material(Shader.Find("Es/TexturePaint/PaintNormal"));
+				paintNormalMaterial = Resources.Load<Material>("TexturePaintNormal");
 			if(paintHeightMaterial == null)
-				paintHeightMaterial = new Material(Shader.Find("Es/TexturePaint/PaintHeight"));
+				paintHeightMaterial = Resources.Load<Material>("TexturePaintHeight");
 			var m = GetComponent<Renderer>().materials;
 			for(int i = 0; i < m.Length; ++i)
 			{
