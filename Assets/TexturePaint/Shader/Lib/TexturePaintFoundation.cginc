@@ -5,7 +5,7 @@
 
 float4 SampleTexture(sampler2D tex, float2 uv) {
 #if SHADER_TARGET < 30
-	return tex2D(tex, uv);
+	return tex2Dgrad(tex, uv, 0, 0);
 #else
 	return tex2Dlod(tex, float4(uv, 0, 0));
 #endif
