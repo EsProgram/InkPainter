@@ -13,22 +13,11 @@ float4 SampleTexture(sampler2D tex, float2 uv) {
 
 //ペイントブラシが描画範囲内かどうかを調べる
 bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale) {
-	//return
-	//	paintUV.x - brushScale < mainUV.x &&
-	//	mainUV.x < paintUV.x + brushScale &&
-	//	paintUV.y - brushScale < mainUV.y &&
-	//	mainUV.y < paintUV.y + brushScale;
-	//tex2Dだと何故かピクセルのズレが生じるため、その分を考慮(マシにはなるが未解決)
-	//tex2Dlodであれば問題なくいけるがプラットフォームに制限がかかる
-	//UNITY_HALF_TEXEL_OFFSET(DirectXで1/2 テクセルのオフセット調整)が原因？OpenGLでも起こるので別っぽい？
-	const float MARGIN = 1;
-	float pixelWidth = 1 / _ScreenParams.x;
-	float pixelHeight = 1 / _ScreenParams.y;
 	return
-		paintUV.x - brushScale < mainUV.x - pixelWidth * MARGIN &&
-		mainUV.x + pixelWidth * MARGIN < paintUV.x + brushScale &&
-		paintUV.y - brushScale < mainUV.y - pixelHeight * MARGIN &&
-		mainUV.y + pixelHeight * MARGIN < paintUV.y + brushScale;
+		paintUV.x - brushScale < mainUV.x &&
+		mainUV.x < paintUV.x + brushScale &&
+		paintUV.y - brushScale < mainUV.y &&
+		mainUV.y < paintUV.y + brushScale;
 }
 
 //描画範囲内で利用できるブラシ用UVを計算する
