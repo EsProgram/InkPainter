@@ -113,6 +113,12 @@ namespace Es.TexturePaint
 		private static Material paintMaterial = null;
 		private static Material paintNormalMaterial = null;
 		private static Material paintHeightMaterial = null;
+		private Action<DynamicCanvas> onInitializedAfter = null;
+
+		/// <summary>
+		/// DynamicCanvas初期化完了タイミングで呼び出される
+		/// </summary>
+		public Action<DynamicCanvas> OnInitializedAfter { set { onInitializedAfter += value; } }
 
 		#region SerializedField
 
@@ -172,8 +178,14 @@ namespace Es.TexturePaint
 			InitPropertyID();
 			SetMaterial();
 			SetTexture();
-			SetRenderTexture();
 			MeshDataCache();
+		}
+
+		private void Start()
+		{
+			SetRenderTexture();
+			if(onInitializedAfter != null)
+				onInitializedAfter(this);
 		}
 
 		private void OnDestroy()
@@ -570,6 +582,8 @@ namespace Es.TexturePaint
 		{
 			ReleaseRenderTexture();
 			SetRenderTexture();
+			if(onInitializedAfter != null)
+				onInitializedAfter(this);
 		}
 
 		/// <summary>

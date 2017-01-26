@@ -27,10 +27,15 @@ namespace Es.TexturePaint.Sample
 		private Texture defaultHeightMap;
 		private RenderTexture paintHeightMap;
 
-		private void Start()
+		private void Awake()
+		{
+			canvas = GetComponent<DynamicCanvas>();
+			canvas.OnInitializedAfter = Init;
+		}
+
+		private void Init(DynamicCanvas canvas)
 		{
 			material = GetComponent<MeshRenderer>().sharedMaterial;
-			canvas = GetComponent<DynamicCanvas>();
 			defaultMainTexture = canvas.GetMainTexture(material.name);
 			paintMainTexture = canvas.GetPaintMainTexture(material.name);
 			defaultNormalMap = canvas.GetNormalTexture(material.name);

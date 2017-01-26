@@ -27,6 +27,13 @@ namespace Es.TexturePaint.Sample
 		[SerializeField]
 		private float normalScaleFactor = 1;
 
+		private void Init(DynamicCanvas canvas)
+		{
+			var heightPaint = canvas.GetPaintHeightTexture(materialName);
+			if(heightPaint != null)
+				InitHeightMap(heightPaint);
+		}
+
 		private void InitHeightMap(RenderTexture heightPaint)
 		{
 			var heightTmp = RenderTexture.GetTemporary(heightPaint.width, heightPaint.height);
@@ -50,9 +57,7 @@ namespace Es.TexturePaint.Sample
 			materialName = material.name;
 
 			canvas = GetComponent<DynamicCanvas>();
-			var heightPaint = canvas.GetPaintHeightTexture(materialName);
-			if(heightPaint != null)
-				InitHeightMap(heightPaint);
+			canvas.OnInitializedAfter = Init;
 		}
 
 		private void OnWillRenderObject()
