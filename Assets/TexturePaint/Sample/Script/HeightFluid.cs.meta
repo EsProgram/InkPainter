@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 55330dd7dfc2e6c4ba83c0789aad7a44
+timeCreated: 1481036499
+licenseType: Pro
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - heightFluid: {fileID: 2100000, guid: bbae03d1ad240754db8a7d26bc521c81, type: 2}
+  - height2Normal: {fileID: 2100000, guid: 5870c1700d125d2489931d3e51784b87, type: 2}
+  - height2Color: {fileID: 2100000, guid: a5bfb1847119232478b71d47792aeacf, type: 2}
+  - singleColorFill: {fileID: 2100000, guid: 86c89f3bf6ca4d7449850ee28f7d9bb1, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

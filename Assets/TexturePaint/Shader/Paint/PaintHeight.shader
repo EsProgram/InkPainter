@@ -13,7 +13,9 @@
 		[HideInInspector]
 		_HeightBlend("HeightBlend", FLOAT) = 1
 		[HideInInspector]
-		[KeywordEnum(USE_BRUSH, ADD, SUB, MIN, MAX)]
+		_Color("Color", VECTOR) = (0,0,0,0)
+		[HideInInspector]
+		[KeywordEnum(USE_BRUSH, ADD, SUB, MIN, MAX, COLOR_RGB_HEIGHT_A)]
 		TEXTURE_PAINT_HEIGHT_BLEND("Height Blend Keyword", FLOAT) = 0
 	}
 
@@ -38,11 +40,12 @@
 			float4 _PaintUV;
 			float _BrushScale;
 			float _HeightBlend;
+			float4 _Color;
 		ENDCG
 
 		Pass{
 			CGPROGRAM
-#pragma multi_compile TEXTURE_PAINT_HEIGHT_BLEND_USE_BRUSH TEXTURE_PAINT_HEIGHT_BLEND_ADD TEXTURE_PAINT_HEIGHT_BLEND_SUB TEXTURE_PAINT_HEIGHT_BLEND_MIN TEXTURE_PAINT_HEIGHT_BLEND_MAX
+#pragma multi_compile TEXTURE_PAINT_HEIGHT_BLEND_USE_BRUSH TEXTURE_PAINT_HEIGHT_BLEND_ADD TEXTURE_PAINT_HEIGHT_BLEND_SUB TEXTURE_PAINT_HEIGHT_BLEND_MIN TEXTURE_PAINT_HEIGHT_BLEND_MAX TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A
 #pragma vertex vert
 #pragma fragment frag
 
@@ -55,16 +58,21 @@
 
 			float4 frag(v2f i) : SV_TARGET {
 				float h = _BrushScale;
-				float4 base = tex2Dlod(_MainTex, float4(i.uv.xy, 0, 0));
+				float4 base = SampleTexture(_MainTex, i.uv.xy);
 
 				if (IsPaintRange(i.uv, _PaintUV, h)) {
 					float2 uv = CalcBrushUV(i.uv, _PaintUV, h);
-					float4 brushColor = tex2Dlod(_Brush, float4(uv.xy, 0, 0));
+					float4 brushColor = SampleTexture(_Brush, uv.xy);
 
 					if (brushColor.a > 0) {
 						float2 heightUV = CalcBrushUV(i.uv, _PaintUV, h);
-						float4 height = tex2Dlod(_BrushHeight, float4(heightUV.xy, 0, 0));
-						return TEXTURE_PAINT_HEIGHT_BLEND(base, height, _HeightBlend, brushColor.a);
+						float4 height = SampleTexture(_BrushHeight, heightUV.xy);
+#if TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A
+						height.a = 0.299 * height.r + 0.587 * height.g + 0.114 * height.b;
+						height.rgb = _Color.rgb;
+						brushColor.a = _Color.a;
+#endif
+						return TEXTURE_PAINT_HEIGHT_BLEND(base, height, _HeightBlend, brushColor);
 					}
 				}
 

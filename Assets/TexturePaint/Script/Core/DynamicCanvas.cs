@@ -110,20 +110,14 @@ namespace Es.TexturePaint
 		}
 
 		private const int DEFAULT_TEXTURE_SIZE = 256;
+		private static Material paintMaterial = null;
+		private static Material paintNormalMaterial = null;
+		private static Material paintHeightMaterial = null;
 
 		#region SerializedField
 
 		[SerializeField]
 		private List<PaintSet> paintSet = null;
-
-		[SerializeField, HideInInspector, Tooltip("テクスチャペイント用マテリアル")]
-		private Material paintMaterial = null;
-
-		[SerializeField, HideInInspector, Tooltip("法線マップペイント用マテリアル")]
-		private Material paintNormalMaterial = null;
-
-		[SerializeField, HideInInspector, Tooltip("ハイトマップペイント用マテリアル")]
-		private Material paintHeightMaterial = null;
 
 		#endregion SerializedField
 
@@ -138,6 +132,7 @@ namespace Es.TexturePaint
 		private int brushNormalBlendPropertyID;
 		private int brushHeightTexturePropertyID;
 		private int brushHeightBlendPropertyID;
+		private int brushHeightColorPropertyID;
 
 		#endregion ShaderPropertyID
 
@@ -159,6 +154,7 @@ namespace Es.TexturePaint
 		private const string HEIGHT_BLEND_SUB = "TEXTURE_PAINT_HEIGHT_BLEND_SUB";
 		private const string HEIGHT_BLEND_MIN = "TEXTURE_PAINT_HEIGHT_BLEND_MIN";
 		private const string HEIGHT_BLEND_MAX = "TEXTURE_PAINT_HEIGHT_BLEND_MAX";
+		private const string HEIGHT_BLEND_COLOR_RGB_HEIGHT_A = "TEXTURE_PAINT_HEIGHT_BLEND_COLOR_RGB_HEIGHT_A";
 
 		#endregion ShaderKeywords
 
@@ -217,6 +213,7 @@ namespace Es.TexturePaint
 			brushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
 			brushHeightTexturePropertyID = Shader.PropertyToID("_BrushHeight");
 			brushHeightBlendPropertyID = Shader.PropertyToID("_HeightBlend");
+			brushHeightColorPropertyID = Shader.PropertyToID("_Color");
 		}
 
 		/// <summary>
@@ -224,6 +221,12 @@ namespace Es.TexturePaint
 		/// </summary>
 		private void SetMaterial()
 		{
+			if(paintMaterial == null)
+				paintMaterial = Resources.Load<Material>("Es.TexturePaint.PaintMain");
+			if(paintNormalMaterial == null)
+				paintNormalMaterial = Resources.Load<Material>("Es.TexturePaint.PaintNormal");
+			if(paintHeightMaterial == null)
+				paintHeightMaterial = Resources.Load<Material>("Es.TexturePaint.PaintHeight");
 			var m = GetComponent<Renderer>().materials;
 			for(int i = 0; i < m.Length; ++i)
 			{
@@ -239,10 +242,8 @@ namespace Es.TexturePaint
 			foreach(var p in paintSet)
 			{
 				p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
-				if(p.useNormalPaint)
-					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
-				if(p.useHeightPaint)
-					p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
+				p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
+				p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
 			}
 		}
 
@@ -407,6 +408,7 @@ namespace Es.TexturePaint
 			paintHeightMaterial.SetTexture(brushHeightTexturePropertyID, brush.BrushHeightTexture);
 			paintHeightMaterial.SetFloat(brushScalePropertyID, brush.Scale);
 			paintHeightMaterial.SetFloat(brushHeightBlendPropertyID, brush.HeightBlend);
+			paintHeightMaterial.SetVector(brushHeightColorPropertyID, brush.Color);
 
 			foreach(var key in paintHeightMaterial.shaderKeywords)
 				paintHeightMaterial.DisableKeyword(key);
@@ -432,6 +434,10 @@ namespace Es.TexturePaint
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_MAX);
 					break;
 
+				case PaintBrush.HeightBlendType.ColorRGB_HeightA:
+					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_COLOR_RGB_HEIGHT_A);
+					break;
+
 				default:
 					paintHeightMaterial.EnableKeyword(HEIGHT_BLEND_ADD);
 					break;
@@ -455,7 +461,7 @@ namespace Es.TexturePaint
 				//メインテクスチャへのペイント
 				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
-					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
+					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
 					SetPaintMainData(brush, uv);
 					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMaterial);
 					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
@@ -465,7 +471,7 @@ namespace Es.TexturePaint
 				//法線マップへのペイント
 				if(p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
-					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.normalTexture.width, p.normalTexture.height);
+					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height);
 					SetPaintNormalData(brush, uv);
 					Graphics.Blit(p.paintNormalTexture, normalPaintTextureBuffer, paintNormalMaterial);
 					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
@@ -474,7 +480,7 @@ namespace Es.TexturePaint
 				//ハイトマップへのペイント
 				if(p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
-					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.heightTexture.width, p.heightTexture.height);
+					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.paintHeightTexture.width, p.paintHeightTexture.height);
 					SetPaintHeightData(brush, uv);
 					Graphics.Blit(p.paintHeightTexture, heightPaintTextureBuffer, paintHeightMaterial);
 					Graphics.Blit(heightPaintTextureBuffer, p.paintHeightTexture);
@@ -593,6 +599,24 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
+		/// ペイントテクスチャを新たにセットする
+		/// </summary>
+		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
+		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		public void SetPaintMainTexture(string materialName, RenderTexture newTexture)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+			{
+				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				return;
+			}
+			data.paintMainTexture = newTexture;
+			data.material.SetTexture(data.mainTextureName, data.paintMainTexture);
+			data.useMainPaint = true;
+		}
+
+		/// <summary>
 		/// 元の法線マップを取得する
 		/// </summary>
 		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
@@ -619,6 +643,24 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
+		/// ペイントテクスチャを新たにセットする
+		/// </summary>
+		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
+		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		public void SetPaintNormalTexture(string materialName, RenderTexture newTexture)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+			{
+				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				return;
+			}
+			data.paintNormalTexture = newTexture;
+			data.material.SetTexture(data.normalTextureName, data.paintNormalTexture);
+			data.useNormalPaint = true;
+		}
+
+		/// <summary>
 		/// 元のハイトマップを取得する
 		/// </summary>
 		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
@@ -642,6 +684,24 @@ namespace Es.TexturePaint
 			if(data == null)
 				return null;
 			return data.paintHeightTexture;
+		}
+
+		/// <summary>
+		/// ペイントテクスチャを新たにセットする
+		/// </summary>
+		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
+		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		public void SetPaintHeightTexture(string materialName, RenderTexture newTexture)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+			{
+				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				return;
+			}
+			data.paintHeightTexture = newTexture;
+			data.material.SetTexture(data.heightTextureName, data.paintHeightTexture);
+			data.useHeightPaint = true;
 		}
 
 		#endregion PublicMethod

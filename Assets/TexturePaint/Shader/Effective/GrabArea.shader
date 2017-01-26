@@ -46,7 +46,7 @@
 			}
 
 			float4 frag(v2f i) : SV_TARGET {
-				float alpha = tex2Dlod(_ClipTex, float4(i.uv.xy, 0, 0)).a;
+				float alpha = tex2D(_ClipTex, i.uv.xy).a;
 				float uv_x = (i.uv.x - 0.5) * _ClipScale * 2 + _ClipUV.x;
 				float uv_y = (i.uv.y - 0.5) * _ClipScale * 2 + _ClipUV.y;
 
@@ -66,7 +66,7 @@
 				clip(trunc(uv_y) * -1);
 #endif
 
-				float4 base = tex2Dlod(_TargetTex, float4(uv_x, uv_y, 0, 0));
+				float4 base = tex2D(_TargetTex, float2(uv_x, uv_y));
 				base.a = alpha;
 				return base;
 			}

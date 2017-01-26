@@ -9,7 +9,7 @@ namespace Es.Effective
 	{
 		#region PrivateField
 
-		private const string REVERSE_UV_SHADER = "Es/Effective/ReverseUV";
+		private const string REVERSE_UV_MATERIAL = "Es.TexturePaint.Effective.ReverseUV";
 		private const string REVERSE_X = "_ReverseX";
 		private const string REVERSE_Y = "_ReverseY";
 
@@ -70,8 +70,7 @@ namespace Es.Effective
 		/// </summary>
 		private static void InitReverseUVMaterial()
 		{
-			var shader = Shader.Find(REVERSE_UV_SHADER);
-			reverseUVMaterial = new Material(shader);
+			reverseUVMaterial = Resources.Load<Material>(REVERSE_UV_MATERIAL);
 		}
 
 		/// <summary>
