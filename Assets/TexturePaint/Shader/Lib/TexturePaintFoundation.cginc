@@ -1,11 +1,9 @@
 ﻿#ifndef TEXTURE_PAINT_FOUNDATION
 #define TEXTURE_PAINT_FOUNDATION
 
-#pragma target 3.0
-
 float4 SampleTexture(sampler2D tex, float2 uv) {
 #if SHADER_TARGET < 30
-	return tex2Dgrad(tex, uv, 0, 0);
+	return tex2D(tex, uv);
 #else
 	return tex2Dlod(tex, float4(uv, 0, 0));
 #endif

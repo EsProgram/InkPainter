@@ -242,10 +242,8 @@ namespace Es.TexturePaint
 			foreach(var p in paintSet)
 			{
 				p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
-				if(p.useNormalPaint)
-					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
-				if(p.useHeightPaint)
-					p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
+				p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
+				p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
 			}
 		}
 
@@ -463,7 +461,7 @@ namespace Es.TexturePaint
 				//メインテクスチャへのペイント
 				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
-					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.mainTexture.width, p.mainTexture.height);
+					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
 					SetPaintMainData(brush, uv);
 					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMaterial);
 					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
@@ -473,7 +471,7 @@ namespace Es.TexturePaint
 				//法線マップへのペイント
 				if(p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
-					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.normalTexture.width, p.normalTexture.height);
+					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height);
 					SetPaintNormalData(brush, uv);
 					Graphics.Blit(p.paintNormalTexture, normalPaintTextureBuffer, paintNormalMaterial);
 					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
@@ -482,7 +480,7 @@ namespace Es.TexturePaint
 				//ハイトマップへのペイント
 				if(p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
-					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.heightTexture.width, p.heightTexture.height);
+					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.paintHeightTexture.width, p.paintHeightTexture.height);
 					SetPaintHeightData(brush, uv);
 					Graphics.Blit(p.paintHeightTexture, heightPaintTextureBuffer, paintHeightMaterial);
 					Graphics.Blit(heightPaintTextureBuffer, p.paintHeightTexture);
@@ -601,6 +599,24 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
+		/// ペイントテクスチャを新たにセットする
+		/// </summary>
+		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
+		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		public void SetPaintMainTexture(string materialName, RenderTexture newTexture)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+			{
+				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				return;
+			}
+			data.paintMainTexture = newTexture;
+			data.material.SetTexture(data.mainTextureName, data.paintMainTexture);
+			data.useMainPaint = true;
+		}
+
+		/// <summary>
 		/// 元の法線マップを取得する
 		/// </summary>
 		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
@@ -627,6 +643,24 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
+		/// ペイントテクスチャを新たにセットする
+		/// </summary>
+		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
+		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		public void SetPaintNormalTexture(string materialName, RenderTexture newTexture)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+			{
+				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				return;
+			}
+			data.paintNormalTexture = newTexture;
+			data.material.SetTexture(data.normalTextureName, data.paintNormalTexture);
+			data.useNormalPaint = true;
+		}
+
+		/// <summary>
 		/// 元のハイトマップを取得する
 		/// </summary>
 		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
@@ -650,6 +684,24 @@ namespace Es.TexturePaint
 			if(data == null)
 				return null;
 			return data.paintHeightTexture;
+		}
+
+		/// <summary>
+		/// ペイントテクスチャを新たにセットする
+		/// </summary>
+		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
+		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		public void SetPaintHeightTexture(string materialName, RenderTexture newTexture)
+		{
+			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			if(data == null)
+			{
+				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				return;
+			}
+			data.paintHeightTexture = newTexture;
+			data.material.SetTexture(data.heightTextureName, data.paintHeightTexture);
+			data.useHeightPaint = true;
 		}
 
 		#endregion PublicMethod
