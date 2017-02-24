@@ -18,7 +18,6 @@ namespace Es.TexturePaint
 	/// </summary>
 	[RequireComponent(typeof(Renderer))]
 	[RequireComponent(typeof(Collider))]
-	[RequireComponent(typeof(MeshFilter))]
 	[DisallowMultipleComponent]
 	public class DynamicCanvas : MonoBehaviour
 	{
@@ -167,7 +166,17 @@ namespace Es.TexturePaint
 		#region MeshData
 
 		private MeshOperator meshOperator;
-		public MeshOperator MeshOperator { get { return meshOperator; } }
+
+		public MeshOperator MeshOperator
+		{
+			get
+			{
+				if(meshOperator == null)
+					Debug.LogError("機能を利用するにはMeshFilterかSkinnedMeshRendererコンポーネントにMeshが割り当てられている必要があります");
+
+				return meshOperator;
+			}
+		}
 
 		#endregion MeshData
 
@@ -203,7 +212,14 @@ namespace Es.TexturePaint
 		/// </summary>
 		private void MeshDataCache()
 		{
-			meshOperator = new MeshOperator(GetComponent<MeshFilter>().sharedMesh);
+			var meshFilter = GetComponent<MeshFilter>();
+			var skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
+			if(meshFilter != null)
+				meshOperator = new MeshOperator(meshFilter.sharedMesh);
+			else if(skinnedMeshRenderer != null)
+				meshOperator = new MeshOperator(skinnedMeshRenderer.sharedMesh);
+			else
+				Debug.LogWarning("MeshFilterかSkinnedMeshRendererがコンポーネントに存在しない場合一部機能が機能しない場合があります");
 		}
 
 		/// <summary>
@@ -512,7 +528,7 @@ namespace Es.TexturePaint
 		public bool PaintNearestTriangleSurface(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
-			var pd = meshOperator.NearestLocalSurfacePoint(p);
+			var pd = MeshOperator.NearestLocalSurfacePoint(p);
 
 			return Paint(brush, transform.localToWorldMatrix.MultiplyPoint(pd), renderCamera);
 		}
@@ -536,7 +552,7 @@ namespace Es.TexturePaint
 
 			Vector3 p = transform.InverseTransformPoint(worldPos);
 			Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
-			if(meshOperator.LocalPointToUV(p, mvp, out uv))
+			if(MeshOperator.LocalPointToUV(p, mvp, out uv))
 				return PaintUVDirect(brush, uv);
 
 			return false;
