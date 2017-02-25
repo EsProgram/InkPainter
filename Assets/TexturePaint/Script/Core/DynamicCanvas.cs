@@ -484,6 +484,16 @@ namespace Es.TexturePaint
 		/// <returns>ペイントの成否</returns>
 		public bool PaintUVDirect(PaintBrush brush, Vector2 uv)
 		{
+			#region ErrorCheck
+
+			if(brush == null)
+			{
+				Debug.LogError("ブラシが設定されていません");
+				return false;
+			}
+
+			#endregion ErrorCheck
+
 			foreach(var p in paintSet)
 			{
 				//メインテクスチャへのペイント
@@ -524,7 +534,7 @@ namespace Es.TexturePaint
 		/// <param name="brush">ブラシ</param>
 		/// <param name="worldPos">近似点</param>
 		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
-		/// <returns></returns>
+		/// <returns>ペイント成否</returns>
 		public bool PaintNearestTriangleSurface(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
@@ -542,7 +552,7 @@ namespace Es.TexturePaint
 		/// メッシュが構成する形状のサーフェスの上の点
 		/// </param>
 		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
-		/// <returns>ペイント成否</returns>
+		/// <returns>ペイントの成否</returns>
 		public bool Paint(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			Vector2 uv;
@@ -554,8 +564,12 @@ namespace Es.TexturePaint
 			Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
 			if(MeshOperator.LocalPointToUV(p, mvp, out uv))
 				return PaintUVDirect(brush, uv);
-
-			return false;
+			else
+			{
+				//World空間上の点がMeshのSurface内に見つからなかった場合は一番近いと思われる点を探してペイントを行う
+				Debug.LogWarning("MeshColliderが設定されていないキャンバスにWorld空間上の点を利用したPaintを行うと予期せぬ動作をする場合があります");
+				return PaintNearestTriangleSurface(brush, worldPos, renderCamera);
+			}
 		}
 
 		/// <summary>
@@ -569,16 +583,6 @@ namespace Es.TexturePaint
 		{
 			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
 			{
-				#region ErrorCheck
-
-				if(brush == null)
-				{
-					Debug.LogError("ブラシが設定されていません");
-					return false;
-				}
-
-				#endregion ErrorCheck
-
 				//MeshColliderが設定されていない場合はヒット位置でペイントを行う
 				if(!(GetComponent<Collider>() is MeshCollider))
 				{
@@ -782,50 +786,76 @@ namespace Es.TexturePaint
 				}
 
 				if(foldOut.Count < instance.paintSet.Count)
-				{
 					for(int i = foldOut.Count; i < instance.paintSet.Count; ++i)
 						foldOut.Add(true);
-				}
 
-				for(int i = 0; i < instance.paintSet.Count; ++i)
-				{
-					if(foldOut[i] = EditorGUILayout.Foldout(foldOut[i], string.Format("Material \"{0}\"", materials[i].name)))
+				EditorGUILayout.Space();
+
+				//プレイモード中は設定を変更できない
+				if(EditorApplication.isPlaying)
+					EditorGUILayout.HelpBox("Can not change while playing", MessageType.Info);
+				else
+
+					#region Property Setting
+
+					for(int i = 0; i < instance.paintSet.Count; ++i)
 					{
-						EditorGUI.indentLevel = 1;
+						if(foldOut[i] = Foldout(foldOut[i], string.Format("Material \"{0}\"", materials[i].name)))
+						{
+							EditorGUI.indentLevel = 0;
+							EditorGUILayout.BeginVertical("ProgressBarBack");
 
-						EditorGUI.BeginChangeCheck();
-						instance.paintSet[i].mainTextureName = EditorGUILayout.TextField("MainTexture Property Name", instance.paintSet[i].mainTextureName);
-						if(EditorGUI.EndChangeCheck())
-							ChangeValue(i, "Main Texture Name", p => p.mainTextureName = instance.paintSet[i].mainTextureName);
+							//MainPaint
+							EditorGUI.BeginChangeCheck();
+							instance.paintSet[i].useMainPaint = EditorGUILayout.Toggle("Use Main Paint", instance.paintSet[i].useMainPaint);
+							if(EditorGUI.EndChangeCheck())
+								ChangeValue(i, "Use Main Paint", p => p.useMainPaint = instance.paintSet[i].useMainPaint);
+							if(instance.paintSet[i].useMainPaint)
+							{
+								EditorGUI.indentLevel++;
+								EditorGUI.BeginChangeCheck();
+								instance.paintSet[i].mainTextureName = EditorGUILayout.TextField("MainTexture Property Name", instance.paintSet[i].mainTextureName);
+								if(EditorGUI.EndChangeCheck())
+									ChangeValue(i, "Main Texture Name", p => p.mainTextureName = instance.paintSet[i].mainTextureName);
+								EditorGUI.indentLevel--;
+							}
 
-						EditorGUI.BeginChangeCheck();
-						instance.paintSet[i].normalTextureName = EditorGUILayout.TextField("NormalMap Property Name", instance.paintSet[i].normalTextureName);
-						if(EditorGUI.EndChangeCheck())
-							ChangeValue(i, "Normal Texture Name", p => p.normalTextureName = instance.paintSet[i].normalTextureName);
+							//NormalPaint
+							EditorGUI.BeginChangeCheck();
+							instance.paintSet[i].useNormalPaint = EditorGUILayout.Toggle("Use NormalMap Paint", instance.paintSet[i].useNormalPaint);
+							if(EditorGUI.EndChangeCheck())
+								ChangeValue(i, "Use Normal Paint", p => p.useNormalPaint = instance.paintSet[i].useNormalPaint);
+							if(instance.paintSet[i].useNormalPaint)
+							{
+								EditorGUI.indentLevel++;
+								EditorGUI.BeginChangeCheck();
+								instance.paintSet[i].normalTextureName = EditorGUILayout.TextField("NormalMap Property Name", instance.paintSet[i].normalTextureName);
+								if(EditorGUI.EndChangeCheck())
+									ChangeValue(i, "Normal Texture Name", p => p.normalTextureName = instance.paintSet[i].normalTextureName);
+								EditorGUI.indentLevel--;
+							}
 
-						EditorGUI.BeginChangeCheck();
-						instance.paintSet[i].heightTextureName = EditorGUILayout.TextField("HeightMap Property Name", instance.paintSet[i].heightTextureName);
-						if(EditorGUI.EndChangeCheck())
-							ChangeValue(i, "Height Texture Name", p => p.heightTextureName = instance.paintSet[i].heightTextureName);
+							//HeightPaint
+							EditorGUI.BeginChangeCheck();
+							instance.paintSet[i].useHeightPaint = EditorGUILayout.Toggle("Use HeightMap Paint", instance.paintSet[i].useHeightPaint);
+							if(EditorGUI.EndChangeCheck())
+								ChangeValue(i, "Use Height Paint", p => p.useHeightPaint = instance.paintSet[i].useHeightPaint);
+							if(instance.paintSet[i].useHeightPaint)
+							{
+								EditorGUI.indentLevel++;
+								EditorGUI.BeginChangeCheck();
+								instance.paintSet[i].heightTextureName = EditorGUILayout.TextField("HeightMap Property Name", instance.paintSet[i].heightTextureName);
+								if(EditorGUI.EndChangeCheck())
+									ChangeValue(i, "Height Texture Name", p => p.heightTextureName = instance.paintSet[i].heightTextureName);
+								EditorGUI.indentLevel--;
+							}
 
-						EditorGUI.BeginChangeCheck();
-						instance.paintSet[i].useMainPaint = EditorGUILayout.Toggle("Use Main Paint", instance.paintSet[i].useMainPaint);
-						if(EditorGUI.EndChangeCheck())
-							ChangeValue(i, "Use Main Paint", p => p.useMainPaint = instance.paintSet[i].useMainPaint);
-
-						EditorGUI.BeginChangeCheck();
-						instance.paintSet[i].useNormalPaint = EditorGUILayout.Toggle("Use NormalMap Paint", instance.paintSet[i].useNormalPaint);
-						if(EditorGUI.EndChangeCheck())
-							ChangeValue(i, "Use Normal Paint", p => p.useNormalPaint = instance.paintSet[i].useNormalPaint);
-
-						EditorGUI.BeginChangeCheck();
-						instance.paintSet[i].useHeightPaint = EditorGUILayout.Toggle("Use HeightMap Paint", instance.paintSet[i].useHeightPaint);
-						if(EditorGUI.EndChangeCheck())
-							ChangeValue(i, "Use Height Paint", p => p.useHeightPaint = instance.paintSet[i].useHeightPaint);
-
-						EditorGUI.indentLevel = 0;
+							EditorGUILayout.EndVertical();
+							EditorGUI.indentLevel = 0;
+						}
 					}
-				}
+
+				#endregion Property Setting
 			}
 
 			/// <summary>
@@ -844,6 +874,34 @@ namespace Es.TexturePaint
 						EditorUtility.SetDirty(t);
 					}
 				EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+			}
+
+			public bool Foldout(bool foldout, string content)
+			{
+				var style = new GUIStyle("ShurikenModuleTitle");
+				style.font = new GUIStyle(EditorStyles.label).font;
+				style.border = new RectOffset(1, 7, 4, 4);
+				style.fixedHeight = 28;
+				style.contentOffset = new Vector2(20f, -2f);
+
+				var rect = GUILayoutUtility.GetRect(16f, 22f, style);
+				GUI.Box(rect, content, style);
+
+				var e = Event.current;
+
+				var toggleRect = new Rect(rect.x + 4f, rect.y + 5f, 13f, 13f);
+				if(e.type == EventType.Repaint)
+				{
+					EditorStyles.foldout.Draw(toggleRect, false, false, foldout, false);
+				}
+
+				if(e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+				{
+					foldout = !foldout;
+					e.Use();
+				}
+
+				return foldout;
 			}
 		}
 

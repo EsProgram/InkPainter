@@ -35,20 +35,25 @@ namespace Es.TexturePaint.Sample
 					if(paintObject != null)
 						switch(useMethodType)
 						{
+							//Raycastの情報を利用したペイント
 							case UseMethodType.RaycastHitInfo:
 								success = paintObject.Paint(brush, hitInfo);
 								break;
 
+							//オブジェクトの表面上の点をワールド空間で指定してペイント
 							case UseMethodType.WorldPoint:
 								success = paintObject.Paint(brush, hitInfo.point);
-
 								break;
 
+							//ワールド空間上の好きな点を指定して、その点に一番近いオブジェクト表面にペイント(メッシュが細かいほど精度が高い)
 							case UseMethodType.NearestSurfacePoint:
 								success = paintObject.PaintNearestTriangleSurface(brush, hitInfo.point);
 								break;
 
+							//UV座標を直接指定してペイント
 							case UseMethodType.DirectUV:
+								if(!(hitInfo.collider is MeshCollider))
+									Debug.LogWarning("RaycastではMeshCollider以外のColliderでUV座標を取得することが出来ないため予期せぬ動作をする場合があります");
 								success = paintObject.PaintUVDirect(brush, hitInfo.textureCoord);
 								break;
 
