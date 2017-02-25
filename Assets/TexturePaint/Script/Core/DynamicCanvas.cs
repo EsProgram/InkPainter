@@ -13,8 +13,8 @@ using UnityEditor.SceneManagement;
 namespace Es.TexturePaint
 {
 	/// <summary>
-	/// テクスチャペイントを行うキャンバス
-	/// マテリアル単位で設定する
+	/// Texture paint to canvas.
+	/// To set the per-material.
 	/// </summary>
 	[RequireComponent(typeof(Renderer))]
 	[RequireComponent(typeof(Collider))]
@@ -25,67 +25,67 @@ namespace Es.TexturePaint
 		private class PaintSet
 		{
 			/// <summary>
-			/// ペイントを適用するマテリアル
+			/// Applying paint materials.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public Material material;
 
-			[SerializeField, Tooltip("メインテクスチャのプロパティ名")]
+			[SerializeField, Tooltip("The property name of the main texture.")]
 			public string mainTextureName = "_MainTex";
 
-			[SerializeField, Tooltip("法線マップテクスチャのプロパティ名")]
+			[SerializeField, Tooltip("Normal map texture property name.")]
 			public string normalTextureName = "_BumpMap";
 
-			[SerializeField, Tooltip("ハイトマップテクスチャのプロパティ名")]
+			[SerializeField, Tooltip("The property name of the heightmap texture.")]
 			public string heightTextureName = "_ParallaxMap";
 
-			[SerializeField, Tooltip("ペイントをするか")]
+			[SerializeField, Tooltip("Whether or not use main texture paint.")]
 			public bool useMainPaint = true;
 
-			[SerializeField, Tooltip("法線マップペイントをするか(マテリアルに法線マップが設定されている必要があります)")]
+			[SerializeField, Tooltip("Whether or not use normal map paint (you need material on normal maps).")]
 			public bool useNormalPaint = false;
 
-			[SerializeField, Tooltip("ハイトマップペイントをするか(マテリアルにハイトマップが設定されている必要があります)")]
+			[SerializeField, Tooltip("Whether or not use heightmap painting (you need material on the heightmap).")]
 			public bool useHeightPaint = false;
 
 			/// <summary>
-			/// 最初にマテリアルにセットされているメインテクスチャ
+			/// In the first time set to the material's main texture.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public Texture mainTexture;
 
 			/// <summary>
-			/// メインテクスチャをコピーしたペイント用RenderTexture
+			/// Copied the main texture to rendertexture that use to paint.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public RenderTexture paintMainTexture;
 
 			/// <summary>
-			/// 最初にマテリアルにセットされている法線マップ
+			/// In the first time set to the material's normal map.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public Texture normalTexture;
 
 			/// <summary>
-			/// 法線マップをコピーしたペイント用RenderTexture
+			/// Copied the normal map to rendertexture that use to paint.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public RenderTexture paintNormalTexture;
 
 			/// <summary>
-			/// 最初にマテリアルにセットされているハイトマップ
+			/// In the first time set to the material's height map.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
 			public Texture heightTexture;
 
 			/// <summary>
-			/// ハイトマップをコピーしたペイント用RenderTexture
+			/// Copied the height map to rendertexture that use to paint.
 			/// </summary>
 			[HideInInspector]
 			[NonSerialized]
@@ -115,7 +115,7 @@ namespace Es.TexturePaint
 		private Action<DynamicCanvas> onInitializedAfter = null;
 
 		/// <summary>
-		/// DynamicCanvas初期化完了タイミングで呼び出される
+		/// Called by dynamic canvas initialization completion times.
 		/// </summary>
 		public Action<DynamicCanvas> OnInitializedAfter { set { onInitializedAfter += value; } }
 
@@ -172,7 +172,7 @@ namespace Es.TexturePaint
 			get
 			{
 				if(meshOperator == null)
-					Debug.LogError("機能を利用するにはMeshFilterかSkinnedMeshRendererコンポーネントにMeshが割り当てられている必要があります");
+					Debug.LogError("To take advantage of the features must Mesh filter or Skinned mesh renderer component associated Mesh.");
 
 				return meshOperator;
 			}
@@ -199,7 +199,7 @@ namespace Es.TexturePaint
 
 		private void OnDestroy()
 		{
-			Debug.Log("DynamicCanvasを破棄しました");
+			Debug.Log("Dynamic canvas has been destroyed.");
 			ReleaseRenderTexture();
 		}
 
@@ -208,7 +208,7 @@ namespace Es.TexturePaint
 		#region PrivateMethod
 
 		/// <summary>
-		/// メッシュから取得できるデータをキャッシュする
+		/// Cach data from the mesh.
 		/// </summary>
 		private void MeshDataCache()
 		{
@@ -219,11 +219,11 @@ namespace Es.TexturePaint
 			else if(skinnedMeshRenderer != null)
 				meshOperator = new MeshOperator(skinnedMeshRenderer.sharedMesh);
 			else
-				Debug.LogWarning("MeshFilterかSkinnedMeshRendererがコンポーネントに存在しない場合一部機能が機能しない場合があります");
+				Debug.LogWarning("Sometimes if the MeshFilter or SkinnedMeshRenderer does not exist in the component part does not work correctly.");
 		}
 
 		/// <summary>
-		/// シェーダーのプロパティIDを初期化する
+		/// To initialize the shader property ID.
 		/// </summary>
 		private void InitPropertyID()
 		{
@@ -245,7 +245,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// マテリアルを取得しセットする
+		/// Set and retrieve the material.
 		/// </summary>
 		private void SetMaterial()
 		{
@@ -263,7 +263,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// テクスチャを取得しセットする
+		/// Set and retrieve the texture.
 		/// </summary>
 		private void SetTexture()
 		{
@@ -276,7 +276,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// RenderTextureを生成しマテリアルにセットする
+		/// Creates a rendertexture and set the material.
 		/// </summary>
 		private void SetRenderTexture()
 		{
@@ -284,51 +284,39 @@ namespace Es.TexturePaint
 			{
 				if(p.useMainPaint)
 				{
-					//MainTextureが設定されていない場合は白テクスチャ
 					if(p.mainTexture == null)
 						p.mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
-					//DynamicPaint用RenderTextureの生成
 					p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-					//メインテクスチャのコピー
 					Graphics.Blit(p.mainTexture, p.paintMainTexture);
-					//マテリアルのテクスチャをRenderTextureに変更
 					p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
 				}
 				if(p.useNormalPaint)
 				{
-					//NormalTextureが設定されている場合
 					if(p.normalTexture != null)
 					{
-						//法線マップテクスチャの生成
 						p.paintNormalTexture = new RenderTexture(p.normalTexture.width, p.normalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-						//法線マップのコピー
 						Graphics.Blit(p.normalTexture, p.paintNormalTexture);
-						//マテリアルの法線マップテクスチャをRenderTextureに変更
 						p.material.SetTexture(p.normalTexturePropertyID, p.paintNormalTexture);
 					}
 					else
-						Debug.LogWarning("法線マップペイントを利用するにはマテリアルに法線マップテクスチャが設定されている必要があります");
+						Debug.LogWarning("To take advantage of the normal map paint must set normal map to materials.");
 				}
 				if(p.useHeightPaint)
 				{
-					//HeightTextureが設定されている場合
 					if(p.heightTexture != null)
 					{
-						//ハイトマップテクスチャの生成
 						p.paintHeightTexture = new RenderTexture(p.heightTexture.width, p.heightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-						//ハイトマップのコピー
 						Graphics.Blit(p.heightTexture, p.paintHeightTexture);
-						//マテリアルのハイトマップテクスチャをRenderTextureに変更
 						p.material.SetTexture(p.heightTexturePropertyID, p.paintHeightTexture);
 					}
 					else
-						Debug.LogWarning("ハイトマップペイントを利用するにはマテリアルにハイトマップテクスチャが設定されている必要があります");
+						Debug.LogWarning("To take advantage of the height map paint must set height map to materials.");
 				}
 			}
 		}
 
 		/// <summary>
-		/// RenderTextureリリース処理
+		/// Rendertexture release process.
 		/// </summary>
 		private void ReleaseRenderTexture()
 		{
@@ -344,10 +332,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイントに必要なデータをシェーダーにセットする
+		/// To set the data needed to paint shader.
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="uv">ヒット位置のUV座標</param>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="uv">UV coordinates for the hit location.</param>
 		private void SetPaintMainData(PaintBrush brush, Vector2 uv)
 		{
 			paintMaterial.SetVector(paintUVPropertyID, uv);
@@ -382,10 +370,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 法線マップペイントに必要なデータをシェーダーにセットする
+		/// To set the data needed to normal map paint shader
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="uv">ヒット位置のUV座標</param>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="uv">UV coordinates for the hit location.</param>
 		private void SetPaintNormalData(PaintBrush brush, Vector2 uv)
 		{
 			paintNormalMaterial.SetVector(paintUVPropertyID, uv);
@@ -425,10 +413,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ハイトマップペイントに必要なデータをシェーダーにセットする
+		/// To set the data needed to height map paint shader.
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="uv">ヒット位置のUV座標</param>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="uv">UV coordinates for the hit location.</param>
 		private void SetPaintHeightData(PaintBrush brush, Vector2 uv)
 		{
 			paintHeightMaterial.SetVector(paintUVPropertyID, uv);
@@ -477,18 +465,18 @@ namespace Es.TexturePaint
 		#region PublicMethod
 
 		/// <summary>
-		/// 直接UV座標を指定したペイント処理を行う
+		/// Paint processing that UV coordinates to the specified.
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="uv">ヒット位置のUV座標</param>
-		/// <returns>ペイントの成否</returns>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="uv">UV coordinates for the hit location.</param>
+		/// <returns>The success or failure of the paint.</returns>
 		public bool PaintUVDirect(PaintBrush brush, Vector2 uv)
 		{
 			#region ErrorCheck
 
 			if(brush == null)
 			{
-				Debug.LogError("ブラシが設定されていません");
+				Debug.LogError("Do not set the brush.");
 				return false;
 			}
 
@@ -496,7 +484,6 @@ namespace Es.TexturePaint
 
 			foreach(var p in paintSet)
 			{
-				//メインテクスチャへのペイント
 				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
 					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
@@ -506,7 +493,6 @@ namespace Es.TexturePaint
 					RenderTexture.ReleaseTemporary(mainPaintTextureBuffer);
 				}
 
-				//法線マップへのペイント
 				if(p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
 					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height);
@@ -515,7 +501,7 @@ namespace Es.TexturePaint
 					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
 					RenderTexture.ReleaseTemporary(normalPaintTextureBuffer);
 				}
-				//ハイトマップへのペイント
+
 				if(p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
 					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.paintHeightTexture.width, p.paintHeightTexture.height);
@@ -529,12 +515,12 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 与えられたworldPosに近いMeshSurface上の点に対してペイント処理を行う
+		/// Paint of points close to the given world-space position on the Mesh surface.
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="worldPos">近似点</param>
-		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
-		/// <returns>ペイント成否</returns>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="worldPos">Approximate point.</param>
+		/// <param name="renderCamera">Camera to use to render the object.</param>
+		/// <returns>The success or failure of the paint.</returns>
 		public bool PaintNearestTriangleSurface(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
@@ -544,15 +530,12 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント処理を行う
+		/// Paint processing that use world-space surface position.
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="worldPos">
-		/// キャンバス上の塗る点(World-Space)
-		/// メッシュが構成する形状のサーフェスの上の点
-		/// </param>
-		/// <param name="renderCamera">レンダリングに利用するカメラ</param>
-		/// <returns>ペイントの成否</returns>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="worldPos">Point on object surface (world-space).</param>
+		/// <param name="renderCamera">Camera to use to render the object.</param>
+		/// <returns>The success or failure of the paint.</returns>
 		public bool Paint(PaintBrush brush, Vector3 worldPos, Camera renderCamera = null)
 		{
 			Vector2 uv;
@@ -566,28 +549,25 @@ namespace Es.TexturePaint
 				return PaintUVDirect(brush, uv);
 			else
 			{
-				//World空間上の点がMeshのSurface内に見つからなかった場合は一番近いと思われる点を探してペイントを行う
-				Debug.LogWarning("MeshColliderが設定されていないキャンバスにWorld空間上の点を利用したPaintを行うと予期せぬ動作をする場合があります");
+				Debug.LogWarning("Could not get the point on the surface.");
 				return PaintNearestTriangleSurface(brush, worldPos, renderCamera);
 			}
 		}
 
 		/// <summary>
-		/// ペイント処理を行う
-		/// CanvasにはMeshColliderが設定されている必要があります
+		/// Paint processing that use raycast hit data.
+		/// Must MeshCollider is set to the canvas.
 		/// </summary>
-		/// <param name="brush">ブラシ</param>
-		/// <param name="hitInfo">RaycastのHit情報</param>
-		/// <returns>ペイントの成否</returns>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="hitInfo">Raycast hit info.</param>
+		/// <returns>The success or failure of the paint.</returns>
 		public bool Paint(PaintBrush brush, RaycastHit hitInfo)
 		{
 			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
 			{
-				//MeshColliderが設定されていない場合はヒット位置でペイントを行う
 				if(!(GetComponent<Collider>() is MeshCollider))
 				{
-					Debug.LogWarning("MeshColliderが設定されていないキャンバスにRayCastを利用したPaintを行うと予期せぬ動作をする場合があります");
-					//頂点のTriangleから一番近いサーフェス上の点を算出してPaintに渡すように
+					Debug.LogWarning("If you want to paint using a Raycast, need set MeshCollider for canvas object.");
 					return PaintNearestTriangleSurface(brush, hitInfo.point);
 				}
 				return PaintUVDirect(brush, hitInfo.textureCoord);
@@ -596,7 +576,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイントをリセットする
+		/// To reset the paint.
 		/// </summary>
 		public void ResetPaint()
 		{
@@ -607,10 +587,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 元のメインテクスチャを取得する
+		/// To get the original main texture.
 		/// </summary>
-		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
-		/// <returns>元のメインテクスチャ</returns>
+		/// <param name="materialName">Material name.</param>
+		/// <returns>Original main texture.</returns>
 		public Texture GetMainTexture(string materialName)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
@@ -620,10 +600,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント中のメインテクスチャを取得する
+		/// To get the main texture in paint.
 		/// </summary>
-		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
-		/// <returns>ペイント中のメインテクスチャ</returns>
+		/// <param name="materialName">Material name.</param>
+		/// <returns>Main texture in paint.</returns>
 		public RenderTexture GetPaintMainTexture(string materialName)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
@@ -633,16 +613,16 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイントテクスチャを新たにセットする
+		/// Set paint texture.
 		/// </summary>
-		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
-		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		/// <param name="materialName">Material name.</param>
+		/// <param name="newTexture">New rendertexture.</param>
 		public void SetPaintMainTexture(string materialName, RenderTexture newTexture)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
 			if(data == null)
 			{
-				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				Debug.LogError("Failed to set texture.");
 				return;
 			}
 			data.paintMainTexture = newTexture;
@@ -651,10 +631,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 元の法線マップを取得する
+		/// To get the original normal map.
 		/// </summary>
-		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
-		/// <returns>元の法線マップ</returns>
+		/// <param name="materialName">Material name.</param>
+		/// <returns>Original normal map.</returns>
 		public Texture GetNormalTexture(string materialName)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
@@ -664,10 +644,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント中の法線マップを取得する
+		/// To get the paint in normal map.
 		/// </summary>
-		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
-		/// <returns>ペイント中の法線マップ</returns>
+		/// <param name="materialName">Material name.</param>
+		/// <returns>Normal map in paint.</returns>
 		public RenderTexture GetPaintNormalTexture(string materialName)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
@@ -677,16 +657,16 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイントテクスチャを新たにセットする
+		/// Set paint texture.
 		/// </summary>
-		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
-		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		/// <param name="materialName">Material name.</param>
+		/// <param name="newTexture">New rendertexture.</param>
 		public void SetPaintNormalTexture(string materialName, RenderTexture newTexture)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
 			if(data == null)
 			{
-				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				Debug.LogError("Failed to set texture.");
 				return;
 			}
 			data.paintNormalTexture = newTexture;
@@ -695,10 +675,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 元のハイトマップを取得する
+		/// To get the original height map.
 		/// </summary>
-		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
-		/// <returns>元のハイトマップ</returns>
+		/// <param name="materialName">Material name.</param>
+		/// <returns>Original height map.</returns>
 		public Texture GetHeightTexture(string materialName)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
@@ -708,10 +688,10 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイント中のハイトマップを取得する
+		/// To get the paint in height map.
 		/// </summary>
-		/// <param name="materialName">取得するテクスチャが設定されているマテリアル名</param>
-		/// <returns>ペイント中のハイトマップ</returns>
+		/// <param name="materialName">Material name.</param>
+		/// <returns>Height map in paint.</returns>
 		public RenderTexture GetPaintHeightTexture(string materialName)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
@@ -721,16 +701,16 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ペイントテクスチャを新たにセットする
+		/// Set paint texture.
 		/// </summary>
-		/// <param name="materialName">セットするテクスチャが設定されているマテリアル名</param>
-		/// <param name="newTexture">セットするレンダリングテクスチャ</param>
+		/// <param name="materialName">Material name.</param>
+		/// <param name="newTexture">New rendertexture.</param>
 		public void SetPaintHeightTexture(string materialName, RenderTexture newTexture)
 		{
 			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
 			if(data == null)
 			{
-				Debug.LogError("テクスチャのSetに失敗しました。マテリアルの検索に失敗しました。");
+				Debug.LogError("Failed to set texture.");
 				return;
 			}
 			data.paintHeightTexture = newTexture;
@@ -791,7 +771,6 @@ namespace Es.TexturePaint
 
 				EditorGUILayout.Space();
 
-				//プレイモード中は設定を変更できない
 				if(EditorApplication.isPlaying)
 					EditorGUILayout.HelpBox("Can not change while playing", MessageType.Info);
 				else
@@ -858,12 +837,6 @@ namespace Es.TexturePaint
 				#endregion Property Setting
 			}
 
-			/// <summary>
-			/// 値の変更を行う
-			/// </summary>
-			/// <param name="paintSetIndex">変更対象のPaintSetのIndex</param>
-			/// <param name="recordName">Undo登録時のレコード名</param>
-			/// <param name="assign">代入処理</param>
 			private void ChangeValue(int paintSetIndex, string recordName, Action<PaintSet> assign)
 			{
 				Undo.RecordObjects(targets, "Change " + recordName);
