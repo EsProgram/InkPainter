@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Es.TexturePaint
 {
 	/// <summary>
-	/// Mesh操作を行うクラス
+	/// A class that manipulates Mesh.
 	/// </summary>
 	public class MeshOperator
 	{
@@ -32,12 +32,12 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ローカル座標をUV座標に変換する
+		/// Convert local-space point to texture coordinates.
 		/// </summary>
 		/// <param name="localPoint">Local-Space Point</param>
-		/// <param name="matrixMVP">World-View-Projection変換行列</param>
-		/// <param name="uv">変換後のUV座標</param>
-		/// <returns>変換の成否</returns>
+		/// <param name="matrixMVP">World-View-Projection Transformation matrix.</param>
+		/// <param name="uv">UV coordinates after conversion.</param>
+		/// <returns>Whether the conversion was successful.</returns>
 		public bool LocalPointToUV(Vector3 localPoint, Matrix4x4 matrixMVP, out Vector2 uv)
 		{
 			int index0;
@@ -58,14 +58,11 @@ namespace Es.TexturePaint
 				t2 = meshVertices[meshTriangles[index1]];
 				t3 = meshVertices[meshTriangles[index2]];
 
-				//平面上に存在しない
 				if(!Math.ExistPointInPlane(p, t1, t2, t3))
 					continue;
-				//三角形の辺または内部に存在しない
 				if(!Math.ExistPointOnTriangleEdge(p, t1, t2, t3) && !Math.ExistPointInTriangle(p, t1, t2, t3))
 					continue;
 
-				//UV座標算出
 				var uv1 = meshUV[meshTriangles[index0]];
 				var uv2 = meshUV[meshTriangles[index1]];
 				var uv3 = meshUV[meshTriangles[index2]];
@@ -78,18 +75,14 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 指定したLocal-Space上の点に一番近いオブジェクト表面上の点を返す
+		/// Returns the point on the surface of Mesh closest to the point on the specified local-space.
 		/// </summary>
-		/// <param name="localPoint">Local-Space Point</param>
-		/// <returns>Local-Space Point</returns>
+		/// <param name="localPoint">The point of local-space.</param>
+		/// <returns>Mesh The point of local-space on the surface.</returns>
 		public Vector3 NearestLocalSurfacePoint(Vector3 localPoint)
 		{
 			var p = localPoint;
-
-			//頂点の中で一番近いものを含む三角形を取得
 			var tris = Math.GetNearestVerticesTriangle(p, meshVertices, meshTriangles);
-
-			//それぞれの三角形空間でそれっぽいp'を計算
 			var pds = new List<Vector3>();
 			for(int i = 0; i < tris.Length; i += 3)
 			{
@@ -98,11 +91,7 @@ namespace Es.TexturePaint
 				var i2 = i + 2;
 				pds.Add(Math.TriangleSpaceProjection(p, tris[i0], tris[i1], tris[i2]));
 			}
-
-			//pに一番近いp'が求めたかったオブジェクト表面
-			var pd = pds.OrderBy(t => Vector3.Distance(p, t)).First();
-
-			return pd;
+			return pds.OrderBy(t => Vector3.Distance(p, t)).First();
 		}
 
 		#endregion PublicMethod
