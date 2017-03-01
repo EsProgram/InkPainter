@@ -3,7 +3,7 @@
 namespace Es.Effective
 {
 	/// <summary>
-	/// UVの反転を行うクラス
+	/// Class to reverse UV.
 	/// </summary>
 	public class ReverseUV
 	{
@@ -23,10 +23,10 @@ namespace Es.Effective
 		#region PublicMethod
 
 		/// <summary>
-		/// 横方向の反転を行う
+		/// Performs horizontal reversal.
 		/// </summary>
-		/// <param name="src">反転対象のテクスチャ</param>
-		/// <param name="dst">反転後のテクスチャ格納先</param>
+		/// <param name="src">Texture to invert.</param>
+		/// <param name="dst">The storage location of inverted texture.</param>
 		public static void Horizontal(Texture src, RenderTexture dst)
 		{
 			if(reverseUVMaterial == null)
@@ -36,10 +36,10 @@ namespace Es.Effective
 		}
 
 		/// <summary>
-		/// 縦方向の反転を行う
+		/// Performs vertical reversal.
 		/// </summary>
-		/// <param name="src">反転対象のテクスチャ</param>
-		/// <param name="dst">反転後のテクスチャ格納先</param>
+		/// <param name="src">Texture to invert.</param>
+		/// <param name="dst">The storage location of inverted texture.</param>
 		public static void Vertical(Texture src, RenderTexture dst)
 		{
 			if(reverseUVMaterial == null)
@@ -49,10 +49,10 @@ namespace Es.Effective
 		}
 
 		/// <summary>
-		/// 縦横方向の反転を行う
+		/// Performs horizontal and vertical reversal.
 		/// </summary>
-		/// <param name="src">反転対象のテクスチャ</param>
-		/// <param name="dst">反転後のテクスチャ格納先</param>
+		/// <param name="src">Texture to invert.</param>
+		/// <param name="dst">The storage location of inverted texture.</param>
 		public static void HorizontalAndVertical(Texture src, RenderTexture dst)
 		{
 			if(reverseUVMaterial == null)
@@ -66,18 +66,13 @@ namespace Es.Effective
 		#region PrivateField
 
 		/// <summary>
-		/// マテリアルを初期化する
+		/// Initialize the material.
 		/// </summary>
 		private static void InitReverseUVMaterial()
 		{
 			reverseUVMaterial = Resources.Load<Material>(REVERSE_UV_MATERIAL);
 		}
 
-		/// <summary>
-		/// マテリアルに値を設定する
-		/// </summary>
-		/// <param name="x">x方向の反転値</param>
-		/// <param name="y">y方向の反転値</param>
 		private static void SetReverseUVProperty(float x, float y)
 		{
 			reverseUVMaterial.SetFloat(REVERSE_X, x);
