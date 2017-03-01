@@ -3,12 +3,12 @@
 namespace Es.Effective
 {
 	/// <summary>
-	/// テクスチャの指定範囲を取得するクラス
+	/// Class for obtaining specified range of texture.
 	/// </summary>
 	public class GrabArea
 	{
 		/// <summary>
-		/// テクスチャのラップモード
+		/// Texture wrap mode.
 		/// </summary>
 		public enum GrabTextureWrapMode
 		{
@@ -36,13 +36,13 @@ namespace Es.Effective
 		#region PublicMethod
 
 		/// <summary>
-		/// クリップテクスチャによって指定される範囲のターゲットテクスチャを切り抜く
+		/// Crop the range specified by the clip texture from the target texture.
 		/// </summary>
-		/// <param name="clipTexture">クリッピングに用いるテクスチャ</param>
-		/// <param name="clipScale">クリップテクスチャのターゲットテクスチャに対する大きさの割合</param>
-		/// <param name="grabTargetTexture">切り抜く対象のテクスチャ</param>
-		/// <param name="targetUV">ターゲットテクスチャ上のUV座標の指定</param>
-		/// <param name="dst">切り抜いたテクスチャの保存先テクスチャ</param>
+		/// <param name="clipTexture">Texture used for clipping.</param>
+		/// <param name="clipScale">The ratio of the size of the clip texture to the target texture.</param>
+		/// <param name="grabTargetTexture">Texture of clipping target.</param>
+		/// <param name="targetUV">UV coordinates on the target texture.</param>
+		/// <param name="dst">Store cropped texture.</param>
 		public static void Clip(Texture clipTexture, float clipScale, Texture grabTargetTexture, Vector2 targetUV, GrabTextureWrapMode wrapMode, RenderTexture dst)
 		{
 			if(grabAreaMaterial == null)
@@ -59,7 +59,7 @@ namespace Es.Effective
 		#region PrivateMethod
 
 		/// <summary>
-		/// マテリアルを初期化する
+		/// Initialize the material.
 		/// </summary>
 		private static void InitGrabAreaMaterial()
 		{
@@ -67,12 +67,13 @@ namespace Es.Effective
 		}
 
 		/// <summary>
-		/// マテリアルに値を設定する
+		/// Set the value in the material.
 		/// </summary>
-		/// <param name="clip">クリッピングに用いる</param>
-		/// <param name="clipScale">クリッピングスケール</param>
-		/// <param name="grabTarget">クリッピング対象テクスチャ</param>
-		/// <param name="targetUV">ターゲットテクスチャ上のUV座標の指定</param>
+		/// <param name="clip">Texture used for clipping.</param>
+		/// <param name="clipScale">The ratio of the size of the clip texture to the target texture.</param>
+		/// <param name="grabTarget">Texture of clipping target.</param>
+		/// <param name="targetUV">UV coordinates on the target texture.</param>
+		/// <param name="wrapMpde">Texture wrap mode.</param>
 		private static void SetGrabAreaProperty(Texture clip, float clipScale, Texture grabTarget, Vector2 targetUV, GrabTextureWrapMode wrapMpde)
 		{
 			grabAreaMaterial.SetTexture(CLIP, clip);
