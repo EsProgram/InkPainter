@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Es.Effective
 {
 	/// <summary>
-	/// テクスチャのモーフィングを実行するクラス
+	/// A class that morphs the texture.
 	/// </summary>
 	public class TextureMorphing
 	{
@@ -22,12 +22,11 @@ namespace Es.Effective
 		#region PublicMethod
 
 		/// <summary>
-		/// 2つのテクスチャを補間したテクスチャを作成する
+		/// Create a texture that complements two textures.
 		/// </summary>
-		/// <param name="texture">RenderTexture</param>
-		/// <param name="src">モーフィングに利用するテクスチャ</param>
-		/// <param name="dst">モーフィング後の値を上書きするテクスチャ</param>
-		/// <param name="lerpCoef">補間係数</param>
+		/// <param name="src">Texture to use for morphing.</param>
+		/// <param name="dst">Texture to use for morphing. It is overwritten after calculation.</param>
+		/// <param name="lerpCoef">Interpolation coefficient.</param>
 		public static void Lerp(Texture src, RenderTexture dst, float lerpCoef)
 		{
 			if(morphingMaterial == null)
@@ -43,20 +42,11 @@ namespace Es.Effective
 
 		#region PrivateMethod
 
-		/// <summary>
-		/// マテリアルの初期化をする
-		/// </summary>
 		private static void InitMorphingMaterial()
 		{
 			morphingMaterial = Resources.Load<Material>(TEXTURE_MORPHING_MATERIAL);
 		}
 
-		/// <summary>
-		/// マテリアルに値を設定する
-		/// </summary>
-		/// <param name="src">モーフィングに利用するテクスチャ</param>
-		/// <param name="dst">モーフィング後の値を上書きするテクスチャ</param>
-		/// <param name="lerpCoef">補間係数</param>
 		private static void SetMorphingProperty(Texture src, RenderTexture dst, float lerpCoef)
 		{
 			morphingMaterial.SetTexture(Shader.PropertyToID(SRC_TEX), src);

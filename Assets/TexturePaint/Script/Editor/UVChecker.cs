@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Es.Editor.Window
 {
 	/// <summary>
-	/// UVの確認を行うエディタ拡張
+	/// Editor window to check UV.
 	/// </summary>
 	public class UVChecker : EditorWindow
 	{

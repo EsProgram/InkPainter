@@ -4,97 +4,100 @@ using UnityEngine;
 namespace Es.TexturePaint
 {
 	/// <summary>
-	/// テクスチャペイントのブラシ情報を管理するクラス
+	/// Class managing brush information.
 	/// </summary>
 	[System.Serializable]
 	public class PaintBrush : ICloneable
 	{
 		/// <summary>
-		/// ブラシの色合成方式
+		/// Color synthesis method.
 		/// </summary>
 		public enum ColorBlendType
 		{
 			/// <summary>
-			/// ブラシ設定値を利用する
+			/// Use the color set for the brush.
 			/// </summary>
 			UseColor,
 
 			/// <summary>
-			/// ブラシに設定したテクスチャを利用する
+			/// Use brush texture as it is.
 			/// </summary>
 			UseBrush,
 
 			/// <summary>
-			/// ブラシ設定値とテクスチャを合成する
+			/// Use the intermediate color between the color of the brush and the color of the texture.
 			/// </summary>
 			Neutral,
 
 			/// <summary>
-			/// ブラシ設定値のアルファ値のみを合成する
+			/// Only use the alpha value set for the brush.
 			/// </summary>
 			AlphaOnly,
 		}
 
 		/// <summary>
-		/// ブラシの凹凸情報合成方式
+		/// Brush normal information synthesis method.
 		/// </summary>
 		public enum NormalBlendType
 		{
 			/// <summary>
-			/// ブラシ設定値を利用する
+			/// Use the value set for the brush.
 			/// </summary>
 			UseBrush,
 
 			/// <summary>
-			/// 対象を加算する
+			/// Add and synthesize.
 			/// </summary>
 			Add,
 
 			/// <summary>
-			/// 対象を減算する
+			/// Subtract and synthesize.
 			/// </summary>
 			Sub,
 
 			/// <summary>
-			/// 対象と比較して小さい方の値を利用する
+			/// Use the minimum value.
 			/// </summary>
 			Min,
 
 			/// <summary>
-			/// 対象と比較して大きい方の値を利用する
+			/// Use the maximum value.
 			/// </summary>
 			Max,
 		}
 
+		/// <summary>
+		/// Brush height information synthesis method.
+		/// </summary>
 		public enum HeightBlendType
 		{
 			/// <summary>
-			/// ブラシ設定値を利用する
+			/// Use the value set for the brush.
 			/// </summary>
 			UseBrush,
 
 			/// <summary>
-			/// 対象を加算する
+			/// Add and synthesize.
 			/// </summary>
 			Add,
 
 			/// <summary>
-			/// 対象を減算する
+			/// Subtract and synthesize.
 			/// </summary>
 			Sub,
 
 			/// <summary>
-			/// 対象と比較して小さい方の値を利用する
+			/// Use the minimum value.
 			/// </summary>
 			Min,
 
 			/// <summary>
-			/// 対象と比較して大きい方の値を利用する
+			/// Use the maximum value.
 			/// </summary>
 			Max,
 
 			/// <summary>
-			/// カラー情報をrgbに格納し、高さデータをaに格納する
+			/// Composite color information to RGB and height to A.
 			/// </summary>
 			ColorRGB_HeightA,
 		}
@@ -130,7 +133,7 @@ namespace Es.TexturePaint
 		private HeightBlendType heightBlendType;
 
 		/// <summary>
-		/// ブラシのテクスチャ
+		/// Brush texture.
 		/// </summary>
 		public Texture BrushTexture
 		{
@@ -139,7 +142,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ブラシ法線マップテクスチャ
+		/// Brush's normal texture
 		/// </summary>
 		public Texture BrushNormalTexture
 		{
@@ -148,7 +151,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ブラシハイトマップテクスチャ
+		/// Brush height texture.
 		/// </summary>
 		public Texture BrushHeightTexture
 		{
@@ -157,8 +160,8 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ブラシの大きさ
-		/// [0,1]の範囲をとるテクスチャサイズの比
+		/// The size of the brush.
+		/// It takes a range from 0 to 1.
 		/// </summary>
 		public float Scale
 		{
@@ -167,8 +170,8 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 法線マップブレンド係数
-		/// [0,1]の範囲を取る
+		/// Blending coefficient of normal information.
+		/// It takes a range from 0 to 1.
 		/// </summary>
 		public float NormalBlend
 		{
@@ -177,8 +180,8 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ハイトマップブレンド係数
-		/// [0,1]の範囲を取る
+		/// Blending factor of height information.
+		/// It takes a range from 0 to 1.
 		/// </summary>
 		public float HeightBlend
 		{
@@ -187,7 +190,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// ブラシの色
+		/// The color of the brush.
 		/// </summary>
 		public Color Color
 		{
@@ -196,7 +199,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// カラー合成方式
+		/// Color synthesis method.
 		/// </summary>
 		public ColorBlendType ColorBlending
 		{
@@ -205,7 +208,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 凹凸情報合成方式
+		/// Brush normal information synthesis method.
 		/// </summary>
 		public NormalBlendType NormalBlending
 		{
@@ -214,7 +217,7 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 高さ情報合成方式
+		/// Brush height information synthesis method.
 		/// </summary>
 		public HeightBlendType HeightBlending
 		{
