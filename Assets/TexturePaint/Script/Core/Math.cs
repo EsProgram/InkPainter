@@ -7,19 +7,17 @@ namespace Es.TexturePaint
 {
 	public static class Math
 	{
-		/// <summary>
-		/// 誤差許容範囲
-		/// </summary>
 		private const float TOLERANCE = 1E-2f;
 
 		/// <summary>
-		/// 点pが与えられた3点のなす三角形平面上に存在するかを調査する
+		/// Determine if there are points in the plane.
 		/// </summary>
-		/// <param name="p">調査点p</param>
-		/// <param name="t1">三角形をなす頂点</param>
-		/// <param name="t2">三角形をなす頂点</param>
-		/// <param name="t3">三角形をなす頂点</param>
-		/// <returns>点pが三角形平面上に存在するかどうか</returns>
+		/// <param name="p">Points to investigate.</param>
+		/// <param name="t1">Plane point.</param>
+		/// <param name="t2">Plane point.</param>
+		/// <param name="t3">Plane point.</param>
+		/// <summary>
+		/// <returns>Whether points exist in the triangle plane.</returns>
 		public static bool ExistPointInPlane(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			var v1 = t2 - t1;
@@ -34,25 +32,25 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 点pが辺(v1,v2)上に存在するかどうかを調査する
+		/// Investigate whether a point exists on an edge.
 		/// </summary>
-		/// <param name="p">調査点</param>
-		/// <param name="v1">辺をなす頂点</param>
-		/// <param name="v2">辺をなす頂点</param>
-		/// <returns>点pが辺上に存在しているかどうか</returns>
+		/// <param name="p">Points to investigate.</param>
+		/// <param name="v1">Edge forming point.</param>
+		/// <param name="v2">Edge forming point.</param>
+		/// <returns>Whether a point exists on an edge.</returns>
 		public static bool ExistPointOnEdge(Vector3 p, Vector3 v1, Vector3 v2)
 		{
 			return 1 - TOLERANCE < Vector3.Dot((v2 - p).normalized, (v2 - v1).normalized);
 		}
 
 		/// <summary>
-		/// 点pが与えられた3点がなす三角形の辺上に存在するかを調査する
+		/// Investigate whether a point exists on a side of a triangle.
 		/// </summary>
-		/// <param name="p">調査点p</param>
-		/// <param name="t1">三角形をなす頂点</param>
-		/// <param name="t2">三角形をなす頂点</param>
-		/// <param name="t3">三角形をなす頂点</param>
-		/// <returns>点pが三角形の辺城に存在するかどうか</returns>
+		/// <param name="p">Points to investigate.</param>
+		/// <param name="t1">Vertex of triangle.</param>
+		/// <param name="t2">Vertex of triangle.</param>
+		/// <param name="t3">Vertex of triangle.</param>
+		/// <returns>Whether points lie on the sides of the triangle.</returns>
 		public static bool ExistPointOnTriangleEdge(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			if(ExistPointOnEdge(p, t1, t2) || ExistPointOnEdge(p, t2, t3) || ExistPointOnEdge(p, t3, t1))
@@ -61,14 +59,14 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 点pが与えられた3点がなす三角形内部に存在するかを調査する
-		/// 入力(p, t1, t2, t3)各点は同一平面上に存在する必要がある
+		/// Investigate whether a point exists inside the triangle.
+		/// All points to be entered must be on the same plane.
 		/// </summary>
-		/// <param name="p">調査点p</param>
-		/// <param name="t1">三角形をなす頂点</param>
-		/// <param name="t2">三角形をなす頂点</param>
-		/// <param name="t3">三角形をなす頂点</param>
-		/// <returns>点pが三角形内部に存在するかどうか</returns>
+		/// <param name="p">Points to investigate.</param>
+		/// <param name="t1">Vertex of triangle.</param>
+		/// <param name="t2">Vertex of triangle.</param>
+		/// <param name="t3">Vertex of triangle.</param>
+		/// <returns>Whether the point exists inside the triangle.</returns>
 		public static bool ExistPointInTriangle(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			var a = Vector3.Cross(t1 - t3, p - t1).normalized;
@@ -84,50 +82,44 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 点pの三角形内におけるテクスチャ座標を計算する
-		/// 入力pは(t1, t2, t3)のなす三角形内部の点である必要がある
+		/// Calculate UV coordinates within a triangle of points.
+		/// The point to be investigated needs to be a point inside the triangle.
 		/// </summary>
-		/// <param name="p">調査点</param>
-		/// <param name="t1">三角形をなす頂点</param>
-		/// <param name="t1UV">t1が持つUV座標情報</param>
-		/// <param name="t2">三角形をなす頂点</param>
-		/// <param name="t2UV">t2が持つUV座標情報</param>
-		/// <param name="t3">三角形をなす頂点</param>
-		/// <param name="t3UV">t3が持つUV座標情報</param>
-		/// <param name="transformMatrix">入力(p, t1, t2, t3)各点をProjection-Spaceに変換する変換行列</param>
-		/// <returns>点pのテクスチャ座標</returns>
+		/// <param name="p">Points to investigate.</param>
+		/// <param name="t1">Vertex of triangle.</param>
+		/// <param name="t1UV">UV coordinates of t1.</param>
+		/// <param name="t2">Vertex of triangle.</param>
+		/// <param name="t2UV">UV coordinates of t2.</param>
+		/// <param name="t3">Vertex of triangle.</param>
+		/// <param name="t3UV">UV coordinates of t3.</param>
+		/// <param name="transformMatrix">MVP transformation matrix.</param>
+		/// <returns>UV coordinates of the point to be investigated.</returns>
 		public static Vector2 TextureCoordinateCalculation(Vector3 p, Vector3 t1, Vector2 t1UV, Vector3 t2, Vector2 t2UV, Vector3 t3, Vector2 t3UV, Matrix4x4 transformMatrix)
 		{
-			//各点をProjectionSpaceへの変換
 			Vector4 p1_p = transformMatrix * new Vector4(t1.x, t1.y, t1.z, 1);
 			Vector4 p2_p = transformMatrix * new Vector4(t2.x, t2.y, t2.z, 1);
 			Vector4 p3_p = transformMatrix * new Vector4(t3.x, t3.y, t3.z, 1);
 			Vector4 p_p = transformMatrix * new Vector4(p.x, p.y, p.z, 1);
-			//通常座標への変換(ProjectionSpace)
 			Vector2 p1_n = new Vector2(p1_p.x, p1_p.y) / p1_p.w;
 			Vector2 p2_n = new Vector2(p2_p.x, p2_p.y) / p2_p.w;
 			Vector2 p3_n = new Vector2(p3_p.x, p3_p.y) / p3_p.w;
 			Vector2 p_n = new Vector2(p_p.x, p_p.y) / p_p.w;
-			//頂点のなす三角形を点pにより3分割し、必要になる面積を計算
 			var s = 0.5f * ((p2_n.x - p1_n.x) * (p3_n.y - p1_n.y) - (p2_n.y - p1_n.y) * (p3_n.x - p1_n.x));
 			var s1 = 0.5f * ((p3_n.x - p_n.x) * (p1_n.y - p_n.y) - (p3_n.y - p_n.y) * (p1_n.x - p_n.x));
 			var s2 = 0.5f * ((p1_n.x - p_n.x) * (p2_n.y - p_n.y) - (p1_n.y - p_n.y) * (p2_n.x - p_n.x));
-			//面積比からuvを補間
 			var u = s1 / s;
 			var v = s2 / s;
 			var w = 1 / ((1 - u - v) * 1 / p1_p.w + u * 1 / p2_p.w + v * 1 / p3_p.w);
-			var uv = w * ((1 - u - v) * t1UV / p1_p.w + u * t2UV / p2_p.w + v * t3UV / p3_p.w);
-
-			return uv;
+			return w * ((1 - u - v) * t1UV / p1_p.w + u * t2UV / p2_p.w + v * t3UV / p3_p.w);
 		}
 
 		/// <summary>
-		/// 与えられた頂点/三角形リストから点pに一番近い頂点を持つ三角形の頂点リストを返す
+		/// Returns the vertex of the triangle with the closest vertex to the point to be examined from the given vertex and triangle list.
 		/// </summary>
-		/// <param name="p">調査点</param>
-		/// <param name="vertices">頂点リスト</param>
-		/// <param name="triangles">頂点の三角形リスト</param>
-		/// <returns></returns>
+		/// <param name="p">Points to investigate.</param>
+		/// <param name="vertices">Vertex list.</param>
+		/// <param name="triangles">Triangle list.</param>
+		/// <returns>The triangle closest to the point to be investigated.</returns>
 		public static Vector3[] GetNearestVerticesTriangle(Vector3 p, Vector3[] vertices, int[] triangles)
 		{
 			List<Vector3> ret = new List<Vector3>();
@@ -180,13 +172,13 @@ namespace Es.TexturePaint
 		}
 
 		/// <summary>
-		/// 点pを三角形空間内に投影した点を返す
+		/// Project points and return them inside the triangle.
 		/// </summary>
-		/// <param name="p">投影する点</param>
-		/// <param name="t1">三角形頂点</param>
-		/// <param name="t2">三角形頂点</param>
-		/// <param name="t3">三角形頂点</param>
-		/// <returns>投影後の三角形空間上の点</returns>
+		/// <param name="p">Point to project.</param>
+		/// <param name="t1">Vertex of triangle.</param>
+		/// <param name="t2">Vertex of triangle.</param>
+		/// <param name="t3">Vertex of triangle.</param>
+		/// <returns>Point inside the triangle after projection.</returns>
 		public static Vector3 TriangleSpaceProjection(Vector3 p, Vector3 t1, Vector3 t2, Vector3 t3)
 		{
 			var g = (t1 + t2 + t3) / 3;
