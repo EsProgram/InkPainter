@@ -5,6 +5,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
@@ -269,9 +270,12 @@ namespace Es.TexturePaint
 		{
 			foreach(var p in paintSet)
 			{
-				p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
-				p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
-				p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
+				if(p.useMainPaint)
+					p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
+				if(p.useNormalPaint)
+					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
+				if(p.useHeightPaint)
+					p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
 			}
 		}
 
@@ -593,7 +597,8 @@ namespace Es.TexturePaint
 		/// <returns>Original main texture.</returns>
 		public Texture GetMainTexture(string materialName)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 				return null;
 			return data.mainTexture;
@@ -606,7 +611,8 @@ namespace Es.TexturePaint
 		/// <returns>Main texture in paint.</returns>
 		public RenderTexture GetPaintMainTexture(string materialName)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 				return null;
 			return data.paintMainTexture;
@@ -619,7 +625,8 @@ namespace Es.TexturePaint
 		/// <param name="newTexture">New rendertexture.</param>
 		public void SetPaintMainTexture(string materialName, RenderTexture newTexture)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 			{
 				Debug.LogError("Failed to set texture.");
@@ -637,7 +644,8 @@ namespace Es.TexturePaint
 		/// <returns>Original normal map.</returns>
 		public Texture GetNormalTexture(string materialName)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 				return null;
 			return data.normalTexture;
@@ -650,7 +658,8 @@ namespace Es.TexturePaint
 		/// <returns>Normal map in paint.</returns>
 		public RenderTexture GetPaintNormalTexture(string materialName)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 				return null;
 			return data.paintNormalTexture;
@@ -663,7 +672,8 @@ namespace Es.TexturePaint
 		/// <param name="newTexture">New rendertexture.</param>
 		public void SetPaintNormalTexture(string materialName, RenderTexture newTexture)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 			{
 				Debug.LogError("Failed to set texture.");
@@ -681,7 +691,8 @@ namespace Es.TexturePaint
 		/// <returns>Original height map.</returns>
 		public Texture GetHeightTexture(string materialName)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 				return null;
 			return data.heightTexture;
@@ -694,7 +705,8 @@ namespace Es.TexturePaint
 		/// <returns>Height map in paint.</returns>
 		public RenderTexture GetPaintHeightTexture(string materialName)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 				return null;
 			return data.paintHeightTexture;
@@ -707,7 +719,8 @@ namespace Es.TexturePaint
 		/// <param name="newTexture">New rendertexture.</param>
 		public void SetPaintHeightTexture(string materialName, RenderTexture newTexture)
 		{
-			var data = paintSet.FirstOrDefault(p => p.material.name == materialName);
+			materialName = materialName.Replace(" (Instance)", "");
+			var data = paintSet.FirstOrDefault(p => p.material.name.Replace(" (Instance)", "") == materialName);
 			if(data == null)
 			{
 				Debug.LogError("Failed to set texture.");
@@ -772,9 +785,45 @@ namespace Es.TexturePaint
 				EditorGUILayout.Space();
 
 				if(EditorApplication.isPlaying)
-					EditorGUILayout.HelpBox("Can not change while playing", MessageType.Info);
-				else
+				{
+					#region PlayModeOperation
 
+					EditorGUILayout.HelpBox("Can not change while playing.\n but you can saved painted texture.", MessageType.Info);
+					for(int i = 0; i < instance.paintSet.Count; ++i)
+					{
+						if(foldOut[i] = Foldout(foldOut[i], string.Format("Material \"{0}\"", materials[i].name)))
+						{
+							EditorGUILayout.BeginVertical("ProgressBarBack");
+							var backColorBuf = GUI.backgroundColor;
+							GUI.backgroundColor = Color.green;
+
+							var paintSet = instance.paintSet[i];
+
+							if(paintSet.paintMainTexture != null && GUILayout.Button("Save main texture"))
+							{
+								SaveRenderTextureToPNG(paintSet.mainTexture.name, paintSet.paintMainTexture);
+							}
+
+							if(instance.paintSet[i].paintNormalTexture != null && GUILayout.Button("Save normal texture"))
+							{
+								//TODO:普通にNormalのテクスチャ保存するとちゃんと法線が出力されない？
+								SaveRenderTextureToPNG(paintSet.normalTexture.name, paintSet.paintNormalTexture);
+							}
+
+							if(instance.paintSet[i].paintHeightTexture != null && GUILayout.Button("Save height texture"))
+							{
+								SaveRenderTextureToPNG(paintSet.heightTexture.name, paintSet.paintHeightTexture);
+							}
+
+							GUI.backgroundColor = backColorBuf;
+							EditorGUILayout.EndVertical();
+						}
+					}
+
+					#endregion PlayModeOperation
+				}
+				else
+				{
 					#region Property Setting
 
 					for(int i = 0; i < instance.paintSet.Count; ++i)
@@ -834,7 +883,32 @@ namespace Es.TexturePaint
 						}
 					}
 
-				#endregion Property Setting
+					#endregion Property Setting
+				}
+			}
+
+			private void SaveRenderTextureToPNG(string textureName, RenderTexture renderTexture, Action<TextureImporter> importAction = null)
+			{
+				string path = EditorUtility.SaveFilePanel("Save to png", Application.dataPath, textureName + "_painted.png", "png");
+				if(path.Length != 0)
+				{
+					var newTex = new Texture2D(renderTexture.width, renderTexture.height);
+					RenderTexture.active = renderTexture;
+					newTex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+					newTex.Apply();
+
+					byte[] pngData = newTex.EncodeToPNG();
+					if(pngData != null)
+					{
+						File.WriteAllBytes(path, pngData);
+						AssetDatabase.Refresh();
+						var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+						if(importAction != null)
+							importAction(importer);
+					}
+
+					Debug.Log(path);
+				}
 			}
 
 			private void ChangeValue(int paintSetIndex, string recordName, Action<PaintSet> assign)
