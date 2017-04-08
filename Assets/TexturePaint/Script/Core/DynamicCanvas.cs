@@ -110,7 +110,7 @@ namespace Es.TexturePaint
 		}
 
 		private const int DEFAULT_TEXTURE_SIZE = 256;
-		private static Material paintMaterial = null;
+		private static Material paintMainMaterial = null;
 		private static Material paintNormalMaterial = null;
 		private static Material paintHeightMaterial = null;
 		private Action<DynamicCanvas> onInitializedAfter = null;
@@ -250,8 +250,8 @@ namespace Es.TexturePaint
 		/// </summary>
 		private void SetMaterial()
 		{
-			if(paintMaterial == null)
-				paintMaterial = Resources.Load<Material>("Es.TexturePaint.PaintMain");
+			if(paintMainMaterial == null)
+				paintMainMaterial = Resources.Load<Material>("Es.TexturePaint.PaintMain");
 			if(paintNormalMaterial == null)
 				paintNormalMaterial = Resources.Load<Material>("Es.TexturePaint.PaintNormal");
 			if(paintHeightMaterial == null)
@@ -288,11 +288,14 @@ namespace Es.TexturePaint
 			{
 				if(p.useMainPaint)
 				{
-					if(p.mainTexture == null)
-						p.mainTexture = new Texture2D(DEFAULT_TEXTURE_SIZE, DEFAULT_TEXTURE_SIZE, TextureFormat.RGBA32, false);
-					p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-					Graphics.Blit(p.mainTexture, p.paintMainTexture);
-					p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
+					if(p.mainTexture != null)
+					{
+						p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						Graphics.Blit(p.mainTexture, p.paintMainTexture);
+						p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
+					}
+					else
+						Debug.LogWarning("To take advantage of the main texture paint must set main texture to materials.");
 				}
 				if(p.useNormalPaint)
 				{
@@ -342,33 +345,33 @@ namespace Es.TexturePaint
 		/// <param name="uv">UV coordinates for the hit location.</param>
 		private void SetPaintMainData(PaintBrush brush, Vector2 uv)
 		{
-			paintMaterial.SetVector(paintUVPropertyID, uv);
-			paintMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
-			paintMaterial.SetFloat(brushScalePropertyID, brush.Scale);
-			paintMaterial.SetVector(brushColorPropertyID, brush.Color);
+			paintMainMaterial.SetVector(paintUVPropertyID, uv);
+			paintMainMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
+			paintMainMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintMainMaterial.SetVector(brushColorPropertyID, brush.Color);
 
-			foreach(var key in paintMaterial.shaderKeywords)
-				paintMaterial.DisableKeyword(key);
+			foreach(var key in paintMainMaterial.shaderKeywords)
+				paintMainMaterial.DisableKeyword(key);
 			switch(brush.ColorBlending)
 			{
 				case PaintBrush.ColorBlendType.UseColor:
-					paintMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
+					paintMainMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
 					break;
 
 				case PaintBrush.ColorBlendType.UseBrush:
-					paintMaterial.EnableKeyword(COLOR_BLEND_USE_BRUSH);
+					paintMainMaterial.EnableKeyword(COLOR_BLEND_USE_BRUSH);
 					break;
 
 				case PaintBrush.ColorBlendType.Neutral:
-					paintMaterial.EnableKeyword(COLOR_BLEND_NEUTRAL);
+					paintMainMaterial.EnableKeyword(COLOR_BLEND_NEUTRAL);
 					break;
 
 				case PaintBrush.ColorBlendType.AlphaOnly:
-					paintMaterial.EnableKeyword(COLOR_BLEND_ALPHA_ONLY);
+					paintMainMaterial.EnableKeyword(COLOR_BLEND_ALPHA_ONLY);
 					break;
 
 				default:
-					paintMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
+					paintMainMaterial.EnableKeyword(COLOR_BLEND_USE_CONTROL);
 					break;
 			}
 		}
@@ -492,7 +495,7 @@ namespace Es.TexturePaint
 				{
 					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
 					SetPaintMainData(brush, uv);
-					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMaterial);
+					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMainMaterial);
 					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
 					RenderTexture.ReleaseTemporary(mainPaintTextureBuffer);
 				}
