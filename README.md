@@ -1,10 +1,9 @@
-# UnityTexturePaint
+# InkPainter
 
 This asset allows you to Texture-Paint on Unity.
 Selling at [Asset Store](https://www.assetstore.unity3d.com/#!/content/75279).
 
-Click here for [details](http://esprog.hatenablog.com/archive/category/UnityTexturePaint).
-Document is [here](https://esprogram.github.io/UnityTexturePaintDocument/).
+Document is [here](https://esprogram.github.io/InkPainterDocument/).
 
 ## Movies
 
@@ -14,7 +13,7 @@ Document is [here](https://esprogram.github.io/UnityTexturePaintDocument/).
   </a>
 </p>
 <p align="center">
- UnityTexturePaint demo movie(Click image).
+ InkPainter demo movie(Click image).
 </p>
 
 <br/>
@@ -25,5 +24,5 @@ Document is [here](https://esprogram.github.io/UnityTexturePaintDocument/).
   </a>
 </p>
 <p align="center">
- UnityTexturePaint how to use(Click image).
+ InkPainter how to use(Click image).
 </p>
