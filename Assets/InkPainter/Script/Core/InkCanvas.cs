@@ -758,7 +758,7 @@ namespace Es.InkPainter
 
 		[CustomEditor(typeof(InkCanvas))]
 		[CanEditMultipleObjects]
-		private class DynamicCanvasInspectorExtension : Editor
+		private class InkCanvasInspectorExtension : Editor
 		{
 			private Renderer renderer;
 			private Material[] materials;
