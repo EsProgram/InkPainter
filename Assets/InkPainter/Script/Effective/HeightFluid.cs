@@ -27,19 +27,19 @@ namespace Es.InkPainter.Effective
 		private float alpha = 1f;
 
 		[SerializeField]
-		private Vector2 flowDirection;
+		private Vector2 flowDirection = Vector2.up;
 
 		[SerializeField]
 		private float flowingForce = 1;
 
 		[SerializeField, Range(0.1f, 10f)]
-		private float easeOfDripping = 0.8f;
+		private float easeOfDripping = 1.0f;
 
 		[SerializeField, Range(1f, 0f)]
 		private float influenceOfNormal = 1;
 
 		[SerializeField, Range(0.01f, 1)]
-		private float horizontalSpread = 0.1f;
+		private float horizontalSpread = 0.01f;
 
 		[SerializeField]
 		private float normalScaleFactor = 1;
