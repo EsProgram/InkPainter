@@ -299,7 +299,7 @@ namespace Es.InkPainter
 				{
 					if(p.mainTexture != null)
 					{
-						p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 						Graphics.Blit(p.mainTexture, p.paintMainTexture);
 						p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
 					}
@@ -310,7 +310,7 @@ namespace Es.InkPainter
 				{
 					if(p.normalTexture != null)
 					{
-						p.paintNormalTexture = new RenderTexture(p.normalTexture.width, p.normalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						p.paintNormalTexture = new RenderTexture(p.normalTexture.width, p.normalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 						Graphics.Blit(p.normalTexture, p.paintNormalTexture);
 						p.material.SetTexture(p.normalTexturePropertyID, p.paintNormalTexture);
 					}
@@ -321,7 +321,7 @@ namespace Es.InkPainter
 				{
 					if(p.heightTexture != null)
 					{
-						p.paintHeightTexture = new RenderTexture(p.heightTexture.width, p.heightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+						p.paintHeightTexture = new RenderTexture(p.heightTexture.width, p.heightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 						Graphics.Blit(p.heightTexture, p.paintHeightTexture);
 						p.material.SetTexture(p.heightTexturePropertyID, p.paintHeightTexture);
 					}
@@ -505,7 +505,7 @@ namespace Es.InkPainter
 			{
 				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
-					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height);
+					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					SetPaintMainData(brush, uv);
 					Graphics.Blit(p.paintMainTexture, mainPaintTextureBuffer, paintMainMaterial);
 					Graphics.Blit(mainPaintTextureBuffer, p.paintMainTexture);
@@ -514,7 +514,7 @@ namespace Es.InkPainter
 
 				if(p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
 				{
-					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height);
+					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					SetPaintNormalData(brush, uv);
 					Graphics.Blit(p.paintNormalTexture, normalPaintTextureBuffer, paintNormalMaterial);
 					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
@@ -523,7 +523,7 @@ namespace Es.InkPainter
 
 				if(p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
 				{
-					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.paintHeightTexture.width, p.paintHeightTexture.height);
+					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.paintHeightTexture.width, p.paintHeightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					SetPaintHeightData(brush, uv);
 					Graphics.Blit(p.paintHeightTexture, heightPaintTextureBuffer, paintHeightMaterial);
 					Graphics.Blit(heightPaintTextureBuffer, p.paintHeightTexture);

@@ -77,15 +77,18 @@ namespace Es.InkPainter.Effective
 
 		private void OnWillRenderObject()
 		{
+			if(!enabledFluid)
+				return;
+
 			var heightPaint = canvas.GetPaintHeightTexture(materialName);
 			if(heightPaint == null)
 			{
-				var newHeightPaint = new RenderTexture(createTextureSize, createTextureSize, 0);
+				var newHeightPaint = new RenderTexture(createTextureSize, createTextureSize, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 				InitHeightMap(newHeightPaint);
 				canvas.SetPaintHeightTexture(materialName, newHeightPaint);
 				heightPaint = newHeightPaint;
 			}
-			var heightTmp = RenderTexture.GetTemporary(heightPaint.width, heightPaint.height);
+			var heightTmp = RenderTexture.GetTemporary(heightPaint.width, heightPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 			heightFluid.SetFloat("_ScaleFactor", flowingForce);
 			heightFluid.SetFloat("_Viscosity", easeOfDripping);
 			heightFluid.SetFloat("_HorizontalSpread", horizontalSpread);
@@ -102,10 +105,10 @@ namespace Es.InkPainter.Effective
 				var mainPaint = canvas.GetPaintMainTexture(materialName);
 				if(mainPaint == null)
 				{
-					var newMainPaint = new RenderTexture(createTextureSize, createTextureSize, 0);
+					var newMainPaint = new RenderTexture(createTextureSize, createTextureSize, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					if(canvas.GetMainTexture(materialName) != null)
 					{
-						var tmp = RenderTexture.GetTemporary(newMainPaint.width, newMainPaint.height, 0);
+						var tmp = RenderTexture.GetTemporary(newMainPaint.width, newMainPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 						Graphics.Blit(canvas.GetMainTexture(materialName), tmp);
 						Graphics.Blit(tmp, newMainPaint);
 						RenderTexture.ReleaseTemporary(tmp);
@@ -113,7 +116,7 @@ namespace Es.InkPainter.Effective
 					canvas.SetPaintMainTexture(materialName, newMainPaint);
 					mainPaint = newMainPaint;
 				}
-				var mainTmp = RenderTexture.GetTemporary(mainPaint.width, mainPaint.height);
+				var mainTmp = RenderTexture.GetTemporary(mainPaint.width, mainPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 				height2Color.SetTexture("_ColorMap", mainPaint);
 				height2Color.SetFloat("_Alpha", alpha);
 				height2Color.SetFloat("_Border", AdhesionBorder);
@@ -127,10 +130,10 @@ namespace Es.InkPainter.Effective
 				var normalPaint = canvas.GetPaintNormalTexture(materialName);
 				if(normalPaint == null)
 				{
-					var newNormalPaint = new RenderTexture(createTextureSize, createTextureSize, 0);
+					var newNormalPaint = new RenderTexture(createTextureSize, createTextureSize, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					if(canvas.GetNormalTexture(materialName) != null)
 					{
-						var tmp = RenderTexture.GetTemporary(newNormalPaint.width, newNormalPaint.height, 0);
+						var tmp = RenderTexture.GetTemporary(newNormalPaint.width, newNormalPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 						Graphics.Blit(canvas.GetNormalTexture(materialName), tmp);
 						Graphics.Blit(tmp, newNormalPaint);
 						RenderTexture.ReleaseTemporary(tmp);
@@ -138,7 +141,7 @@ namespace Es.InkPainter.Effective
 					canvas.SetPaintNormalTexture(materialName, newNormalPaint);
 					normalPaint = newNormalPaint;
 				}
-				var normalTmp = RenderTexture.GetTemporary(normalPaint.width, normalPaint.height);
+				var normalTmp = RenderTexture.GetTemporary(normalPaint.width, normalPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 				height2Normal.SetTexture("_BumpMap", normalPaint);
 				height2Normal.SetFloat("_NormalScaleFactor", normalScaleFactor);
 				height2Normal.SetFloat("_Border", AdhesionBorder);
