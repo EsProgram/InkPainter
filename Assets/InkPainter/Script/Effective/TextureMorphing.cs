@@ -43,7 +43,7 @@ namespace Es.InkPainter.Effective
 
 		private static void InitMorphingMaterial()
 		{
-			morphingMaterial = Resources.Load<Material>(TEXTURE_MORPHING_MATERIAL);
+			morphingMaterial = new Material(Resources.Load<Material>(TEXTURE_MORPHING_MATERIAL));
 		}
 
 		private static void SetMorphingProperty(Texture src, RenderTexture dst, float lerpCoef)

@@ -63,7 +63,7 @@ namespace Es.InkPainter.Effective
 		/// </summary>
 		private static void InitGrabAreaMaterial()
 		{
-			grabAreaMaterial = Resources.Load<Material>(GRAB_AREA_MATERIAL);
+			grabAreaMaterial = new Material(Resources.Load<Material>(GRAB_AREA_MATERIAL));
 		}
 
 		/// <summary>

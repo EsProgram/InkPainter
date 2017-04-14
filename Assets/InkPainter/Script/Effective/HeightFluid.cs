@@ -65,10 +65,10 @@ namespace Es.InkPainter.Effective
 
 		private void Awake()
 		{
-			heightFluid = Resources.Load<Material>("Es.InkPainter.Fluid.HeightDrip");
-			height2Normal = Resources.Load<Material>("Es.InkPainter.Fluid.HeightToNormal");
-			height2Color = Resources.Load<Material>("Es.InkPainter.Fluid.HeightToColor");
-			singleColorFill = Resources.Load<Material>("Es.InkPainter.Fluid.SingleColorFill");
+			heightFluid = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.HeightDrip"));
+			height2Normal = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.HeightToNormal"));
+			height2Color = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.HeightToColor"));
+			singleColorFill = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.SingleColorFill"));
 			materialName = GetComponent<Renderer>().sharedMaterial.name;
 
 			canvas = GetComponent<InkCanvas>();

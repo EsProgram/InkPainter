@@ -70,7 +70,7 @@ namespace Es.InkPainter.Effective
 		/// </summary>
 		private static void InitReverseUVMaterial()
 		{
-			reverseUVMaterial = Resources.Load<Material>(REVERSE_UV_MATERIAL);
+			reverseUVMaterial = new Material(Resources.Load<Material>(REVERSE_UV_MATERIAL));
 		}
 
 		private static void SetReverseUVProperty(float x, float y)

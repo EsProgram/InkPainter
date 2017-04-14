@@ -267,11 +267,11 @@ namespace Es.InkPainter
 		private void SetMaterial()
 		{
 			if(paintMainMaterial == null)
-				paintMainMaterial = Resources.Load<Material>("Es.InkPainter.PaintMain");
+				paintMainMaterial = new Material(Resources.Load<Material>("Es.InkPainter.PaintMain"));
 			if(paintNormalMaterial == null)
-				paintNormalMaterial = Resources.Load<Material>("Es.InkPainter.PaintNormal");
+				paintNormalMaterial = new Material(Resources.Load<Material>("Es.InkPainter.PaintNormal"));
 			if(paintHeightMaterial == null)
-				paintHeightMaterial = Resources.Load<Material>("Es.InkPainter.PaintHeight");
+				paintHeightMaterial = new Material(Resources.Load<Material>("Es.InkPainter.PaintHeight"));
 			var m = GetComponent<Renderer>().materials;
 			for(int i = 0; i < m.Length; ++i)
 			{
