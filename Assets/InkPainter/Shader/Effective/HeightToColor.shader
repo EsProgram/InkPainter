@@ -4,6 +4,7 @@
 	{
 		_MainTex ("Texture", 2D) = "white" {}
 		_ColorMap("ColorMap", 2D) = "white" {}
+		_BaseColor("BaseColor", 2D) = "white" {}
 		_Alpha("Alpha", Float) = 1
 		_Border("Border", Float) = 0
 	}
@@ -33,6 +34,7 @@
 
 			sampler2D _MainTex;
 			sampler2D _ColorMap;
+			sampler2D _BaseColor;
 			float4 _MainTex_ST;
 			float _Alpha;
 			float _Border;
@@ -50,7 +52,7 @@
 				float4 mainCol = tex2D(_MainTex, i.uv);
 
 				if (mainCol.a > _Border) {
-					return lerp(tex2D(_ColorMap, i.uv), float4(mainCol.rgb, 1), _Alpha);
+					return lerp(tex2D(_BaseColor, i.uv), float4(mainCol.rgb, 1), _Alpha);
 				}
 
 				return tex2D(_ColorMap, i.uv);

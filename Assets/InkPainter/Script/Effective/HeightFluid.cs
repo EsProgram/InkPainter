@@ -2,6 +2,7 @@
 
 namespace Es.InkPainter.Effective
 {
+	[DisallowMultipleComponent]
 	[RequireComponent(typeof(InkCanvas), typeof(Renderer))]
 	public class HeightFluid : MonoBehaviour
 	{
@@ -43,8 +44,8 @@ namespace Es.InkPainter.Effective
 		[SerializeField]
 		private float normalScaleFactor = 1;
 
-		[SerializeField, Range(0f, 1f)]
-		private float AdhesionBorder = 0.1f;
+		[SerializeField, Range(0.001f, 0.999f)]
+		private float AdhesionBorder = 0.01f;
 
 		private void Init(InkCanvas canvas)
 		{
@@ -122,6 +123,7 @@ namespace Es.InkPainter.Effective
 					}
 					var mainTmp = RenderTexture.GetTemporary(mainPaint.width, mainPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					height2Color.SetTexture("_ColorMap", mainPaint);
+					height2Color.SetTexture("_BaseColor", canvas.GetMainTexture(materialName));
 					height2Color.SetFloat("_Alpha", alpha);
 					height2Color.SetFloat("_Border", AdhesionBorder);
 					Graphics.Blit(heightPaint, mainTmp, height2Color);
