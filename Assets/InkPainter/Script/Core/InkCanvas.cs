@@ -115,6 +115,11 @@ namespace Es.InkPainter
 		private static Material paintHeightMaterial = null;
 
 		/// <summary>
+		/// Called by dynamic canvas initialization start times.
+		/// </summary>
+		public event Action<InkCanvas> OnInitializedStart;
+
+		/// <summary>
 		/// Called by dynamic canvas initialization completion times.
 		/// </summary>
 		public event Action<InkCanvas> OnInitializedAfter;
@@ -202,6 +207,8 @@ namespace Es.InkPainter
 
 		private void Start()
 		{
+			if(OnInitializedStart != null)
+				OnInitializedStart(this);
 			SetRenderTexture();
 			if(OnInitializedAfter != null)
 				OnInitializedAfter(this);
