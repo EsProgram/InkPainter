@@ -23,7 +23,7 @@ namespace Es.InkPainter
 	public class InkCanvas : MonoBehaviour
 	{
 		[Serializable]
-		private class PaintSet
+		public class PaintSet
 		{
 			/// <summary>
 			/// Applying paint materials.
@@ -113,6 +113,11 @@ namespace Es.InkPainter
 		private static Material paintMainMaterial = null;
 		private static Material paintNormalMaterial = null;
 		private static Material paintHeightMaterial = null;
+
+		/// <summary>
+		/// Access data used for painting.
+		/// </summary>
+		public List<PaintSet> PaintDatas { get { return paintSet; } }
 
 		/// <summary>
 		/// Called by dynamic canvas initialization start times.
