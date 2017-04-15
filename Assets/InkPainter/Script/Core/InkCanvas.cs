@@ -834,20 +834,14 @@ namespace Es.InkPainter
 							var paintSet = instance.paintSet[i];
 
 							if(paintSet.paintMainTexture != null && GUILayout.Button("Save main texture"))
-							{
-								SaveRenderTextureToPNG(paintSet.mainTexture.name, paintSet.paintMainTexture);
-							}
+								SaveRenderTextureToPNG(paintSet.mainTexture != null ? paintSet.mainTexture.name : "main_texture", paintSet.paintMainTexture);
 
 							if(instance.paintSet[i].paintNormalTexture != null && GUILayout.Button("Save normal texture"))
-							{
-								//TODO:普通にNormalのテクスチャ保存するとちゃんと法線が出力されない？
-								SaveRenderTextureToPNG(paintSet.normalTexture.name, paintSet.paintNormalTexture);
-							}
+								//TODO:https://github.com/EsProgram/InkPainter/issues/13
+								SaveRenderTextureToPNG(paintSet.normalTexture != null ? paintSet.normalTexture.name : "normal_texture", paintSet.paintNormalTexture);
 
 							if(instance.paintSet[i].paintHeightTexture != null && GUILayout.Button("Save height texture"))
-							{
-								SaveRenderTextureToPNG(paintSet.heightTexture.name, paintSet.paintHeightTexture);
-							}
+								SaveRenderTextureToPNG(paintSet.heightTexture != null ? paintSet.heightTexture.name : "height_texture", paintSet.paintHeightTexture);
 
 							GUI.backgroundColor = backColorBuf;
 							EditorGUILayout.EndVertical();
