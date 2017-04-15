@@ -137,7 +137,7 @@ namespace Es.InkPainter
 		/// <summary>
 		/// Called at paint end.
 		/// </summary>
-		public event Action<InkCanvas, Brush> OnPaintEnd;
+		public event Action<InkCanvas> OnPaintEnd;
 
 		#region SerializedField
 
@@ -511,7 +511,10 @@ namespace Es.InkPainter
 			#endregion ErrorCheck
 
 			if(OnPaintStart != null)
+			{
+				brush = brush.Clone() as Brush;
 				OnPaintStart(this, brush);
+			}
 
 			foreach(var p in paintSet)
 			{
@@ -544,7 +547,7 @@ namespace Es.InkPainter
 			}
 
 			if(OnPaintEnd != null)
-				OnPaintEnd(this, brush);
+				OnPaintEnd(this);
 
 			return true;
 		}

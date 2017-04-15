@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System;
+using System.Collections;
 
 namespace Es.InkPainter.Effective
 {
@@ -6,8 +8,6 @@ namespace Es.InkPainter.Effective
 	[RequireComponent(typeof(InkCanvas), typeof(Renderer))]
 	public class HeightFluid : MonoBehaviour
 	{
-		public bool enabledFluid = true;
-
 		private Material heightFluid;
 		private Material height2Normal;
 		private Material height2Color;
@@ -29,7 +29,7 @@ namespace Es.InkPainter.Effective
 		[SerializeField]
 		private Vector2 flowDirection = Vector2.up;
 
-		[SerializeField]
+		[SerializeField, Range(0, 1)]
 		private float flowingForce = 1;
 
 		[SerializeField, Range(0.1f, 10f)]
@@ -47,23 +47,51 @@ namespace Es.InkPainter.Effective
 		[SerializeField, Range(0.001f, 0.999f)]
 		private float AdhesionBorder = 0.01f;
 
+		[SerializeField]
+		private bool automaticPerformanceOptimization = true;
+
+		[SerializeField, Range(0.01f, 10f)]
+		private float automaticFluidProcessStopTime = 5f;
+
+		private bool enabledFluid;
+
 		private void Init(InkCanvas canvas)
 		{
 			foreach(var set in canvas.PaintDatas)
 			{
 				var heightPaint = canvas.GetPaintHeightTexture(set.material.name);
 				if(heightPaint != null)
-					InitHeightMap(heightPaint);
+					SingleColorFill(heightPaint, Vector4.zero);
 			}
 		}
 
-		private void InitHeightMap(RenderTexture heightPaint)
+		private void SingleColorFill(RenderTexture texture, Color color)
 		{
-			var heightTmp = RenderTexture.GetTemporary(heightPaint.width, heightPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-			singleColorFill.SetVector("_Color", Vector4.zero);
-			Graphics.Blit(heightPaint, heightTmp, singleColorFill);
-			Graphics.Blit(heightTmp, heightPaint);
-			RenderTexture.ReleaseTemporary(heightTmp);
+			var tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+			singleColorFill.SetVector("_Color", color);
+			Graphics.Blit(texture, tmp, singleColorFill);
+			Graphics.Blit(tmp, texture);
+			RenderTexture.ReleaseTemporary(tmp);
+		}
+
+		private void DisableFluid(InkCanvas canvas)
+		{
+			if(enabledFluid && automaticPerformanceOptimization)
+				StartCoroutine(DisableFluid());
+		}
+
+		private IEnumerator DisableFluid()
+		{
+			yield return new WaitForSeconds(automaticFluidProcessStopTime);
+			enabledFluid = false;
+		}
+
+		private void EnabledFluid(InkCanvas canvas, Brush brush)
+		{
+			enabledFluid = true;
+			brush.ColorBlending = Brush.ColorBlendType.AlphaOnly;
+			brush.NormalBlending = Brush.NormalBlendType.UseBrush;
+			brush.HeightBlending = Brush.HeightBlendType.ColorRGB_HeightA;
 		}
 
 		private void Awake()
@@ -75,6 +103,8 @@ namespace Es.InkPainter.Effective
 
 			canvas = GetComponent<InkCanvas>();
 			canvas.OnInitializedAfter += Init;
+			canvas.OnPaintStart += EnabledFluid;
+			canvas.OnPaintEnd += DisableFluid;
 		}
 
 		private void OnWillRenderObject()
@@ -89,7 +119,7 @@ namespace Es.InkPainter.Effective
 				if(heightPaint == null)
 				{
 					var newHeightPaint = new RenderTexture(createTextureSize, createTextureSize, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-					InitHeightMap(newHeightPaint);
+					SingleColorFill(newHeightPaint, Vector4.zero);
 					canvas.SetPaintHeightTexture(materialName, newHeightPaint);
 					heightPaint = newHeightPaint;
 				}
