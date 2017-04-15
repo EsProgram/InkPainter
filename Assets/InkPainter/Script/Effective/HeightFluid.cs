@@ -48,10 +48,10 @@ namespace Es.InkPainter.Effective
 		private float AdhesionBorder = 0.01f;
 
 		[SerializeField]
-		private bool automaticPerformanceOptimization = true;
+		private bool performanceOptimize = true;
 
 		[SerializeField, Range(0.01f, 10f)]
-		private float automaticFluidProcessStopTime = 5f;
+		private float fluidProcessStopTime = 5f;
 
 		private bool enabledFluid;
 
@@ -76,13 +76,13 @@ namespace Es.InkPainter.Effective
 
 		private void DisableFluid(InkCanvas canvas)
 		{
-			if(enabledFluid && automaticPerformanceOptimization)
+			if(enabledFluid && performanceOptimize)
 				StartCoroutine(DisableFluid());
 		}
 
 		private IEnumerator DisableFluid()
 		{
-			yield return new WaitForSeconds(automaticFluidProcessStopTime);
+			yield return new WaitForSeconds(fluidProcessStopTime);
 			enabledFluid = false;
 		}
 
