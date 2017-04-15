@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System;
+using System.Linq;
 using System.Collections;
 
 namespace Es.InkPainter.Effective
@@ -122,6 +122,7 @@ namespace Es.InkPainter.Effective
 					SingleColorFill(newHeightPaint, Vector4.zero);
 					canvas.SetPaintHeightTexture(materialName, newHeightPaint);
 					heightPaint = newHeightPaint;
+					set.material.SetFloat("_Parallax", 0);
 				}
 				var heightTmp = RenderTexture.GetTemporary(heightPaint.width, heightPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 				heightFluid.SetFloat("_ScaleFactor", flowingForce);
