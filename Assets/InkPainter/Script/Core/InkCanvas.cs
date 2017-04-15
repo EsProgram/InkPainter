@@ -291,11 +291,11 @@ namespace Es.InkPainter
 		{
 			foreach(var p in paintSet)
 			{
-				if(p.useMainPaint)
+				if(p.material.HasProperty(p.mainTexturePropertyID))
 					p.mainTexture = p.material.GetTexture(p.mainTexturePropertyID);
-				if(p.useNormalPaint)
+				if(p.material.HasProperty(p.normalTexturePropertyID))
 					p.normalTexture = p.material.GetTexture(p.normalTexturePropertyID);
-				if(p.useHeightPaint)
+				if(p.material.HasProperty(p.heightTexturePropertyID))
 					p.heightTexture = p.material.GetTexture(p.heightTexturePropertyID);
 			}
 		}

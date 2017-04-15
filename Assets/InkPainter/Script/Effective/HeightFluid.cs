@@ -8,11 +8,7 @@ namespace Es.InkPainter.Effective
 	[RequireComponent(typeof(InkCanvas), typeof(Renderer))]
 	public class HeightFluid : MonoBehaviour
 	{
-		private Material heightFluid;
-		private Material height2Normal;
-		private Material height2Color;
-		private Material singleColorFill;
-		private InkCanvas canvas;
+		#region SerializedField
 
 		[SerializeField]
 		private bool useMainTextureFluid = true;
@@ -53,7 +49,21 @@ namespace Es.InkPainter.Effective
 		[SerializeField, Range(0.01f, 10f)]
 		private float fluidProcessStopTime = 5f;
 
+		#endregion SerializedField
+
+		#region PrivateField
+
 		private bool enabledFluid;
+		private float lastPaintedTime;
+		private Material heightFluid;
+		private Material height2Normal;
+		private Material height2Color;
+		private Material singleColorFill;
+		private InkCanvas canvas;
+
+		#endregion PrivateField
+
+		#region PrivateMethod
 
 		private void Init(InkCanvas canvas)
 		{
@@ -74,25 +84,18 @@ namespace Es.InkPainter.Effective
 			RenderTexture.ReleaseTemporary(tmp);
 		}
 
-		private void DisableFluid(InkCanvas canvas)
-		{
-			if(enabledFluid && performanceOptimize)
-				StartCoroutine(DisableFluid());
-		}
-
-		private IEnumerator DisableFluid()
-		{
-			yield return new WaitForSeconds(fluidProcessStopTime);
-			enabledFluid = false;
-		}
-
 		private void EnabledFluid(InkCanvas canvas, Brush brush)
 		{
 			enabledFluid = true;
+			lastPaintedTime = Time.time;
 			brush.ColorBlending = Brush.ColorBlendType.AlphaOnly;
 			brush.NormalBlending = Brush.NormalBlendType.UseBrush;
 			brush.HeightBlending = Brush.HeightBlendType.ColorRGB_HeightA;
 		}
+
+		#endregion PrivateMethod
+
+		#region UnityEventMethod
 
 		private void Awake()
 		{
@@ -104,11 +107,13 @@ namespace Es.InkPainter.Effective
 			canvas = GetComponent<InkCanvas>();
 			canvas.OnInitializedAfter += Init;
 			canvas.OnPaintStart += EnabledFluid;
-			canvas.OnPaintEnd += DisableFluid;
 		}
 
 		private void OnWillRenderObject()
 		{
+			if(performanceOptimize && enabledFluid && Time.time - lastPaintedTime > fluidProcessStopTime)
+				enabledFluid = false;
+
 			if(!enabledFluid)
 				return;
 
@@ -143,12 +148,7 @@ namespace Es.InkPainter.Effective
 					{
 						var newMainPaint = new RenderTexture(createTextureSize, createTextureSize, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 						if(canvas.GetMainTexture(materialName) != null)
-						{
-							var tmp = RenderTexture.GetTemporary(newMainPaint.width, newMainPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-							Graphics.Blit(canvas.GetMainTexture(materialName), tmp);
-							Graphics.Blit(tmp, newMainPaint);
-							RenderTexture.ReleaseTemporary(tmp);
-						}
+							Graphics.Blit(canvas.GetMainTexture(materialName), newMainPaint);
 						canvas.SetPaintMainTexture(materialName, newMainPaint);
 						mainPaint = newMainPaint;
 					}
@@ -168,13 +168,11 @@ namespace Es.InkPainter.Effective
 					if(normalPaint == null)
 					{
 						var newNormalPaint = new RenderTexture(createTextureSize, createTextureSize, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+						//DXT5nm color initialization.
+						SingleColorFill(newNormalPaint, Vector4.one * 0.5f);
+						set.material.EnableKeyword("_NORMALMAP");
 						if(canvas.GetNormalTexture(materialName) != null)
-						{
-							var tmp = RenderTexture.GetTemporary(newNormalPaint.width, newNormalPaint.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-							Graphics.Blit(canvas.GetNormalTexture(materialName), tmp);
-							Graphics.Blit(tmp, newNormalPaint);
-							RenderTexture.ReleaseTemporary(tmp);
-						}
+							Graphics.Blit(canvas.GetNormalTexture(materialName), newNormalPaint);
 						canvas.SetPaintNormalTexture(materialName, newNormalPaint);
 						normalPaint = newNormalPaint;
 					}
@@ -188,5 +186,7 @@ namespace Es.InkPainter.Effective
 				}
 			}
 		}
+
+		#endregion UnityEventMethod
 	}
 }
