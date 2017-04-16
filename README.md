@@ -1,7 +1,7 @@
 # InkPainter
 
 This asset allows you to Texture-Paint on Unity.
-Selling at [Asset Store](https://www.assetstore.unity3d.com/#!/content/75279).
+Selling at [Asset Store](https://www.assetstore.unity3d.com/jp/#!/content/86210).
 
 Document is [here](https://esprogram.github.io/InkPainterDocument/).
 
