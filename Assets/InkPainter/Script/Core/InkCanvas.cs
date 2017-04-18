@@ -18,7 +18,6 @@ namespace Es.InkPainter
 	/// To set the per-material.
 	/// </summary>
 	[RequireComponent(typeof(Renderer))]
-	[RequireComponent(typeof(Collider))]
 	[DisallowMultipleComponent]
 	public class InkCanvas : MonoBehaviour
 	{
@@ -109,7 +108,6 @@ namespace Es.InkPainter
 			#endregion ShaderPropertyID
 		}
 
-		private const int DEFAULT_TEXTURE_SIZE = 256;
 		private static Material paintMainMaterial = null;
 		private static Material paintNormalMaterial = null;
 		private static Material paintHeightMaterial = null;
@@ -601,14 +599,12 @@ namespace Es.InkPainter
 		/// <returns>The success or failure of the paint.</returns>
 		public bool Paint(Brush brush, RaycastHit hitInfo)
 		{
-			if(hitInfo.collider != null && hitInfo.collider.gameObject == gameObject)
+			if(hitInfo.collider != null)
 			{
-				if(!(GetComponent<Collider>() is MeshCollider))
-				{
-					Debug.LogWarning("If you want to paint using a Raycast, need set MeshCollider for canvas object.");
-					return PaintNearestTriangleSurface(brush, hitInfo.point);
-				}
-				return PaintUVDirect(brush, hitInfo.textureCoord);
+				if(hitInfo.collider is MeshCollider)
+					return PaintUVDirect(brush, hitInfo.textureCoord);
+				Debug.LogWarning("If you want to paint using a RaycastHit, need set MeshCollider for object.");
+				return PaintNearestTriangleSurface(brush, hitInfo.point);
 			}
 			return false;
 		}
