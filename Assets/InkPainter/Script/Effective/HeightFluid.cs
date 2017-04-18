@@ -5,7 +5,7 @@ using System.Collections;
 namespace Es.InkPainter.Effective
 {
 	[DisallowMultipleComponent]
-	[RequireComponent(typeof(InkCanvas), typeof(Renderer))]
+	[RequireComponent(typeof(InkCanvas))]
 	public class HeightFluid : MonoBehaviour
 	{
 		#region SerializedField

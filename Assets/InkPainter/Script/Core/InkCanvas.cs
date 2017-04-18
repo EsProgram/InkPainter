@@ -299,6 +299,21 @@ namespace Es.InkPainter
 		}
 
 		/// <summary>
+		/// Create RenderTexture and return.
+		/// </summary>
+		/// <param name="baseTex">Base texture.</param>
+		/// <param name="propertyID">Shader property id.</param>
+		/// <param name="material">material.</param>
+		private RenderTexture SetupRenderTexture(Texture baseTex, int propertyID, Material material)
+		{
+			var rt = new RenderTexture(baseTex.width, baseTex.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+			rt.filterMode = baseTex.filterMode;
+			Graphics.Blit(baseTex, rt);
+			material.SetTexture(propertyID, rt);
+			return rt;
+		}
+
+		/// <summary>
 		/// Creates a rendertexture and set the material.
 		/// </summary>
 		private void SetRenderTexture()
@@ -308,33 +323,21 @@ namespace Es.InkPainter
 				if(p.useMainPaint)
 				{
 					if(p.mainTexture != null)
-					{
-						p.paintMainTexture = new RenderTexture(p.mainTexture.width, p.mainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-						Graphics.Blit(p.mainTexture, p.paintMainTexture);
-						p.material.SetTexture(p.mainTexturePropertyID, p.paintMainTexture);
-					}
+						p.paintMainTexture = SetupRenderTexture(p.mainTexture, p.mainTexturePropertyID, p.material);
 					else
 						Debug.LogWarning("To take advantage of the main texture paint must set main texture to materials.");
 				}
 				if(p.useNormalPaint)
 				{
 					if(p.normalTexture != null)
-					{
-						p.paintNormalTexture = new RenderTexture(p.normalTexture.width, p.normalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-						Graphics.Blit(p.normalTexture, p.paintNormalTexture);
-						p.material.SetTexture(p.normalTexturePropertyID, p.paintNormalTexture);
-					}
+						p.paintNormalTexture = SetupRenderTexture(p.normalTexture, p.normalTexturePropertyID, p.material);
 					else
 						Debug.LogWarning("To take advantage of the normal map paint must set normal map to materials.");
 				}
 				if(p.useHeightPaint)
 				{
 					if(p.heightTexture != null)
-					{
-						p.paintHeightTexture = new RenderTexture(p.heightTexture.width, p.heightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-						Graphics.Blit(p.heightTexture, p.paintHeightTexture);
-						p.material.SetTexture(p.heightTexturePropertyID, p.paintHeightTexture);
-					}
+						p.paintHeightTexture = SetupRenderTexture(p.heightTexture, p.heightTexturePropertyID, p.material);
 					else
 						Debug.LogWarning("To take advantage of the height map paint must set height map to materials.");
 				}
