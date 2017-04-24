@@ -5,6 +5,11 @@ Selling at [Asset Store](https://www.assetstore.unity3d.com/jp/#!/content/86210)
 
 Document is [here](https://esprogram.github.io/InkPainterDocument/).
 
+## Sponsor
+
+* <a href="http://jirka.marsik.me/">Jirka Maršík</a>
+
+
 ## Movies
 
 <p align="center">
