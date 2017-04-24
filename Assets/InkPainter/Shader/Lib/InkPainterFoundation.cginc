@@ -9,12 +9,39 @@ float4 SampleTexture(sampler2D tex, float2 uv) {
 #endif
 }
 
+bool ExistPointInTriangle(float3 p, float3 t1, float3 t2, float3 t3)
+{
+	const float TOLERANCE = 1 - 0.1;
+
+	float3 a = normalize(cross(t1 - t3, p - t1));
+	float3 b = normalize(cross(t2 - t1, p - t2));
+	float3 c = normalize(cross(t3 - t2, p - t3));
+
+	float d_ab =dot(a, b);
+	float d_bc =dot(b, c);
+
+	if (TOLERANCE < d_ab && TOLERANCE < d_bc) {
+		return true;
+	}
+	return false;
+}
+
+float2 Rotate(float2 p, float degree) {
+	float rad = radians(degree);
+	float2x2 r = {
+		{cos(rad),-sin(rad)},
+		{sin(rad), cos(rad)}
+	};
+	return mul(r, p);
+}
+
 bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale) {
-	return
-		paintUV.x - brushScale < mainUV.x &&
-		mainUV.x < paintUV.x + brushScale &&
-		paintUV.y - brushScale < mainUV.y &&
-		mainUV.y < paintUV.y + brushScale;
+	float3 p = float3(mainUV, 0);
+	float3 v1 = float3(paintUV.x - brushScale, paintUV.y + brushScale, 0);
+	float3 v2 = float3(paintUV.x - brushScale, paintUV.y - brushScale, 0);
+	float3 v3 = float3(paintUV.x + brushScale, paintUV.y - brushScale, 0);
+	float3 v4 = float3(paintUV.x + brushScale, paintUV.y + brushScale, 0);
+	return ExistPointInTriangle(p, v1, v2, v3) || ExistPointInTriangle(p, v1, v3, v4);
 }
 
 float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale) {
