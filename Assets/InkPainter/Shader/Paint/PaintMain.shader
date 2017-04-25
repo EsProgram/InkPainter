@@ -59,7 +59,7 @@
 				float4 brushColor = float4(1, 1, 1, 1);
 
 				if (IsPaintRange(i.uv, _PaintUV, h, _BrushRotate)) {
-					float2 uv = CalcBrushUV(i.uv, _PaintUV, h);
+					float2 uv = CalcBrushUV(i.uv, _PaintUV, h, _BrushRotate);
 					brushColor = SampleTexture(_Brush, uv.xy);
 
 					return INK_PAINTER_COLOR_BLEND(base, brushColor, _ControlColor);

@@ -42,12 +42,11 @@ bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 	return ExistPointInTriangle(p, v1, v2, v3) || ExistPointInTriangle(p, v1, v3, v4);
 }
 
-float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale) {
-	//TODO:UV回転対応
+float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 #if UNITY_UV_STARTS_AT_TOP
-	return (mainUV - paintUV) / brushScale * 0.5 + 0.5;
+	return Rotate((mainUV - paintUV) / brushScale, deg) * 0.5 + 0.5;
 #else
-	return (paintUV - mainUV) / brushScale * 0.5 + 0.5;
+	return Rotate((paintUV - mainUV) / brushScale, deg) * 0.5 + 0.5;
 #endif
 }
 

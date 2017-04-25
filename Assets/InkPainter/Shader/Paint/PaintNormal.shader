@@ -61,11 +61,11 @@
 				float4 base = SampleTexture(_MainTex, i.uv.xy);
 
 				if (IsPaintRange(i.uv, _PaintUV, h, _BrushRotate)) {
-					float2 uv = CalcBrushUV(i.uv, _PaintUV, h);
+					float2 uv = CalcBrushUV(i.uv, _PaintUV, h, _BrushRotate);
 					float4 brushColor = SampleTexture(_Brush, uv.xy);
 
 					if (brushColor.a > 0) {
-						float2 normalUV = CalcBrushUV(i.uv, _PaintUV, h);
+						float2 normalUV = CalcBrushUV(i.uv, _PaintUV, h, _BrushRotate);
 						float4 normal = SampleTexture(_BrushNormal, normalUV.xy);
 						return INK_PAINTER_NORMAL_BLEND(base, normal, _NormalBlend, brushColor.a);
 					}
