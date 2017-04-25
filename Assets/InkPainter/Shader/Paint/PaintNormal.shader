@@ -9,6 +9,8 @@
 		[HideInInspector]
 		_BrushScale("BrushScale", FLOAT) = 0.1
 		[HideInInspector]
+		_BrushRotate("Rotate", FLOAT) = 0
+		[HideInInspector]
 		_PaintUV("Hit UV Position", VECTOR) = (0,0,0,0)
 		[HideInInspector]
 		_NormalBlend("NormalBlend", FLOAT) = 1
@@ -37,6 +39,7 @@
 			sampler2D _BrushNormal;
 			float4 _PaintUV;
 			float _BrushScale;
+			float _BrushRotate;
 			float _NormalBlend;
 		ENDCG
 
@@ -57,7 +60,7 @@
 				float h = _BrushScale;
 				float4 base = SampleTexture(_MainTex, i.uv.xy);
 
-				if (IsPaintRange(i.uv, _PaintUV, h)) {
+				if (IsPaintRange(i.uv, _PaintUV, h, _BrushRotate)) {
 					float2 uv = CalcBrushUV(i.uv, _PaintUV, h);
 					float4 brushColor = SampleTexture(_Brush, uv.xy);
 

@@ -28,19 +28,18 @@ bool ExistPointInTriangle(float3 p, float3 t1, float3 t2, float3 t3)
 
 float2 Rotate(float2 p, float degree) {
 	float rad = radians(degree);
-	float2x2 r = {
-		{cos(rad),-sin(rad)},
-		{sin(rad), cos(rad)}
-	};
-	return mul(r, p);
+	float x = p.x * cos(rad) - p.y * sin(rad);
+	float y = p.x * sin(rad) + p.y * cos(rad);
+	return float2(x, y);
 }
 
-bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale) {
+bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 	float3 p = float3(mainUV, 0);
-	float3 v1 = float3(paintUV.x - brushScale, paintUV.y + brushScale, 0);
-	float3 v2 = float3(paintUV.x - brushScale, paintUV.y - brushScale, 0);
-	float3 v3 = float3(paintUV.x + brushScale, paintUV.y - brushScale, 0);
-	float3 v4 = float3(paintUV.x + brushScale, paintUV.y + brushScale, 0);
+	//TODO:ここで、回転軸がおかしい
+	float3 v1 = float3(Rotate(float3(paintUV.x - brushScale, paintUV.y + brushScale, 0), deg), 0);
+	float3 v2 = float3(Rotate(float3(paintUV.x - brushScale, paintUV.y - brushScale, 0), deg), 0);
+	float3 v3 = float3(Rotate(float3(paintUV.x + brushScale, paintUV.y - brushScale, 0), deg), 0);
+	float3 v4 = float3(Rotate(float3(paintUV.x + brushScale, paintUV.y + brushScale, 0), deg), 0);
 	return ExistPointInTriangle(p, v1, v2, v3) || ExistPointInTriangle(p, v1, v3, v4);
 }
 
