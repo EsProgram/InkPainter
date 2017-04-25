@@ -150,6 +150,7 @@ namespace Es.InkPainter
 
 		private int brushTexturePropertyID;
 		private int brushScalePropertyID;
+		private int brushRotatePropertyID;
 		private int brushColorPropertyID;
 		private int brushNormalTexturePropertyID;
 		private int brushNormalBlendPropertyID;
@@ -256,6 +257,7 @@ namespace Es.InkPainter
 			paintUVPropertyID = Shader.PropertyToID("_PaintUV");
 			brushTexturePropertyID = Shader.PropertyToID("_Brush");
 			brushScalePropertyID = Shader.PropertyToID("_BrushScale");
+			brushRotatePropertyID = Shader.PropertyToID("_BrushRotate");
 			brushColorPropertyID = Shader.PropertyToID("_ControlColor");
 			brushNormalTexturePropertyID = Shader.PropertyToID("_BrushNormal");
 			brushNormalBlendPropertyID = Shader.PropertyToID("_NormalBlend");
@@ -370,6 +372,7 @@ namespace Es.InkPainter
 			paintMainMaterial.SetVector(paintUVPropertyID, uv);
 			paintMainMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
 			paintMainMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintMainMaterial.SetFloat(brushRotatePropertyID, brush.RotateAngle);
 			paintMainMaterial.SetVector(brushColorPropertyID, brush.Color);
 
 			foreach(var key in paintMainMaterial.shaderKeywords)
@@ -409,6 +412,7 @@ namespace Es.InkPainter
 			paintNormalMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
 			paintNormalMaterial.SetTexture(brushNormalTexturePropertyID, brush.BrushNormalTexture);
 			paintNormalMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintNormalMaterial.SetFloat(brushRotatePropertyID, brush.RotateAngle);
 			paintNormalMaterial.SetFloat(brushNormalBlendPropertyID, brush.NormalBlend);
 
 			foreach(var key in paintNormalMaterial.shaderKeywords)
@@ -452,6 +456,7 @@ namespace Es.InkPainter
 			paintHeightMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
 			paintHeightMaterial.SetTexture(brushHeightTexturePropertyID, brush.BrushHeightTexture);
 			paintHeightMaterial.SetFloat(brushScalePropertyID, brush.Scale);
+			paintHeightMaterial.SetFloat(brushRotatePropertyID, brush.RotateAngle);
 			paintHeightMaterial.SetFloat(brushHeightBlendPropertyID, brush.HeightBlend);
 			paintHeightMaterial.SetVector(brushHeightColorPropertyID, brush.Color);
 

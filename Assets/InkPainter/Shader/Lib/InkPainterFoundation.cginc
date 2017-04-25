@@ -28,27 +28,25 @@ bool ExistPointInTriangle(float3 p, float3 t1, float3 t2, float3 t3)
 
 float2 Rotate(float2 p, float degree) {
 	float rad = radians(degree);
-	float2x2 r = {
-		{cos(rad),-sin(rad)},
-		{sin(rad), cos(rad)}
-	};
-	return mul(r, p);
+	float x = p.x * cos(rad) - p.y * sin(rad);
+	float y = p.x * sin(rad) + p.y * cos(rad);
+	return float2(x, y);
 }
 
-bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale) {
+bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 	float3 p = float3(mainUV, 0);
-	float3 v1 = float3(paintUV.x - brushScale, paintUV.y + brushScale, 0);
-	float3 v2 = float3(paintUV.x - brushScale, paintUV.y - brushScale, 0);
-	float3 v3 = float3(paintUV.x + brushScale, paintUV.y - brushScale, 0);
-	float3 v4 = float3(paintUV.x + brushScale, paintUV.y + brushScale, 0);
+	float3 v1 = float3(Rotate(float2(-brushScale, brushScale), deg) + paintUV, 0);
+	float3 v2 = float3(Rotate(float2(-brushScale, -brushScale), deg) + paintUV, 0);
+	float3 v3 = float3(Rotate(float2(brushScale, -brushScale), deg) + paintUV, 0);
+	float3 v4 = float3(Rotate(float2(brushScale, brushScale), deg) + paintUV, 0);
 	return ExistPointInTriangle(p, v1, v2, v3) || ExistPointInTriangle(p, v1, v3, v4);
 }
 
-float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale) {
+float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 #if UNITY_UV_STARTS_AT_TOP
-	return (mainUV - paintUV) / brushScale * 0.5 + 0.5;
+	return Rotate((mainUV - paintUV) / brushScale, deg) * 0.5 + 0.5;
 #else
-	return (paintUV - mainUV) / brushScale * 0.5 + 0.5;
+	return Rotate((paintUV - mainUV) / brushScale, deg) * 0.5 + 0.5;
 #endif
 }
 
