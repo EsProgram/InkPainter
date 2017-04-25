@@ -44,7 +44,7 @@ bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 
 float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 #if UNITY_UV_STARTS_AT_TOP
-	return Rotate((mainUV - paintUV) / brushScale, deg) * 0.5 + 0.5;
+	return Rotate((mainUV - paintUV) / brushScale, -deg) * 0.5 + 0.5;
 #else
 	return Rotate((paintUV - mainUV) / brushScale, deg) * 0.5 + 0.5;
 #endif
