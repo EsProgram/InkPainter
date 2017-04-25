@@ -35,15 +35,15 @@ float2 Rotate(float2 p, float degree) {
 
 bool IsPaintRange(float2 mainUV, float2 paintUV, float brushScale, float deg) {
 	float3 p = float3(mainUV, 0);
-	//TODO:ここで、回転軸がおかしい
-	float3 v1 = float3(Rotate(float3(paintUV.x - brushScale, paintUV.y + brushScale, 0), deg), 0);
-	float3 v2 = float3(Rotate(float3(paintUV.x - brushScale, paintUV.y - brushScale, 0), deg), 0);
-	float3 v3 = float3(Rotate(float3(paintUV.x + brushScale, paintUV.y - brushScale, 0), deg), 0);
-	float3 v4 = float3(Rotate(float3(paintUV.x + brushScale, paintUV.y + brushScale, 0), deg), 0);
+	float3 v1 = float3(Rotate(float2(-brushScale, brushScale), deg) + paintUV, 0);
+	float3 v2 = float3(Rotate(float2(-brushScale, -brushScale), deg) + paintUV, 0);
+	float3 v3 = float3(Rotate(float2(brushScale, -brushScale), deg) + paintUV, 0);
+	float3 v4 = float3(Rotate(float2(brushScale, brushScale), deg) + paintUV, 0);
 	return ExistPointInTriangle(p, v1, v2, v3) || ExistPointInTriangle(p, v1, v3, v4);
 }
 
 float2 CalcBrushUV(float2 mainUV, float2 paintUV, float brushScale) {
+	//TODO:UV回転対応
 #if UNITY_UV_STARTS_AT_TOP
 	return (mainUV - paintUV) / brushScale * 0.5 + 0.5;
 #else
