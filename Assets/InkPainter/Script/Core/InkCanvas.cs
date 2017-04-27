@@ -504,7 +504,7 @@ namespace Es.InkPainter
 		/// <param name="brush">Brush data.</param>
 		/// <param name="uv">UV coordinates for the hit location.</param>
 		/// <returns>The success or failure of the paint.</returns>
-		public bool PaintUVDirect(Brush brush, Vector2 uv)
+		public bool PaintUVDirect(Brush brush, Vector2 uv, Func<PaintSet, bool> materialSelector = null)
 		{
 			#region ErrorCheck
 
@@ -522,7 +522,8 @@ namespace Es.InkPainter
 				OnPaintStart(this, brush);
 			}
 
-			foreach(var p in paintSet)
+			var set = materialSelector == null ? paintSet : paintSet.Where(materialSelector);
+			foreach(var p in set)
 			{
 				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
 				{
@@ -565,12 +566,12 @@ namespace Es.InkPainter
 		/// <param name="worldPos">Approximate point.</param>
 		/// <param name="renderCamera">Camera to use to render the object.</param>
 		/// <returns>The success or failure of the paint.</returns>
-		public bool PaintNearestTriangleSurface(Brush brush, Vector3 worldPos, Camera renderCamera = null)
+		public bool PaintNearestTriangleSurface(Brush brush, Vector3 worldPos, Func<PaintSet, bool> materialSelector = null, Camera renderCamera = null)
 		{
 			var p = transform.worldToLocalMatrix.MultiplyPoint(worldPos);
 			var pd = MeshOperator.NearestLocalSurfacePoint(p);
 
-			return Paint(brush, transform.localToWorldMatrix.MultiplyPoint(pd), renderCamera);
+			return Paint(brush, transform.localToWorldMatrix.MultiplyPoint(pd), materialSelector, renderCamera);
 		}
 
 		/// <summary>
@@ -580,7 +581,7 @@ namespace Es.InkPainter
 		/// <param name="worldPos">Point on object surface (world-space).</param>
 		/// <param name="renderCamera">Camera to use to render the object.</param>
 		/// <returns>The success or failure of the paint.</returns>
-		public bool Paint(Brush brush, Vector3 worldPos, Camera renderCamera = null)
+		public bool Paint(Brush brush, Vector3 worldPos, Func<PaintSet, bool> materialSelector = null, Camera renderCamera = null)
 		{
 			Vector2 uv;
 
@@ -590,11 +591,11 @@ namespace Es.InkPainter
 			Vector3 p = transform.InverseTransformPoint(worldPos);
 			Matrix4x4 mvp = renderCamera.projectionMatrix * renderCamera.worldToCameraMatrix * transform.localToWorldMatrix;
 			if(MeshOperator.LocalPointToUV(p, mvp, out uv))
-				return PaintUVDirect(brush, uv);
+				return PaintUVDirect(brush, uv, materialSelector);
 			else
 			{
 				Debug.LogWarning("Could not get the point on the surface.");
-				return PaintNearestTriangleSurface(brush, worldPos, renderCamera);
+				return PaintNearestTriangleSurface(brush, worldPos, materialSelector, renderCamera);
 			}
 		}
 
@@ -605,14 +606,14 @@ namespace Es.InkPainter
 		/// <param name="brush">Brush data.</param>
 		/// <param name="hitInfo">Raycast hit info.</param>
 		/// <returns>The success or failure of the paint.</returns>
-		public bool Paint(Brush brush, RaycastHit hitInfo)
+		public bool Paint(Brush brush, RaycastHit hitInfo, Func<PaintSet, bool> materialSelector = null)
 		{
 			if(hitInfo.collider != null)
 			{
 				if(hitInfo.collider is MeshCollider)
-					return PaintUVDirect(brush, hitInfo.textureCoord);
+					return PaintUVDirect(brush, hitInfo.textureCoord, materialSelector);
 				Debug.LogWarning("If you want to paint using a RaycastHit, need set MeshCollider for object.");
-				return PaintNearestTriangleSurface(brush, hitInfo.point);
+				return PaintNearestTriangleSurface(brush, hitInfo.point, materialSelector);
 			}
 			return false;
 		}
