@@ -22,7 +22,7 @@
 	SubShader{
 		CGINCLUDE
 
-#include "Assets/InkPainter/Shader/Lib/InkPainterFoundation.cginc"
+#include "../Lib/InkPainterFoundation.cginc"
 
 			struct app_data {
 				float4 vertex:POSITION;
