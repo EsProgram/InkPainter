@@ -106,6 +106,32 @@ namespace Es.InkPainter
 			public int heightTexturePropertyID;
 
 			#endregion ShaderPropertyID
+
+			#region Constractor
+			/// <summary>
+			/// Default constractor.
+			/// </summary>
+			public PaintSet() { }
+
+			/// <summary>
+			/// Setup paint data.
+			/// </summary>
+			/// <param name="mainTextureName">Shader property name(main texture).</param>
+			/// <param name="normalTextureName">Shader property name(normal map).</param>
+			/// <param name="heightTextureName">Shader property name(height map)</param>
+			/// <param name="useMainPaint">Whether to use main texture paint.</param>
+			/// <param name="useNormalPaint">Whether to use normal map paint.</param>
+			/// <param name="useHeightPaint">Whether to use height map paint.</param>
+			public PaintSet(string mainTextureName, string normalTextureName, string heightTextureName, bool useMainPaint, bool useNormalPaint, bool useHeightPaint)
+			{
+				this.mainTextureName = mainTextureName;
+				this.normalTextureName = normalTextureName;
+				this.heightTextureName = heightTextureName;
+				this.useMainPaint = useMainPaint;
+				this.useNormalPaint = useNormalPaint;
+				this.useHeightPaint = useHeightPaint;
+			}
+			#endregion Constractor
 		}
 
 		private static Material paintMainMaterial = null;
@@ -115,15 +141,20 @@ namespace Es.InkPainter
 		/// <summary>
 		/// Access data used for painting.
 		/// </summary>
-		public List<PaintSet> PaintDatas { get { return paintSet; } }
+		public List<PaintSet> PaintDatas { get { return paintSet; } set { paintSet = value; } }
 
 		/// <summary>
-		/// Called by dynamic canvas initialization start times.
+		/// Called by InkCanvas attached game object.
+		/// </summary>
+		public event Action<InkCanvas> OnCanvasAttached;
+
+		/// <summary>
+		/// Called by InkCanvas initialization start times.
 		/// </summary>
 		public event Action<InkCanvas> OnInitializedStart;
 
 		/// <summary>
-		/// Called by dynamic canvas initialization completion times.
+		/// Called by InkCanvas initialization completion times.
 		/// </summary>
 		public event Action<InkCanvas> OnInitializedAfter;
 
@@ -203,6 +234,8 @@ namespace Es.InkPainter
 
 		private void Awake()
 		{
+			if(OnCanvasAttached != null)
+				OnCanvasAttached(this);
 			InitPropertyID();
 			SetMaterial();
 			SetTexture();
@@ -220,7 +253,7 @@ namespace Es.InkPainter
 
 		private void OnDestroy()
 		{
-			Debug.Log("Dynamic canvas has been destroyed.");
+			Debug.Log("InkCanvas has been destroyed.");
 			ReleaseRenderTexture();
 		}
 
@@ -806,7 +839,8 @@ namespace Es.InkPainter
 							normalTextureName = "_BumpMap",
 							heightTextureName = "_ParallaxMap",
 							useMainPaint = true,
-							useNormalPaint = false
+							useNormalPaint = false,
+							useHeightPaint = false,
 						});
 					foldOut.Clear();
 				}
