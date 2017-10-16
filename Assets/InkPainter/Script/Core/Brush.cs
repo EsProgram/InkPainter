@@ -244,6 +244,12 @@ namespace Es.InkPainter
 			Color = color;
 		}
 
+		public Brush(Texture brushTex, float scale, Color color, ColorBlendType colorBlending)
+		  : this(brushTex, scale, color)
+		{
+			ColorBlending = colorBlending;
+		}
+
 		public Brush(Texture brushTex, float scale, Color color, Texture normalTex, float normalBlend)
 		  : this(brushTex, scale, color)
 		{
