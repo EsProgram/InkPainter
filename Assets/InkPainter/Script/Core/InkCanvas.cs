@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Es.InkPainter.Effective;
 
 #if UNITY_EDITOR
 
@@ -137,6 +138,7 @@ namespace Es.InkPainter
 		private static Material paintMainMaterial = null;
 		private static Material paintNormalMaterial = null;
 		private static Material paintHeightMaterial = null;
+		private bool eraseFlag = false;
 
 		/// <summary>
 		/// Access data used for painting.
@@ -527,6 +529,65 @@ namespace Es.InkPainter
 			}
 		}
 
+		/// <summary>
+		/// Get an eraser brush.
+		/// </summary>
+		/// <param name="brush">A brush that becomes the shape of an eraser.</param>
+		/// <param name="paintSet">Paint information per material.</param>
+		/// <param name="uv">UV coordinates for the hit location.</param>
+		/// <param name="useMainPaint">Whether paint is effective.</param>
+		/// <param name="useNormalPaint">Whether paint is effective.</param>
+		/// <param name="useHeightpaint">Whether paint is effective.</param>
+		/// <returns></returns>
+		private Brush GetEraser(Brush brush, PaintSet paintSet, Vector2 uv, bool useMainPaint, bool useNormalPaint, bool useHeightpaint)
+		{
+			var b = brush.Clone() as Brush;
+			b.Color = Color.white;
+			b.ColorBlending = Brush.ColorBlendType.UseBrush;
+			b.NormalBlending = Brush.NormalBlendType.UseBrush;
+			b.HeightBlending = Brush.HeightBlendType.UseBrush;
+
+			if(useMainPaint)
+			{
+				var rt = RenderTexture.GetTemporary(brush.BrushTexture.width, brush.BrushTexture.height);
+				GrabArea.Clip(brush.BrushTexture, brush.Scale, paintSet.mainTexture, uv, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				b.BrushTexture = rt;
+			}
+			if(useNormalPaint)
+			{
+				var rt = RenderTexture.GetTemporary(brush.BrushNormalTexture.width, brush.BrushNormalTexture.height);
+				GrabArea.Clip(brush.BrushNormalTexture, brush.Scale, paintSet.normalTexture, uv, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				b.BrushNormalTexture = rt;
+			}
+			if(useHeightpaint)
+			{
+				var rt = RenderTexture.GetTemporary(brush.BrushHeightTexture.width, brush.BrushHeightTexture.height);
+				GrabArea.Clip(brush.BrushHeightTexture, brush.Scale, paintSet.heightTexture, uv, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				b.BrushHeightTexture = rt;
+			}
+
+			return b;
+		}
+
+		/// <summary>
+		/// Release the RenderTexture for the eraser.
+		/// </summary>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="useMainPaint">Whether paint is effective.</param>
+		/// <param name="useNormalPaint">Whether paint is effective.</param>
+		/// <param name="useHeightpaint">Whether paint is effective.</param>
+		private void ReleaseEraser(Brush brush, bool useMainPaint, bool useNormalPaint, bool useHeightpaint)
+		{
+			if(useMainPaint && brush.BrushTexture is RenderTexture)
+				RenderTexture.ReleaseTemporary(brush.BrushTexture as RenderTexture);
+
+			if(useNormalPaint && brush.BrushNormalTexture is RenderTexture)
+				RenderTexture.ReleaseTemporary(brush.BrushNormalTexture as RenderTexture);
+
+			if(useHeightpaint && brush.BrushHeightTexture is RenderTexture)
+				RenderTexture.ReleaseTemporary(brush.BrushHeightTexture as RenderTexture);
+		}
+
 		#endregion PrivateMethod
 
 		#region PublicMethod
@@ -544,6 +605,7 @@ namespace Es.InkPainter
 			if(brush == null)
 			{
 				Debug.LogError("Do not set the brush.");
+				eraseFlag = false;
 				return false;
 			}
 
@@ -558,7 +620,14 @@ namespace Es.InkPainter
 			var set = materialSelector == null ? paintSet : paintSet.Where(materialSelector);
 			foreach(var p in set)
 			{
-				if(p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated())
+				var mainPaintConditions = p.useMainPaint && brush.BrushTexture != null && p.paintMainTexture != null && p.paintMainTexture.IsCreated();
+				var normalPaintConditions = p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated();
+				var heightPaintConditions = p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated();
+
+				if(eraseFlag)
+					brush = GetEraser(brush, p, uv, mainPaintConditions, normalPaintConditions, heightPaintConditions);
+
+				if(mainPaintConditions)
 				{
 					var mainPaintTextureBuffer = RenderTexture.GetTemporary(p.paintMainTexture.width, p.paintMainTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					SetPaintMainData(brush, uv);
@@ -567,7 +636,7 @@ namespace Es.InkPainter
 					RenderTexture.ReleaseTemporary(mainPaintTextureBuffer);
 				}
 
-				if(p.useNormalPaint && brush.BrushNormalTexture != null && p.paintNormalTexture != null && p.paintNormalTexture.IsCreated())
+				if(normalPaintConditions)
 				{
 					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					SetPaintNormalData(brush, uv);
@@ -576,7 +645,7 @@ namespace Es.InkPainter
 					RenderTexture.ReleaseTemporary(normalPaintTextureBuffer);
 				}
 
-				if(p.useHeightPaint && brush.BrushHeightTexture != null && p.paintHeightTexture != null && p.paintHeightTexture.IsCreated())
+				if(heightPaintConditions)
 				{
 					var heightPaintTextureBuffer = RenderTexture.GetTemporary(p.paintHeightTexture.width, p.paintHeightTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
 					SetPaintHeightData(brush, uv);
@@ -584,11 +653,15 @@ namespace Es.InkPainter
 					Graphics.Blit(heightPaintTextureBuffer, p.paintHeightTexture);
 					RenderTexture.ReleaseTemporary(heightPaintTextureBuffer);
 				}
+
+				if(eraseFlag)
+					ReleaseEraser(brush, mainPaintConditions, normalPaintConditions, heightPaintConditions);
 			}
 
 			if(OnPaintEnd != null)
 				OnPaintEnd(this);
 
+			eraseFlag = false;
 			return true;
 		}
 
@@ -649,6 +722,57 @@ namespace Es.InkPainter
 				return PaintNearestTriangleSurface(brush, hitInfo.point, materialSelector);
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// Erase processing that UV coordinates to the specified.
+		/// </summary>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="uv">UV coordinates for the hit location.</param>
+		/// <returns>The success or failure of the erase.</returns>
+		public bool EraseUVDirect(Brush brush, Vector2 uv, Func<PaintSet, bool> materialSelector = null)
+		{
+			eraseFlag = true;
+			return PaintUVDirect(brush, uv, materialSelector);
+		}
+
+		/// <summary>
+		/// Erase of points close to the given world-space position on the Mesh surface.
+		/// </summary>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="worldPos">Approximate point.</param>
+		/// <param name="renderCamera">Camera to use to render the object.</param>
+		/// <returns>The success or failure of the erase.</returns>
+		public bool EraseNearestTriangleSurface(Brush brush, Vector3 worldPos, Func<PaintSet, bool> materialSelector = null, Camera renderCamera = null)
+		{
+			eraseFlag = true;
+			return PaintNearestTriangleSurface(brush, worldPos, materialSelector, renderCamera);
+		}
+
+		/// <summary>
+		/// Erase processing that use world-space surface position.
+		/// </summary>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="worldPos">Point on object surface (world-space).</param>
+		/// <param name="renderCamera">Camera to use to render the object.</param>
+		/// <returns>The success or failure of the erase.</returns>
+		public bool Erase(Brush brush, Vector3 worldPos, Func<PaintSet, bool> materialSelector = null, Camera renderCamera = null)
+		{
+			eraseFlag = true;
+			return Paint(brush, worldPos, materialSelector, renderCamera);
+		}
+
+		/// <summary>
+		/// Erase processing that use raycast hit data.
+		/// Must MeshCollider is set to the canvas.
+		/// </summary>
+		/// <param name="brush">Brush data.</param>
+		/// <param name="hitInfo">Raycast hit info.</param>
+		/// <returns>The success or failure of the erase.</returns>
+		public bool Erase(Brush brush, RaycastHit hitInfo, Func<PaintSet, bool> materialSelector = null)
+		{
+			eraseFlag = true;
+			return Paint(brush, hitInfo, materialSelector);
 		}
 
 		/// <summary>
