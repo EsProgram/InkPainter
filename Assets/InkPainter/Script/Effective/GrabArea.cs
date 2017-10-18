@@ -24,6 +24,7 @@ namespace Es.InkPainter.Effective
 		private const string TARGET = "_TargetTex";
 		private const string CLIP_SCALE = "_ClipScale";
 		private const string CLIP_UV = "_ClipUV";
+		private const string ROTATE = "_Rotate";
 
 		private const string WM_CLAMP = "WRAP_MODE_CLAMP";
 		private const string WM_REPEAT = "WRAP_MODE_REPEAT";
@@ -42,12 +43,14 @@ namespace Es.InkPainter.Effective
 		/// <param name="clipScale">The ratio of the size of the clip texture to the target texture.</param>
 		/// <param name="grabTargetTexture">Texture of clipping target.</param>
 		/// <param name="targetUV">UV coordinates on the target texture.</param>
+		/// <param name="rotateAngle">Clip texture rotate angle.(degree)</param>
+		/// <param name="wrapMpde">Texture wrap mode.</param>
 		/// <param name="dst">Store cropped texture.</param>
-		public static void Clip(Texture clipTexture, float clipScale, Texture grabTargetTexture, Vector2 targetUV, GrabTextureWrapMode wrapMode, RenderTexture dst)
+		public static void Clip(Texture clipTexture, float clipScale, Texture grabTargetTexture, Vector2 targetUV,float rotateAngle, GrabTextureWrapMode wrapMode, RenderTexture dst)
 		{
 			if(grabAreaMaterial == null)
 				InitGrabAreaMaterial();
-			SetGrabAreaProperty(clipTexture, clipScale, grabTargetTexture, targetUV, wrapMode);
+			SetGrabAreaProperty(clipTexture, clipScale, grabTargetTexture, targetUV, rotateAngle, wrapMode);
 			var tmp = RenderTexture.GetTemporary(clipTexture.width, clipTexture.height, 0);
 			Graphics.Blit(clipTexture, tmp, grabAreaMaterial);
 			Graphics.Blit(tmp, dst);
@@ -74,11 +77,12 @@ namespace Es.InkPainter.Effective
 		/// <param name="grabTarget">Texture of clipping target.</param>
 		/// <param name="targetUV">UV coordinates on the target texture.</param>
 		/// <param name="wrapMpde">Texture wrap mode.</param>
-		private static void SetGrabAreaProperty(Texture clip, float clipScale, Texture grabTarget, Vector2 targetUV, GrabTextureWrapMode wrapMpde)
+		private static void SetGrabAreaProperty(Texture clip, float clipScale, Texture grabTarget, Vector2 targetUV, float rotateAngle, GrabTextureWrapMode wrapMpde)
 		{
 			grabAreaMaterial.SetTexture(CLIP, clip);
 			grabAreaMaterial.SetTexture(TARGET, grabTarget);
 			grabAreaMaterial.SetFloat(CLIP_SCALE, clipScale);
+			grabAreaMaterial.SetFloat(ROTATE, rotateAngle);
 			grabAreaMaterial.SetVector(CLIP_UV, targetUV);
 
 			foreach(var key in grabAreaMaterial.shaderKeywords)

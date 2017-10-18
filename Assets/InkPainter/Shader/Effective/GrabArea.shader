@@ -8,12 +8,16 @@
 		_ClipScale("Clipping Scale", FLOAT) = 0.1
 		[HideInInspector]
 		_ClipUV("Target UV Position", VECTOR) = (0,0,0,0)
+		[HideInInspector]
+		_Rotate("Rotate", FLOAT) = 0
 		[KeywordEnum(CLAMP, REPEAT, CLIP)]
 		WRAP_MODE("Color Blend Keyword", FLOAT) = 0
 	}
 
 	SubShader{
 		CGINCLUDE
+
+#include "../Lib/InkPainterFoundation.cginc"
 
 			struct app_data {
 				float4 vertex:POSITION;
@@ -29,6 +33,7 @@
 			sampler2D _ClipTex;
 			float4 _ClipUV;
 			float _ClipScale;
+			float _Rotate;
 
 		ENDCG
 
@@ -46,9 +51,11 @@
 			}
 
 			float4 frag(v2f i) : SV_TARGET {
-				float alpha = tex2D(_ClipTex, i.uv.xy).a;
-				float uv_x = (i.uv.x - 0.5) * _ClipScale * 2 + _ClipUV.x;
-				float uv_y = (i.uv.y - 0.5) * _ClipScale * 2 + _ClipUV.y;
+				//TODO:It runs on DirectX, but it does not work well with Rotate in OpenGL
+				float2 uv = Rotate(i.uv.xy - 0.5, _Rotate) + 0.5;
+				float alpha = tex2D(_ClipTex, uv.xy).a;
+				float uv_x = (uv.x - 0.5) * _ClipScale * 2 + _ClipUV.x;
+				float uv_y = (uv.y - 0.5) * _ClipScale * 2 + _ClipUV.y;
 
 #if WRAP_MODE_CLAMP
 				//Clamp UV

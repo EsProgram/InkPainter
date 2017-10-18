@@ -45,7 +45,7 @@ namespace Es.InkPainter.Sample
 					}
 					if(grab)
 					{
-						GrabArea.Clip(brush.BrushTexture, brush.Scale, hitInfo.transform.GetComponent<MeshRenderer>().sharedMaterial.mainTexture, hitInfo.textureCoord, wrapMode, t);
+						GrabArea.Clip(brush.BrushTexture, brush.Scale, hitInfo.transform.GetComponent<MeshRenderer>().sharedMaterial.mainTexture, hitInfo.textureCoord, brush.RotateAngle, wrapMode, t);
 						brush.BrushTexture = t;
 						brush.ColorBlending = Brush.ColorBlendType.UseBrush;
 						grab = false;

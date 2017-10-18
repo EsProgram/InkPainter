@@ -54,7 +54,7 @@ namespace Es.InkPainter.Sample
 			else if(cam != null)
 			{
 				var buf = RenderTexture.GetTemporary(brush.BrushTexture.width, brush.BrushTexture.height);
-				Effective.GrabArea.Clip(brush.BrushTexture, brush.Scale, rt, Vector3.one * 0.5f, Effective.GrabArea.GrabTextureWrapMode.Clip, buf);
+				Effective.GrabArea.Clip(brush.BrushTexture, brush.Scale, rt, Vector3.one * 0.5f, brush.RotateAngle, Effective.GrabArea.GrabTextureWrapMode.Clip, buf);
 				Effective.ReverseUV.Horizontal(buf, buf);
 				var brushBuf = brush.BrushTexture;
 				brush.BrushTexture = buf;
