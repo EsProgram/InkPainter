@@ -550,19 +550,19 @@ namespace Es.InkPainter
 			if(useMainPaint)
 			{
 				var rt = RenderTexture.GetTemporary(brush.BrushTexture.width, brush.BrushTexture.height);
-				GrabArea.Clip(brush.BrushTexture, brush.Scale, paintSet.mainTexture, uv, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				GrabArea.Clip(brush.BrushTexture, brush.Scale, paintSet.mainTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt);
 				b.BrushTexture = rt;
 			}
 			if(useNormalPaint)
 			{
 				var rt = RenderTexture.GetTemporary(brush.BrushNormalTexture.width, brush.BrushNormalTexture.height);
-				GrabArea.Clip(brush.BrushNormalTexture, brush.Scale, paintSet.normalTexture, uv, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				GrabArea.Clip(brush.BrushNormalTexture, brush.Scale, paintSet.normalTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt);
 				b.BrushNormalTexture = rt;
 			}
 			if(useHeightpaint)
 			{
 				var rt = RenderTexture.GetTemporary(brush.BrushHeightTexture.width, brush.BrushHeightTexture.height);
-				GrabArea.Clip(brush.BrushHeightTexture, brush.Scale, paintSet.heightTexture, uv, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				GrabArea.Clip(brush.BrushHeightTexture, brush.Scale, paintSet.heightTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt);
 				b.BrushHeightTexture = rt;
 			}
 

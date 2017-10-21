@@ -58,7 +58,7 @@ namespace Es.InkPainter.Sample
 			var canvas = contact.otherCollider.GetComponent<InkCanvas>();
 
 			var buf = RenderTexture.GetTemporary(brush.BrushTexture.width, brush.BrushTexture.height);
-			GrabArea.Clip(brush.BrushTexture, brush.Scale, rt, Vector3.one * 0.5f, GrabArea.GrabTextureWrapMode.Clamp, buf);
+			GrabArea.Clip(brush.BrushTexture, brush.Scale, rt, Vector3.one * 0.5f, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, buf);
 			ReverseUV.Vertical(buf, buf);
 
 			if(debugMode)
