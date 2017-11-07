@@ -51,8 +51,12 @@
 			}
 
 			float4 frag(v2f i) : SV_TARGET {
-				//TODO:It runs on DirectX, but it does not work well with Rotate in OpenGL
-				float2 uv = Rotate(i.uv.xy - 0.5, _Rotate) + 0.5;
+				float angle = _Rotate;
+#if !UNITY_UV_STARTS_AT_TOP
+				angle = 180 - angle;
+#endif
+
+				float2 uv = Rotate(i.uv.xy - 0.5, angle) + 0.5;
 				float alpha = tex2D(_ClipTex, uv.xy).a;
 				float uv_x = (uv.x - 0.5) * _ClipScale * 2 + _ClipUV.x;
 				float uv_y = (uv.y - 0.5) * _ClipScale * 2 + _ClipUV.y;
