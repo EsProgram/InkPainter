@@ -48,7 +48,7 @@
 
 			float4 PackNormal(float3 normal) {
 #if defined(UNITY_NO_DXT5nm)
-				return float4(normal);
+				return float4(normal, 0);
 #else
 				return float4(normal.y, normal.y, normal.y, normal.x);
 #endif
