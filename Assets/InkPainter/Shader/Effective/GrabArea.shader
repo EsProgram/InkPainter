@@ -12,6 +12,8 @@
 		_Rotate("Rotate", FLOAT) = 0
 		[KeywordEnum(CLAMP, REPEAT, CLIP)]
 		WRAP_MODE("Color Blend Keyword", FLOAT) = 0
+		[KeywordEnum(REPLACE, NOT_REPLACE)]
+		ALPHA("Clipping texture replaces alpha", FLOAT) = 0
 	}
 
 	SubShader{
@@ -40,6 +42,7 @@
 		Pass{
 			CGPROGRAM
 #pragma multi_compile WRAP_MODE_CLAMP WRAP_MODE_REPEAT WRAP_MODE_CLIP
+#pragma multi_compile ALPHA_REPLACE ALPHA_NOT_REPLACE
 #pragma vertex vert
 #pragma fragment frag
 
@@ -57,7 +60,6 @@
 #endif
 
 				float2 uv = Rotate(i.uv.xy - 0.5, angle) + 0.5;
-				float alpha = tex2D(_ClipTex, uv.xy).a;
 				float uv_x = (uv.x - 0.5) * _ClipScale * 2 + _ClipUV.x;
 				float uv_y = (uv.y - 0.5) * _ClipScale * 2 + _ClipUV.y;
 
@@ -78,7 +80,10 @@
 #endif
 
 				float4 base = tex2D(_TargetTex, float2(uv_x, uv_y));
+#if ALPHA_REPLACE
+				float alpha = tex2D(_ClipTex, uv.xy).a;
 				base.a = alpha;
+#endif
 				return base;
 			}
 

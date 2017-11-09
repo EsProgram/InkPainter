@@ -17,6 +17,8 @@
 		[HideInInspector]
 		[KeywordEnum(USE_BRUSH, ADD, SUB MIN, MAX)]
 		INK_PAINTER_NORMAL_BLEND("Normal Blend Keyword", FLOAT) = 0
+		[KeywordEnum(USE, UNUSE)]
+		DXT5NM_COMPRESS("use DXT5nm compressed", FLOAT) = 0
 	}
 
 	SubShader{
@@ -46,6 +48,7 @@
 		Pass{
 			CGPROGRAM
 #pragma multi_compile INK_PAINTER_NORMAL_BLEND_USE_BRUSH INK_PAINTER_NORMAL_BLEND_ADD INK_PAINTER_NORMAL_BLEND_SUB INK_PAINTER_NORMAL_BLEND_MIN INK_PAINTER_NORMAL_BLEND_MAX
+#pragma multi_compile DXT5NM_COMPRESS_USE DXT5NM_COMPRESS_UNUSE
 #pragma vertex vert
 #pragma fragment frag
 
