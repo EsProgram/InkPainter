@@ -139,6 +139,12 @@ namespace Es.InkPainter
 		private static Material paintNormalMaterial = null;
 		private static Material paintHeightMaterial = null;
 		private bool eraseFlag = false;
+		private RenderTexture debugEraserMainView;
+		private RenderTexture debugEraserNormalView;
+		private RenderTexture debugEraserHeightView;
+#pragma warning disable 0649
+		private bool eraserDebug;
+#pragma warning restore 0649
 
 		/// <summary>
 		/// Access data used for painting.
@@ -205,6 +211,8 @@ namespace Es.InkPainter
 		private const string NORMAL_BLEND_SUB = "INK_PAINTER_NORMAL_BLEND_SUB";
 		private const string NORMAL_BLEND_MIN = "INK_PAINTER_NORMAL_BLEND_MIN";
 		private const string NORMAL_BLEND_MAX = "INK_PAINTER_NORMAL_BLEND_MAX";
+		private const string DXT5NM_COMPRESS_USE = "DXT5NM_COMPRESS_USE";
+		private const string DXT5NM_COMPRESS_UNUSE = "DXT5NM_COMPRESS_UNUSE";
 
 		private const string HEIGHT_BLEND_USE_BRUSH = "INK_PAINTER_HEIGHT_BLEND_USE_BRUSH";
 		private const string HEIGHT_BLEND_ADD = "INK_PAINTER_HEIGHT_BLEND_ADD";
@@ -257,6 +265,19 @@ namespace Es.InkPainter
 		{
 			Debug.Log("InkCanvas has been destroyed.");
 			ReleaseRenderTexture();
+		}
+
+		private void OnGUI()
+		{
+			if(eraserDebug)
+			{
+				if(debugEraserMainView!=null)
+				GUI.DrawTexture(new Rect(0, 0, 100, 100), debugEraserMainView);
+				if(debugEraserNormalView!=null)
+				GUI.DrawTexture(new Rect(0, 100, 100, 100), debugEraserNormalView);
+				if(debugEraserHeightView!=null)
+				GUI.DrawTexture(new Rect(0, 200, 100, 100), debugEraserHeightView);
+			}
 		}
 
 		#endregion UnityEventMethod
@@ -441,7 +462,7 @@ namespace Es.InkPainter
 		/// </summary>
 		/// <param name="brush">Brush data.</param>
 		/// <param name="uv">UV coordinates for the hit location.</param>
-		private void SetPaintNormalData(Brush brush, Vector2 uv)
+		private void SetPaintNormalData(Brush brush, Vector2 uv, bool erase)
 		{
 			paintNormalMaterial.SetVector(paintUVPropertyID, uv);
 			paintNormalMaterial.SetTexture(brushTexturePropertyID, brush.BrushTexture);
@@ -476,6 +497,16 @@ namespace Es.InkPainter
 
 				default:
 					paintNormalMaterial.EnableKeyword(NORMAL_BLEND_USE_BRUSH);
+					break;
+			}
+
+			switch(erase)
+			{
+				case true:
+					paintNormalMaterial.EnableKeyword(DXT5NM_COMPRESS_UNUSE);
+					break;
+				case false:
+					paintNormalMaterial.EnableKeyword(DXT5NM_COMPRESS_USE);
 					break;
 			}
 		}
@@ -546,6 +577,8 @@ namespace Es.InkPainter
 			b.ColorBlending = Brush.ColorBlendType.UseBrush;
 			b.NormalBlending = Brush.NormalBlendType.UseBrush;
 			b.HeightBlending = Brush.HeightBlendType.UseBrush;
+			b.NormalBlend = 1f;
+			b.HeightBlend = 1f;
 
 			if(useMainPaint)
 			{
@@ -556,14 +589,31 @@ namespace Es.InkPainter
 			if(useNormalPaint)
 			{
 				var rt = RenderTexture.GetTemporary(brush.BrushNormalTexture.width, brush.BrushNormalTexture.height);
-				GrabArea.Clip(brush.BrushNormalTexture, brush.Scale, paintSet.normalTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				GrabArea.Clip(brush.BrushNormalTexture, brush.Scale, paintSet.normalTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt, false);
 				b.BrushNormalTexture = rt;
 			}
 			if(useHeightpaint)
 			{
 				var rt = RenderTexture.GetTemporary(brush.BrushHeightTexture.width, brush.BrushHeightTexture.height);
-				GrabArea.Clip(brush.BrushHeightTexture, brush.Scale, paintSet.heightTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt);
+				GrabArea.Clip(brush.BrushHeightTexture, brush.Scale, paintSet.heightTexture, uv, brush.RotateAngle, GrabArea.GrabTextureWrapMode.Clamp, rt, false);
 				b.BrushHeightTexture = rt;
+			}
+
+			if(eraserDebug)
+			{
+				if(debugEraserMainView == null && useMainPaint)
+					debugEraserMainView = new RenderTexture(b.BrushTexture.width, b.BrushTexture.height, 0);
+				if(debugEraserNormalView == null && useNormalPaint)
+					debugEraserNormalView = new RenderTexture(b.BrushNormalTexture.width, b.BrushNormalTexture.height, 0);
+				if(debugEraserHeightView == null && useHeightpaint)
+					debugEraserHeightView = new RenderTexture(b.BrushHeightTexture.width, b.BrushHeightTexture.height, 0);
+
+				if(useMainPaint)
+					Graphics.Blit(b.BrushTexture, debugEraserMainView);
+				if(useNormalPaint)
+					Graphics.Blit(b.BrushNormalTexture, debugEraserNormalView);
+				if(useHeightpaint)
+					Graphics.Blit(b.BrushHeightTexture, debugEraserHeightView);
 			}
 
 			return b;
@@ -639,7 +689,7 @@ namespace Es.InkPainter
 				if(normalPaintConditions)
 				{
 					var normalPaintTextureBuffer = RenderTexture.GetTemporary(p.paintNormalTexture.width, p.paintNormalTexture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-					SetPaintNormalData(brush, uv);
+					SetPaintNormalData(brush, uv, eraseFlag);
 					Graphics.Blit(p.paintNormalTexture, normalPaintTextureBuffer, paintNormalMaterial);
 					Graphics.Blit(normalPaintTextureBuffer, p.paintNormalTexture);
 					RenderTexture.ReleaseTemporary(normalPaintTextureBuffer);
@@ -1009,6 +1059,17 @@ namespace Es.InkPainter
 							GUI.backgroundColor = backColorBuf;
 							EditorGUILayout.EndVertical();
 						}
+					}
+					EditorGUILayout.Space();
+					instance.eraserDebug = EditorGUILayout.Toggle("Eracer debug option", instance.eraserDebug);
+					if(instance.eraserDebug)
+					{
+						if(GUILayout.Button("Save eracer main texture"))
+							SaveRenderTextureToPNG("eracer_main", instance.debugEraserMainView);
+						if(GUILayout.Button("Save eracer normal texture"))
+							SaveRenderTextureToPNG("eracer_normal", instance.debugEraserNormalView);
+						if(GUILayout.Button("Save eracer height texture"))
+							SaveRenderTextureToPNG("eracer_height", instance.debugEraserHeightView);
 					}
 
 					#endregion PlayModeOperation

@@ -102,7 +102,7 @@ float4 InkPainterColorBlendAlphaOnly(float4 mainColor, float4 brushColor, float4
 
 float4 NormalBlend(float4 targetNormal,float4 mainNormal, float blend, float brushAlpha) {
 	float4 normal = lerp(mainNormal, targetNormal, blend * brushAlpha);
-#if defined(UNITY_NO_DXT5nm)
+#if defined(UNITY_NO_DXT5nm) || defined(DXT5NM_COMPRESS_UNUSE)
 	return normal;
 #else
 	normal.w = normal.x;
