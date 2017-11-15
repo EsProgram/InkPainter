@@ -1,14 +1,53 @@
+
+<p align="center">
+  <img src="https://github.com/EsProgram/InkPainterDocument/blob/master/UnityTexturePaint_Icons/tplg_lerge.png" width="600"/>
+</p>
+
+------------
+
 # InkPainter
+
+[![release](https://img.shields.io/badge/release-nv1.1.1-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/EsProgram/InkPainter/pulls)
+[![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/EsProgram/InkPainter/blob/master/LICENSE.txt)
+[![Build status](https://travis-ci.org/Tencent/xLua.svg?branch=master)](https://travis-ci.org/Tencent/xLua)
 
 This asset allows you to Texture-Paint on Unity.
 Selling at [Asset Store](https://www.assetstore.unity3d.com/jp/#!/content/86210).
 
 Document is [here](https://esprogram.github.io/InkPainterDocument/).
 
-## Sponsor
 
-* <a href="http://jirka.marsik.me/">Jirka Maršík</a>
-* <a href="https://www.twitter.com/daxpandhi">Dax Pandhi</a>
+## How to use
+
+Attach a "InkCanvas" to the object you want to paint and call the Paint method from any script.
+
+ex)
+```SamplePainter.cs
+using Es.InkPainter;
+
+public class SamplePainter : MonoBehaviour
+{
+	[SerializeField]
+	private Brush brush;
+
+	private void Update()
+	{
+		if(Input.GetMouseButton(0))
+		{
+			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hitInfo;
+			if(Physics.Raycast(ray, out hitInfo))
+			{
+				var paintObject = hitInfo.transform.GetComponent<InkCanvas>();
+				if(paintObject != null)
+					paintObject.Paint(brush, hitInfo);
+			}
+		}
+	}
+}
+```
+See documentation and movies for more details.
 
 ## Movies
 
@@ -19,6 +58,16 @@ Document is [here](https://esprogram.github.io/InkPainterDocument/).
 </p>
 <p align="center">
  InkPainter demo movie(Click image).
+</p>
+
+<br/>
+<p align="center">
+  <a href="https://youtu.be/rsH0279pIoU?list=PLemdDkL7bE3IOmxNyz07uA3mydSbXGouY">
+   <img src="http://img.youtube.com/vi/rsH0279pIoU/0.jpg" width="600"/>
+  </a>
+</p>
+<p align="center">
+ InkPainter rainy day camera effect(Click image).
 </p>
 
 <br/>
@@ -61,6 +110,10 @@ Document is [here](https://esprogram.github.io/InkPainterDocument/).
  InkPainter how to use(Click image).
 </p>
 
+## Sponsor
+
+* <a href="http://jirka.marsik.me/">Jirka Maršík</a>
+* <a href="https://www.twitter.com/daxpandhi">Dax Pandhi</a>
 
 # The MIT License
 
