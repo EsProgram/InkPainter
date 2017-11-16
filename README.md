@@ -19,6 +19,9 @@
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/EsProgram/InkPainter.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FEsProgram%2FInkPainter)
 
 
+![Build Status](http://unitybuildbadge.azurewebsites.net/api/status/f17f2c9f-384b-45ff-a440-7b3d17b25b55)
+
+
 This asset allows you to Texture-Paint on Unity.
 Selling at [Asset Store](https://www.assetstore.unity3d.com/jp/#!/content/86210).
 
