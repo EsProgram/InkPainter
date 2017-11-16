@@ -11,7 +11,6 @@
 [![release](https://img.shields.io/badge/release-nv1.1.1-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/EsProgram/InkPainter/pulls)
 
-</br>
 
 [![GitHub issues](https://img.shields.io/github/issues/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/issues)
 [![GitHub forks](https://img.shields.io/github/forks/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/network)
