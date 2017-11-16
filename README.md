@@ -7,10 +7,18 @@
 
 # InkPainter
 
+[![GitHub license](https://img.shields.io/github/license/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/blob/master/LICENSE.txt)
 [![release](https://img.shields.io/badge/release-nv1.1.1-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/EsProgram/InkPainter/pulls)
-[![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/EsProgram/InkPainter/blob/master/LICENSE.txt)
-[![Build status](https://travis-ci.org/Tencent/xLua.svg?branch=master)](https://travis-ci.org/Tencent/xLua)
+
+</br>
+
+[![GitHub issues](https://img.shields.io/github/issues/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/issues)
+[![GitHub forks](https://img.shields.io/github/forks/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/network)
+[![GitHub stars](https://img.shields.io/github/stars/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/stargazers)
+[![Build](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
+[![Twitter](https://img.shields.io/twitter/url/https/github.com/EsProgram/InkPainter.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FEsProgram%2FInkPainter)
+
 
 This asset allows you to Texture-Paint on Unity.
 Selling at [Asset Store](https://www.assetstore.unity3d.com/jp/#!/content/86210).
