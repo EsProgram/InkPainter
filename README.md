@@ -15,7 +15,6 @@
 [![GitHub issues](https://img.shields.io/github/issues/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/issues)
 [![GitHub forks](https://img.shields.io/github/forks/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/network)
 [![GitHub stars](https://img.shields.io/github/stars/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/stargazers)
-[![Build](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/EsProgram/InkPainter.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FEsProgram%2FInkPainter)
 
 
