@@ -59,6 +59,7 @@ namespace Es.InkPainter.Effective
 		private Material height2Normal;
 		private Material height2Color;
 		private Material singleColorFill;
+		private Material invertAlpha;
 		private InkCanvas canvas;
 
 		#endregion PrivateField
@@ -84,6 +85,14 @@ namespace Es.InkPainter.Effective
 			RenderTexture.ReleaseTemporary(tmp);
 		}
 
+		private void InvertAlpha(RenderTexture texture)
+		{
+			var tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+			Graphics.Blit(texture, tmp, invertAlpha);
+			Graphics.Blit(tmp, texture);
+			RenderTexture.ReleaseTemporary(tmp);
+		}
+
 		private void EnabledFluid(InkCanvas canvas, Brush brush)
 		{
 			enabledFluid = true;
@@ -103,6 +112,7 @@ namespace Es.InkPainter.Effective
 			height2Normal = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.HeightToNormal"));
 			height2Color = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.HeightToColor"));
 			singleColorFill = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.SingleColorFill"));
+			invertAlpha = new Material(Resources.Load<Material>("Es.InkPainter.Fluid.InvertAlpha"));
 
 			canvas = GetComponent<InkCanvas>();
 			canvas.OnInitializedAfter += Init;
@@ -112,7 +122,16 @@ namespace Es.InkPainter.Effective
 		private void OnWillRenderObject()
 		{
 			if(performanceOptimize && enabledFluid && Time.time - lastPaintedTime > fluidProcessStopTime)
+			{
+				//In order to prevent continuation of dripping, reversing the sign of the adhesion amount.
+				foreach(var set in canvas.PaintDatas)
+				{
+					var materialName = set.material.name;
+					var heightPaint = canvas.GetPaintHeightTexture(materialName);
+					InvertAlpha(heightPaint);
+				}
 				enabledFluid = false;
+			}
 
 			if(!enabledFluid)
 				return;
