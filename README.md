@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://github.com/EsProgram/InkPainterDocument/blob/master/UnityTexturePaint_Icons/tplg_lerge.png" width="600"/>
+  <img src="https://github.com/EsProgram/InkPainterDocument/blob/master/UnityTexturePaint_Icons/logo.png" width="600"/>
 </p>
 
 ------------
@@ -17,8 +17,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/stargazers)
 [![Twitter](https://img.shields.io/twitter/url/https/github.com/EsProgram/InkPainter.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FEsProgram%2FInkPainter)
 
-
-![Build Status](http://unitybuildbadge.azurewebsites.net/api/status/f17f2c9f-384b-45ff-a440-7b3d17b25b55)
 
 
 This asset allows you to Texture-Paint on Unity.
