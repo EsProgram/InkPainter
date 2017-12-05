@@ -8,6 +8,9 @@
 		_FlowDirection("Flow Direction", VECTOR) = (0, 0, 0, 0)
 		_NormalMap("Normal Map", 2D) = "white" {}
 		_HorizontalSpread("HorizontalSpread", Float) = 0.1
+		_FixedColor("InkColor", COLOR) = (0, 0, 0, 0)
+		[KeywordEnum(ADD, OVERWRITE)]
+		COLOR_SYNTHESIS("Color synthesis algorithm", FLOAT) = 0
 	}
 	SubShader
 	{
@@ -18,6 +21,8 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+
+			#pragma multi_compile COLOR_SYNTHESIS_ADD COLOR_SYNTHESIS_OVERWRITE
 
 			#include "UnityCG.cginc"
 
@@ -41,6 +46,7 @@
 			float4 _FlowDirection;
 			sampler2D _NormalMap;
 			float _HorizontalSpread;
+			float4 _FixedColor;
 
 			float rand(float3 seed)
 			{
@@ -75,10 +81,14 @@
 
 				if (amountUp > (1 - _Viscosity)) {
 					float resultAmount = (col.a + amountUp) * 0.5;
+#ifdef COLOR_SYNTHESIS_ADD
 					float3 maxRGB = max(col.rgb, max(texZ.rgb, max(texx.rgb, texX.rgb)));
 					float3 resultRGB = lerp(maxRGB, texZ.rgb, clamp(amountUp - _Viscosity, 0, 1));
-
 					return float4(resultRGB, resultAmount);
+#else
+					return float4(_FixedColor.rgb, resultAmount);
+#endif
+
 				}
 
 				return col;

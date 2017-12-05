@@ -8,6 +8,15 @@ namespace Es.InkPainter.Effective
 	[RequireComponent(typeof(InkCanvas))]
 	public class HeightFluid : MonoBehaviour
 	{
+		/// <summary>
+		/// Color synthesis algorithm
+		/// </summary>
+		enum ColorSynthesis
+		{
+			Add,
+			Overwrite,
+		}
+
 		#region SerializedField
 
 		[SerializeField]
@@ -18,6 +27,9 @@ namespace Es.InkPainter.Effective
 
 		[SerializeField]
 		private int createTextureSize = 1024;
+
+		[SerializeField]
+		private ColorSynthesis colorSynthesis = ColorSynthesis.Overwrite;
 
 		[SerializeField, Range(0, 1)]
 		private float alpha = 1f;
@@ -61,11 +73,21 @@ namespace Es.InkPainter.Effective
 		private Material singleColorFill;
 		private Material invertAlpha;
 		private InkCanvas canvas;
+		private Color lastPaintedColor;
 
 		#endregion PrivateField
 
+		#region ShaderKeywords
+		private const string COLOR_SYNTHESIS_ADD = "COLOR_SYNTHESIS_ADD";
+		private const string COLOR_SYNTHESIS_OVERWRITE = "COLOR_SYNTHESIS_OVERWRITE";
+		#endregion ShaderKeywords
+
 		#region PrivateMethod
 
+		/// <summary>
+		/// Fluid process initialization.
+		/// </summary>
+		/// <param name="canvas">Target canvas.</param>
 		private void Init(InkCanvas canvas)
 		{
 			foreach(var set in canvas.PaintDatas)
@@ -73,9 +95,22 @@ namespace Es.InkPainter.Effective
 				var heightPaint = canvas.GetPaintHeightTexture(set.material.name);
 				if(heightPaint != null)
 					SingleColorFill(heightPaint, Vector4.zero);
+				canvas.OnPaintStart += (own, brush) =>
+				{
+					if(lastPaintedColor != brush.Color)
+					{
+						lastPaintedColor = brush.Color;
+						StopFluid();
+					}
+				};
 			}
 		}
 
+		/// <summary>
+		/// Fill single color.
+		/// </summary>
+		/// <param name="texture">Target render texture.</param>
+		/// <param name="color">Color.</param>
 		private void SingleColorFill(RenderTexture texture, Color color)
 		{
 			var tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
@@ -85,6 +120,10 @@ namespace Es.InkPainter.Effective
 			RenderTexture.ReleaseTemporary(tmp);
 		}
 
+		/// <summary>
+		/// Invert texture alpha.
+		/// </summary>
+		/// <param name="texture">Target render texture.</param>
 		private void InvertAlpha(RenderTexture texture)
 		{
 			var tmp = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
@@ -93,6 +132,11 @@ namespace Es.InkPainter.Effective
 			RenderTexture.ReleaseTemporary(tmp);
 		}
 
+		/// <summary>
+		/// Enabled fluid procass.
+		/// </summary>
+		/// <param name="canvas">Target canvas.</param>
+		/// <param name="brush">Brush used painting.</param>
 		private void EnabledFluid(InkCanvas canvas, Brush brush)
 		{
 			enabledFluid = true;
@@ -101,6 +145,21 @@ namespace Es.InkPainter.Effective
 			brush.NormalBlending = Brush.NormalBlendType.UseBrush;
 			brush.HeightBlending = Brush.HeightBlendType.ColorRGB_HeightA;
 		}
+
+		/// <summary>
+		/// Stop fluid process.
+		/// </summary>
+		private void StopFluid()
+		{
+			foreach(var set in canvas.PaintDatas)
+			{
+				var materialName = set.material.name;
+				var heightPaint = canvas.GetPaintHeightTexture(materialName);
+				if(heightPaint != null)
+					InvertAlpha(heightPaint);
+			}
+		}
+
 
 		#endregion PrivateMethod
 
@@ -124,12 +183,7 @@ namespace Es.InkPainter.Effective
 			if(performanceOptimize && enabledFluid && Time.time - lastPaintedTime > fluidProcessStopTime)
 			{
 				//In order to prevent continuation of dripping, reversing the sign of the adhesion amount.
-				foreach(var set in canvas.PaintDatas)
-				{
-					var materialName = set.material.name;
-					var heightPaint = canvas.GetPaintHeightTexture(materialName);
-					InvertAlpha(heightPaint);
-				}
+				StopFluid();
 				enabledFluid = false;
 			}
 
@@ -154,6 +208,19 @@ namespace Es.InkPainter.Effective
 				heightFluid.SetFloat("_HorizontalSpread", horizontalSpread);
 				heightFluid.SetFloat("_InfluenceOfNormal", influenceOfNormal);
 				heightFluid.SetVector("_FlowDirection", flowDirection.normalized);
+				heightFluid.SetVector("_FixedColor", lastPaintedColor);
+				foreach(var key in heightFluid.shaderKeywords)
+					heightFluid.DisableKeyword(key);
+				switch(colorSynthesis)
+				{
+					case ColorSynthesis.Add:
+						heightFluid.EnableKeyword(COLOR_SYNTHESIS_ADD);
+						break;
+					case ColorSynthesis.Overwrite:
+					default:
+						heightFluid.EnableKeyword(COLOR_SYNTHESIS_OVERWRITE);
+						break;
+				}
 				if(canvas.GetNormalTexture(materialName) != null)
 					heightFluid.SetTexture("_NormalMap", canvas.GetNormalTexture(materialName));
 				Graphics.Blit(heightPaint, heightTmp, heightFluid);
