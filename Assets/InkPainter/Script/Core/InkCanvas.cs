@@ -132,6 +132,22 @@ namespace Es.InkPainter
 				this.useNormalPaint = useNormalPaint;
 				this.useHeightPaint = useHeightPaint;
 			}
+
+			/// <summary>
+			/// Setup paint data.
+			/// </summary>
+			/// <param name="mainTextureName">Shader property name(main texture).</param>
+			/// <param name="normalTextureName">Shader property name(normal map).</param>
+			/// <param name="heightTextureName">Shader property name(height map)</param>
+			/// <param name="useMainPaint">Whether to use main texture paint.</param>
+			/// <param name="useNormalPaint">Whether to use normal map paint.</param>
+			/// <param name="useHeightPaint">Whether to use height map paint.</param>
+			/// <param name="material">Specify when painting a specific material.</param>
+			public PaintSet(string mainTextureName, string normalTextureName, string heightTextureName, bool useMainPaint, bool useNormalPaint, bool useHeightPaint, Material material)
+				:this(mainTextureName, normalTextureName, heightTextureName, useMainPaint, useNormalPaint, useHeightPaint)
+			{
+				this.material = material;
+			}
 			#endregion Constractor
 		}
 
@@ -336,7 +352,8 @@ namespace Es.InkPainter
 			var m = GetComponent<Renderer>().materials;
 			for(int i = 0; i < m.Length; ++i)
 			{
-				paintSet[i].material = m[i];
+                if (paintSet[i].material == null)
+                    paintSet[i].material = m[i];
 			}
 		}
 
