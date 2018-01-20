@@ -8,7 +8,7 @@
 # InkPainter
 
 [![GitHub license](https://img.shields.io/github/license/EsProgram/InkPainter.svg)](https://github.com/EsProgram/InkPainter/blob/master/LICENSE.txt)
-[![release](https://img.shields.io/badge/release-nv1.1.1-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
+[![release](https://img.shields.io/badge/release-nv1.2.1-blue.svg)](https://github.com/EsProgram/InkPainter/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg)](https://github.com/EsProgram/InkPainter/pulls)
 
 
