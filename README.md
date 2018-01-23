@@ -56,6 +56,17 @@ public class SamplePainter : MonoBehaviour
 ```
 See documentation and movies for more details.
 
+## Extended Asset
+
+<p align="center">
+  <a href="https://github.com/EsProgram/WaveformProvider">
+   <img src="https://github.com/EsProgram/WaveformProvider/blob/master/Image/002.gif" width="600"/>
+  </a>
+</p>
+<p align="center">
+ <a href="https://github.com/EsProgram/WaveformProvider">WaveformProvider</a>
+</p>
+
 ## Movies
 
 <p align="center">
