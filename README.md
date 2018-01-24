@@ -64,6 +64,11 @@ See documentation and movies for more details.
   </a>
 </p>
 <p align="center">
+  <a href="https://github.com/EsProgram/WaveformProvider">
+   <img src="https://github.com/EsProgram/WaveformProvider/blob/master/Image/005.gif" width="600"/>
+  </a>
+</p>
+<p align="center">
  <a href="https://github.com/EsProgram/WaveformProvider">WaveformProvider</a>
 </p>
 
