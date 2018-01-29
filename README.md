@@ -58,6 +58,10 @@ See documentation and movies for more details.
 
 ## Extended Asset
 
+It is an asset of another repository using InkPainter.
+
+* [WaveformProvider](https://github.com/EsProgram/WaveformProvider)
+
 <p align="center">
   <a href="https://github.com/EsProgram/WaveformProvider">
    <img src="https://github.com/EsProgram/WaveformProvider/blob/master/Image/002.gif" width="600"/>
@@ -68,9 +72,7 @@ See documentation and movies for more details.
    <img src="https://github.com/EsProgram/WaveformProvider/blob/master/Image/005.gif" width="600"/>
   </a>
 </p>
-<p align="center">
- <a href="https://github.com/EsProgram/WaveformProvider">WaveformProvider</a>
-</p>
+
 
 ## Movies
 
