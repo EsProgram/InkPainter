@@ -77,6 +77,13 @@ It is an asset of another repository using InkPainter.
 ## Movies
 
 <p align="center">
+  <img src="https://github.com/EsProgram/InkPainter/blob/master/Capture/drop.gif" width="600"/>
+</p>
+<p align="center">
+  Liquid paint affected by normal map.
+</p>
+
+<p align="center">
   <a href="https://www.youtube.com/watch?v=TWGK5UQ6KsU">
    <img src="http://img.youtube.com/vi/TWGK5UQ6KsU/0.jpg" width="600"/>
   </a>
